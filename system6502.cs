@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Simulator
 {
@@ -89,7 +86,7 @@ namespace Simulator
 		protected override void SetByte(ushort offset, byte value)
 		{
 			memory[offset] = value;
-			if (offset == output)
+			if (offset == this.output)
 				System.Console.Out.Write((char)value);
 		}
 

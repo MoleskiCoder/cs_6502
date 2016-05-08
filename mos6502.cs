@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Simulator
 {
@@ -23,7 +19,7 @@ namespace Simulator
 
 		private ulong cycles;
 
-		private List<Instruction> instructions;
+		private Instruction[] instructions;
 
 		private static Instruction INS(Implementation method, ulong cycles, AddressingMode addressing, string display)
 		{
@@ -32,7 +28,7 @@ namespace Simulator
 
 		protected mos6502()
 		{
-			this.instructions = new List<Instruction>
+			this.instructions = new Instruction[]
 			{
 				//		0 													1													2													3												4													5													6													7												8													9													A													B												C													D													E													F
 				/* 0 */	INS(BRK_imp, 7, AddressingMode.Implied, "BRK"),		INS(ORA_xind, 6, AddressingMode.XIndexed, "ORA"),   INS(___, 0, AddressingMode.Illegal, "___"),			INS(___, 0, AddressingMode.Illegal, "___"),		INS(___, 0, AddressingMode.Illegal, "___"),			INS(ORA_zp, 4, AddressingMode.ZeroPage, "ORA"),		INS(ASL_zp, 5, AddressingMode.ZeroPage, "ASL"),		INS(___, 0, AddressingMode.Illegal, "___"),		INS(PHP_imp, 3, AddressingMode.Implied, "PHP"),		INS(ORA_imm, 2, AddressingMode.Immediate, "ORA"),	INS(ASL_imp, 2, AddressingMode.Implied, "ASL"),		INS(___, 0, AddressingMode.Illegal, "___"),		INS(___, 0, AddressingMode.Illegal, "___"),			INS(ORA_abs, 4, AddressingMode.Absolute, "ORA"),	INS(ASL_abs, 6, AddressingMode.Absolute, "ASL"),	INS(___, 0, AddressingMode.Illegal, "___"),
@@ -234,11 +230,21 @@ namespace Simulator
 			this.PushByte(LowByte(value));
 		}
 
-		uint PopWord()
+		ushort PopWord()
 		{
 			var low = this.PopByte();
 			var high = this.PopByte();
 			return MakeWord(low, high);
+		}
+
+		private static byte LowNybble(byte value)
+		{
+			return (byte)(value & 0xf);
+		}
+
+		private static byte HighNybble(byte value)
+		{
+			return (byte)(value >> 4);
 		}
 
 		static byte LowByte(ushort value)
@@ -280,26 +286,376 @@ namespace Simulator
 			return this.FetchWord(ref this.pc);
 		}
 
+		//
+
+		private byte ReadByte_Immediate()
+		{
+			return this.FetchByte();
+		}
+
+		private sbyte ReadByte_ImmediateDisplacement()
+		{
+			return (sbyte)this.FetchByte();
+		}
+
+		private byte ReadByte_ZeroPage()
+		{
+			return this.GetByte(this.FetchByte());
+		}
+
+		private byte ReadByte_ZeroPageX()
+		{
+			return this.GetByte(LowByte((ushort)(this.FetchByte() + this.X)));
+		}
+
+		private byte ReadByte_Absolute()
+		{
+			return this.GetByte(this.FetchWord());
+		}
+
+		private byte ReadByte_AbsoluteX()
+		{
+			var address = this.FetchWord();
+			var offset = (ushort)(address + X);
+			if (LowByte(offset) == 0xff)
+				++this.Cycles;
+			return this.GetByte(offset);
+		}
+
+		private byte ReadByte_AbsoluteY()
+		{
+			var address = this.FetchWord();
+			var offset = (ushort)(address + Y);
+			if (LowByte(offset) == 0xff)
+				++this.Cycles;
+			return this.GetByte(offset);
+		}
+
+		private byte ReadByte_IndexedIndirectX()
+		{
+			return this.GetByte(this.GetWord(LowByte((ushort)(this.FetchByte() + X))));
+		}
+
+		private byte ReadByte_IndirectIndexedY()
+		{
+			var indirection = this.GetWord(this.FetchByte());
+			if (LowByte(indirection) == 0xff)
+				++this.Cycles;
+			return this.GetByte((ushort)(indirection + Y));
+		}
+
+		//
+
+		private void WriteByte_ZeroPage(byte value)
+		{
+			this.SetByte(this.FetchByte(), value);
+		}
+
+		private void WriteByte_Absolute(byte value)
+		{
+			this.SetByte(this.FetchWord(), value);
+		}
+
+		private void WriteByte_AbsoluteX(byte value)
+		{
+			this.SetByte((ushort)(this.FetchWord() + X), value);
+		}
+
+		private void WriteByte_AbsoluteY(byte value)
+		{
+			this.SetByte((ushort)(this.FetchWord() + Y), value);
+		}
+
+		private void WriteByte_ZeroPageX(byte value)
+		{
+			this.SetByte(LowByte((ushort)(this.FetchByte() + X)), value);
+		}
+
+		//
+
+		private bool UpdateFlag_Zero(byte value)
+		{
+			if (value == 0)
+			{
+				this.P |= StatusFlags.Zero;
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool UpdateFlag_Negative(sbyte value)
+		{
+			if (value < 0)
+			{
+				this.P |= StatusFlags.Negative;
+				return true;
+			}
+
+			return false;
+		}
+
+		private void UpdateFlags_ZeroNegative(byte value)
+		{
+			if (!this.UpdateFlag_Zero(value))
+				this.UpdateFlag_Negative((sbyte)value);
+		}
+
+		private void ReflectFlags_ZeroNegative(byte value)
+		{
+			P &= ~(StatusFlags.Negative | StatusFlags.Zero);
+			this.UpdateFlags_ZeroNegative(value);
+		}
+
+		//
+
+		private void ROL(ushort offset)
+		{
+			this.SetByte(offset, this.ROL(this.GetByte(offset)));
+		}
+
+		private byte ROL(byte data)
+		{
+			var carry = (this.P & StatusFlags.Carry) != 0;
+
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
+
+			if ((data & 0x80) != 0)
+				this.P |= StatusFlags.Carry;
+
+			var result = (byte)(data << 1);
+
+			if (carry)
+				result |= 0x01;
+
+			this.UpdateFlags_ZeroNegative(result);
+
+			return result;
+		}
+
+		private void ASL(ushort offset)
+		{
+			this.SetByte(offset, this.ASL(this.GetByte(offset)));
+		}
+
+		private byte ASL(byte data)
+		{
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Zero| StatusFlags.Carry);
+
+			byte result = (byte)(data << 1);
+			this.UpdateFlags_ZeroNegative(result);
+
+			if ((data & 0x80) != 0)
+				this.P |= StatusFlags.Carry;
+
+			return result;
+		}
+
+		private void ORA(byte data)
+		{
+			this.A |= data;
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		private void AND(byte data)
+		{
+			this.A &= data;
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		private void SBC(byte data)
+		{
+			if ((P & StatusFlags.Decimal) != 0)
+				this.SBC_d(data);
+			else
+				this.SBC_b(data);
+		}
+
+		private void SBC_b(byte data)
+		{
+			var carry = (byte)((P & StatusFlags.Carry) == 0 ? 1 : 0);
+			var difference = (ushort)(A - data - carry);
+
+			this.P &= ~(StatusFlags.Zero | StatusFlags.Overflow | StatusFlags.Negative | StatusFlags.Carry);
+
+			this.UpdateFlags_ZeroNegative((byte)difference);
+
+			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
+				this.P |= StatusFlags.Overflow;
+
+			if ((difference & 0xff00) == 0)
+				this.P |= StatusFlags.Carry;
+
+			this.A = (byte)difference;
+		}
+
+		private void SBC_d(byte data)
+		{
+			var carry = (byte)((P & StatusFlags.Carry) == 0 ? 1 : 0);
+
+			P &= ~(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero| StatusFlags.Carry);
+
+			var difference = (ushort)(A - data - carry);
+
+			var low = (byte)(LowNybble(A) - LowNybble(data) - carry);
+
+			var lowNegative = (sbyte)low < 0;
+			if (lowNegative)
+				low -= 6;
+
+			var high = (byte)(HighNybble(A) - HighNybble(data) - (lowNegative ? 1 : 0));
+
+			this.UpdateFlags_ZeroNegative((byte)difference);
+
+			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
+				this.P |= StatusFlags.Overflow;
+
+			if ((difference & 0xff00) == 0)
+				this.P |= StatusFlags.Carry;
+
+			if ((sbyte)high < 0)
+				high -= 6;
+
+			this.A = (byte)((high << 4) | (low & 0x0f));
+		}
+
+		private void EOR(byte data)
+		{
+			this.A ^= data;
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		private void CPX(byte data)
+		{
+			this.CMP(this.X, data);
+		}
+
+		private void CPY(byte data)
+		{
+			this.CMP(this.Y, data);
+		}
+		private void CMP(byte data)
+		{
+			this.CMP(this.A, data);
+		}
+		private void CMP(byte first, byte second)
+		{
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
+
+			var result = (ushort)(first - second);
+
+			this.UpdateFlags_ZeroNegative((byte)result);
+
+			if ((result & 0xff00) == 0)
+				this.P |= StatusFlags.Carry;
+		}
+
+		private void LDA(byte data)
+		{
+			this.A = data;
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		private void LDY(byte data)
+		{
+			this.Y = data;
+			this.ReflectFlags_ZeroNegative(this.Y);
+		}
+
+		private void LDX(byte data)
+		{
+			this.X = data;
+			this.ReflectFlags_ZeroNegative(this.X);
+		}
+
+		private void ADC(byte data)
+		{
+			if ((P & StatusFlags.Decimal) != 0)
+				this.ADC_d(data);
+			else
+				this.ADC_b(data);
+		}
+
+		private void ADC_b(byte data)
+		{
+			var carry = (byte)((this.P & StatusFlags.Carry) == 0 ? 0 : 1);
+			var sum = (ushort)(this.A + data + carry);
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
+
+			this.UpdateFlags_ZeroNegative((byte)sum);
+
+			if ((~(this.A ^ data) & (this.A ^ sum) & 0x80) != 0)
+				this.P |= StatusFlags.Overflow;
+
+			if (HighByte(sum) != 0)
+				this.P |= StatusFlags.Carry;
+
+			this.A = (byte)sum;
+		}
+
+		private void ADC_d(byte data)
+		{
+			var carry = (byte)((this.P & StatusFlags.Carry) == 0 ? 0 : 1);
+
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
+
+			var low = (byte)(LowNybble(A) + LowNybble(data) + carry);
+			if (low > 9)
+				low += 6;
+
+			var high = (byte)(HighNybble(this.A) + HighNybble(data) + (low > 0x0f ? 1 : 0));
+
+			if ((byte)(this.A + data + carry) == 0)
+				this.P |= StatusFlags.Zero;
+			else
+				if ((high & 8) != 0)
+					this.P |= StatusFlags.Negative;
+
+			if ((~(this.A ^ data) & (this.A ^ (high << 4)) & 0x80) != 0)
+				this.P |= StatusFlags.Overflow;
+
+			if (high > 9)
+				high += 6;
+			if (high > 0x0f)
+				this.P |= StatusFlags.Carry;
+
+			this.A = (byte)((high << 4) | (low & 0x0f));
+		}
+
+		//
+
+		private void Branch(sbyte displacement)
+		{
+			++this.Cycles;
+			var oldPage = HighByte(this.PC);
+			this.PC += (ushort)((short)displacement);
+			var newPage = HighByte(this.PC);
+			if (oldPage != newPage)
+				this.Cycles += 2;
+		}
+
+		//
+
 		//// Instructions...
 
 		private void LDA_absx()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_AbsoluteX());
 		}
 
 		private void LDA_absy()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_AbsoluteY());
 		}
 
 		private void LDA_zpx()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_ZeroPageX());
 		}
 
 		private void LDA_indy()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_IndirectIndexedY());
 		}
 
 		private void LDA_abs()
@@ -309,12 +665,12 @@ namespace Simulator
 
 		private void LDA_imm()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_Immediate());
 		}
 
 		private void LDA_zp()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_ZeroPage());
 		}
 
 		private void LDA_xind()
@@ -324,12 +680,12 @@ namespace Simulator
 
 		private void LDY_imm()
 		{
-			throw new NotImplementedException();
+			this.LDY(this.ReadByte_Immediate());
 		}
 
 		private void LDY_zp()
 		{
-			throw new NotImplementedException();
+			this.LDY(this.ReadByte_ZeroPage());
 		}
 
 		private void LDY_abs()
@@ -349,12 +705,12 @@ namespace Simulator
 
 		private void LDX_imm()
 		{
-			throw new NotImplementedException();
+			this.LDX(this.ReadByte_Immediate());
 		}
 
 		private void LDX_zp()
 		{
-			throw new NotImplementedException();
+			this.LDX(this.ReadByte_ZeroPage());
 		}
 
 		private void LDX_abs()
@@ -399,12 +755,12 @@ namespace Simulator
 
 		private void CMP_imm()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_Immediate());
 		}
 
 		private void CMP_zp()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_ZeroPage());
 		}
 
 		private void CMP_xind()
@@ -414,7 +770,7 @@ namespace Simulator
 
 		private void CPY_imm()
 		{
-			throw new NotImplementedException();
+			this.CPY(this.ReadByte_Immediate());
 		}
 
 		private void CPY_zp()
@@ -439,7 +795,7 @@ namespace Simulator
 
 		private void CPX_imm()
 		{
-			throw new NotImplementedException();
+			this.CPX(this.ReadByte_Immediate());
 		}
 
 		private void DEC_absx()
@@ -464,22 +820,22 @@ namespace Simulator
 
 		private void DEX_imp()
 		{
-			throw new NotImplementedException();
+			this.ReflectFlags_ZeroNegative(--this.X);
 		}
 
 		private void DEY_imp()
 		{
-			throw new NotImplementedException();
+			this.ReflectFlags_ZeroNegative(--this.Y);
 		}
 
 		private void INY_imp()
 		{
-			throw new NotImplementedException();
+			this.ReflectFlags_ZeroNegative(++this.Y);
 		}
 
 		private void INX_imp()
 		{
-			throw new NotImplementedException();
+			this.ReflectFlags_ZeroNegative(++this.X);
 		}
 
 		private void INC_zp()
@@ -514,7 +870,7 @@ namespace Simulator
 
 		private void STX_zp()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_ZeroPage(this.X);
 		}
 
 		private void STY_zpx()
@@ -529,22 +885,22 @@ namespace Simulator
 
 		private void STY_zp()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_ZeroPage(this.Y);
 		}
 
 		private void STA_absx()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_AbsoluteX(this.A);
 		}
 
 		private void STA_absy()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_AbsoluteY(this.A);
 		}
 
 		private void STA_zpx()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_ZeroPageX(this.A);
 		}
 
 		private void STA_indy()
@@ -554,12 +910,12 @@ namespace Simulator
 
 		private void STA_abs()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_Absolute(this.A);
 		}
 
 		private void STA_zp()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_ZeroPage(this.A);
 		}
 
 
@@ -575,12 +931,12 @@ namespace Simulator
 
 		private void SBC_zp()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_ZeroPage());
 		}
 
 		private void SBC_imm()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_Immediate());
 		}
 
 		private void SBC_abs()
@@ -620,27 +976,31 @@ namespace Simulator
 
 		private void TAX_imp()
 		{
-			throw new NotImplementedException();
+			this.X = this.A;
+			this.ReflectFlags_ZeroNegative(this.X);
 		}
 
 		private void TAY_imp()
 		{
-			throw new NotImplementedException();
+			this.Y = this.A;
+			this.ReflectFlags_ZeroNegative(this.Y);
 		}
 
 		private void TXS_imp()
 		{
-			throw new NotImplementedException();
+			this.S = this.X;
 		}
 
 		private void TYA_imp()
 		{
-			throw new NotImplementedException();
+			this.A = this.Y;
+			this.ReflectFlags_ZeroNegative(this.A);
 		}
 
 		private void TXA_imp()
 		{
-			throw new NotImplementedException();
+			this.A = this.X;
+			this.ReflectFlags_ZeroNegative(this.A);
 		}
 
 		private void PHP_imp()
@@ -656,12 +1016,13 @@ namespace Simulator
 
 		private void PLA_imp()
 		{
-			throw new NotImplementedException();
+			this.A = this.PopByte();
+			this.ReflectFlags_ZeroNegative(this.A);
 		}
 
 		private void PHA_imp()
 		{
-			throw new NotImplementedException();
+			this.PushByte(this.A);
 		}
 
 		private void LSR_absx()
@@ -716,7 +1077,7 @@ namespace Simulator
 
 		private void EOR_imm()
 		{
-			throw new NotImplementedException();
+			this.EOR(this.ReadByte_Immediate());
 		}
 
 		private void EOR_zp()
@@ -728,6 +1089,7 @@ namespace Simulator
 		{
 			throw new NotImplementedException();
 		}
+
 		private void ROR_absx()
 		{
 			throw new NotImplementedException();
@@ -770,12 +1132,12 @@ namespace Simulator
 
 		private void ROL_imp()
 		{
-			throw new NotImplementedException();
+			this.A = this.ROL(this.A);
 		}
 
 		private void ROL_zp()
 		{
-			throw new NotImplementedException();
+			this.ROL(this.ReadByte_ZeroPage());
 		}
 
 		private void BIT_zp()
@@ -815,12 +1177,12 @@ namespace Simulator
 
 		private void AND_imm()
 		{
-			throw new NotImplementedException();
+			this.AND(this.ReadByte_Immediate());
 		}
 
 		private void AND_xind()
 		{
-			throw new NotImplementedException();
+			this.AND(this.ReadByte_IndexedIndirectX());
 		}
 
 		private void AND_abs()
@@ -830,27 +1192,30 @@ namespace Simulator
 
 		private void JSR_abs()
 		{
-			throw new NotImplementedException();
+			var destination = this.FetchWord();
+			this.PushWord((ushort)(this.PC - 1));
+			this.PC = destination;
 		}
 
 		private void RTI_imp()
 		{
-			throw new NotImplementedException();
+			this.PLP_imp();
+			this.PC = this.PopWord();
 		}
 
 		private void RTS_imp()
 		{
-			throw new NotImplementedException();
+			this.PC = (ushort)(this.PopWord() + 1);
 		}
 
 		private void JMP_abs()
 		{
-			throw new NotImplementedException();
+			this.PC = this.FetchWord();
 		}
 
 		private void JMP_ind()
 		{
-			throw new NotImplementedException();
+			this.PC = this.GetWord(this.FetchWord());
 		}
 
 		private void BRK_imp()
@@ -868,7 +1233,7 @@ namespace Simulator
 
 		private void ASL_zp()
 		{
-			throw new NotImplementedException();
+			this.ASL((ushort)this.FetchByte());
 		}
 
 		private void ASL_abs()
@@ -898,7 +1263,7 @@ namespace Simulator
 
 		private void ORA_imm()
 		{
-			throw new NotImplementedException();
+			this.ORA(this.ReadByte_Immediate());
 		}
 
 		private void ORA_abs()
@@ -928,118 +1293,133 @@ namespace Simulator
 
 		private void ADC_zp()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_ZeroPage());
 		}
 
 		private void ADC_xind()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_IndexedIndirectX());
 		}
 
 		private void ADC_imm()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_Immediate());
 		}
 
 		private void ADC_abs()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_Absolute());
 		}
 
 		private void ADC_zpx()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_ZeroPageX());
 		}
 
 		private void ADC_indy()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_IndirectIndexedY());
 		}
 
 		private void ADC_absx()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_AbsoluteX());
 		}
 
 		private void ADC_absy()
 		{
-			throw new NotImplementedException();
+			this.ADC(this.ReadByte_AbsoluteY());
 		}
-
 
 		private void SED_imp()
 		{
-			throw new NotImplementedException();
+			this.P |= StatusFlags.Decimal;
 		}
 
 		private void CLD_imp()
 		{
-			throw new NotImplementedException();
+			this.P &= ~StatusFlags.Decimal;
 		}
 
 		private void CLV_imp()
 		{
-			throw new NotImplementedException();
+			this.P &= ~StatusFlags.Overflow;
 		}
 
 		private void SEI_imp()
 		{
-			throw new NotImplementedException();
+			this.P |= StatusFlags.Interrupt;
 		}
 
 		private void CLI_imp()
 		{
-			throw new NotImplementedException();
+			this.P &= ~StatusFlags.Interrupt;
 		}
 
 		private void CLC_imp()
 		{
-			throw new NotImplementedException();
+			this.P &= ~StatusFlags.Carry;
 		}
 
 		private void SEC_imp()
 		{
-			throw new NotImplementedException();
+			this.P |= StatusFlags.Carry;
 		}
 
 		private void BMI_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Negative) != 0)
+				this.Branch(displacement);
 		}
 
 		private void BPL_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Negative) == 0)
+				this.Branch(displacement);
 		}
 
 		private void BVC_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Overflow) == 0)
+				this.Branch(displacement);
 		}
 
 		private void BVS_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Overflow) != 0)
+				this.Branch(displacement);
 		}
 
 		private void BCC_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Carry) == 0)
+				this.Branch(displacement);
 		}
 
 		private void BCS_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Carry) != 0)
+				this.Branch(displacement);
 		}
 
 		private void BNE_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Zero) == 0)
+				this.Branch(displacement);
 		}
 
 		private void BEQ_rel()
 		{
-			throw new NotImplementedException();
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			if ((P & StatusFlags.Zero) != 0)
+				this.Branch(displacement);
 		}
 	}
 }
