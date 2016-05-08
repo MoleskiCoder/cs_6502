@@ -6,14 +6,21 @@ namespace Simulator
 {
 	class system6502 : mos6502
 	{
-		public system6502(ushort addressInput, ushort addressOutput)
+		public system6502(ushort addressInput, ushort addressOutput, byte breakInstruction)
 		{
 			this.input = addressInput;
 			this.output = addressOutput;
 
+			this.breakInstruction = breakInstruction;
+
 			this.memory = new byte[0x10000];
 			this.instructionCounts = new Dictionary<ushort, ulong>();
 			this.addressProfiles = new Dictionary<ushort, ulong>();
+		}
+
+		public system6502(ushort addressInput, ushort addressOutput)
+		:	this(addressInput, addressOutput, 0x00)
+		{
 		}
 
 		public void Clear()
@@ -50,13 +57,9 @@ namespace Simulator
 
 			ulong instructionCount;
 			if (this.instructionCounts.TryGetValue(instruction, out instructionCount))
-			{
 				this.instructionCounts[instruction] = ++instructionCount;
-			}
 			else
-			{
 				this.instructionCounts[instruction] = 1;
-			}
 
 			var returnValue = base.Execute(instruction);
 
@@ -64,28 +67,27 @@ namespace Simulator
 
 			ulong addressProfile;
 			if (this.addressProfiles.TryGetValue(profileAddress, out addressProfile))
-			{
 				this.addressProfiles[profileAddress] = addressProfile + cycleCount;
-			}
 			else
-			{
 				this.addressProfiles[profileAddress] = cycleCount;
-			}
+
+			if (instruction == this.breakInstruction)
+				return false;
 
 			return returnValue;
 		}
 
 		protected override byte GetByte(ushort offset)
 		{
-			var content = memory[offset];
+			var content = this.memory[offset];
 			if (offset == this.input)
-				memory[offset] = 0x0;
+				this.memory[offset] = 0x0;
 			return content;
 		}
 
 		protected override void SetByte(ushort offset, byte value)
 		{
-			memory[offset] = value;
+			this.memory[offset] = value;
 			if (offset == this.output)
 				System.Console.Out.Write((char)value);
 		}
@@ -97,11 +99,13 @@ namespace Simulator
 		private ushort input;
 		private ushort output;
 
+		private byte breakInstruction;
+
 		private const ulong pollInterval = 10000;
 
 		private void Poll()
 		{
-			PollInput();
+			this.PollInput();
 		}
 
 		private void PollInput()

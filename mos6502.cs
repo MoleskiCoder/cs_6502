@@ -99,13 +99,15 @@ namespace Simulator
 
 		protected virtual bool Execute(byte instruction)
 		{
-			var details = this.instructions[instruction];
+			return this.Execute(this.instructions[instruction]);
+		}
 
-			var method = details.vector;
-			var count = details.count;
+		protected virtual bool Execute(Instruction instruction)
+		{
+			var method = instruction.vector;
 
 			method();
-			this.Cycles += count;
+			this.Cycles += instruction.count;
 
 			return true;
 		}

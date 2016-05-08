@@ -4,6 +4,7 @@
 //#define TEST_SUITE2
 
 using System;
+using System.Globalization;
 
 namespace Simulator
 {
@@ -30,25 +31,20 @@ namespace Simulator
 #endif
 
 			processor.Reset();
-
 			processor.Run();
 
 			var finish = DateTime.Now;
 
 			var elapsedTime = finish - start;
+			var elapsed = elapsedTime.TotalMilliseconds;
+			var seconds = elapsed / 1000.0 + (elapsed % 1000) / 1000.0;
+			var cyclesPerSecond = processor.Cycles / (ulong)seconds;
+			var speedup = cyclesPerSecond / 2000000.0;
 
-			/*
-			std::cout << std::endl << std::endl << "Cycles used " << processor.getCycles() << std::endl;
-
-			auto seconds = (elapsed % CLOCKS_PER_SEC) / double(CLOCKS_PER_SEC) + (elapsed / CLOCKS_PER_SEC);
-			std::cout << std::endl << std::endl << "Time taken " << seconds << std::endl;
-
-			auto cyclesPerSecond = processor.getCycles() / seconds;
-			std::cout << std::endl << std::endl << "Cycles per second " << cyclesPerSecond << std::endl;
-
-			auto speedup = cyclesPerSecond / 2000000;
-			std::cout << std::endl << std::endl << "Speedup over 2Mhz 6502 " << speedup << std::endl;
-			*/
+			Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles used {0}\n", processor.Cycles));
+			Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds\n", seconds));
+			Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles per second {0}\n", cyclesPerSecond));
+			Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nSpeedup over 2Mhz 6502 {0}\n", speedup));
 		}
 	}
 }
