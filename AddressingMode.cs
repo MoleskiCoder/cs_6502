@@ -8,6 +8,7 @@ namespace Simulator
 {
 	public enum AddressingMode
 	{
+		Illegal,
 		Implied,
 		Immediate,
 		Relative,
@@ -21,5 +22,4 @@ namespace Simulator
 		AbsoluteY,
 		Indirect
 	};
-
 }
