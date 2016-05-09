@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Simulator
+﻿namespace Simulator
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
 	public enum AddressingMode
 	{
 		Illegal,
@@ -21,5 +21,5 @@ namespace Simulator
 		AbsoluteX,
 		AbsoluteY,
 		Indirect
-	};
+	}
 }
