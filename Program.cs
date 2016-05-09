@@ -1,6 +1,6 @@
-﻿#define SUDOKU_ASSEMBLE
+﻿////#define SUDOKU_ASSEMBLE
 ////#define EHBASIC
-////#define TEST_SUITE1
+#define TEST_SUITE1
 ////#define TEST_SUITE2
 
 namespace Simulator
@@ -32,6 +32,7 @@ namespace Simulator
 				var start = DateTime.Now;
 
 #if TEST_SUITE1
+				// Test suite one: https://github.com/pmonta/FPGA-netlist-tools/tree/master/6502-test-code
 				processor.LoadRom("C:\\github\\cpp\\cpp_6502\\AllSuiteA.bin", 0x4000);
 				processor.Start(0x4000);
 #endif
@@ -59,7 +60,7 @@ namespace Simulator
 				var elapsedTime = finish - start;
 				var elapsed = elapsedTime.TotalMilliseconds;
 				var seconds = (elapsed / 1000.0) + ((elapsed % 1000) / 1000.0);
-				var cyclesPerSecond = processor.Cycles / (ulong)seconds;
+				var cyclesPerSecond = processor.Cycles / seconds;
 				var speedup = cyclesPerSecond / 2000000.0;
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles used {0}\n", processor.Cycles));

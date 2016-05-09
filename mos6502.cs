@@ -294,6 +294,40 @@
 
 		////
 
+		private ushort Address_ZeroPageX()
+		{
+			return LowByte((ushort)(this.FetchByte() + this.X));
+		}
+
+		private ushort Address_IndexedIndirectX()
+		{
+			return this.GetWord(this.Address_ZeroPageX());
+		}
+
+		private ushort Address_IndexedIndirectY_Read()
+		{
+			var indirection = this.GetWord(this.FetchByte());
+			if (LowByte(indirection) == 0xff)
+			{
+				++this.Cycles;
+			}
+
+			return (ushort)(indirection + this.Y);
+		}
+
+		private ushort Address_IndexedIndirectY_Write()
+		{
+			var indirection = this.GetWord(this.FetchByte());
+			if (LowByte(indirection) == 0xff)
+			{
+				++this.Cycles;
+			}
+
+			return (ushort)(indirection + this.Y);
+		}
+
+		////
+
 		private byte ReadByte_Immediate()
 		{
 			return this.FetchByte();
@@ -311,7 +345,12 @@
 
 		private byte ReadByte_ZeroPageX()
 		{
-			return this.GetByte(LowByte((ushort)(this.FetchByte() + this.X)));
+			return this.GetByte(this.Address_ZeroPageX());
+		}
+
+		private byte ReadByte_ZeroPageY()
+		{
+			return this.GetByte(LowByte((ushort)(this.FetchByte() + Y)));
 		}
 
 		private byte ReadByte_Absolute()
@@ -345,18 +384,12 @@
 
 		private byte ReadByte_IndexedIndirectX()
 		{
-			return this.GetByte(this.GetWord(LowByte((ushort)(this.FetchByte() + this.X))));
+			return this.GetByte(this.Address_IndexedIndirectX());
 		}
 
 		private byte ReadByte_IndirectIndexedY()
 		{
-			var indirection = this.GetWord(this.FetchByte());
-			if (LowByte(indirection) == 0xff)
-			{
-				++this.Cycles;
-			}
-
-			return this.GetByte((ushort)(indirection + this.Y));
+			return this.GetByte(this.Address_IndexedIndirectY_Read());
 		}
 
 		////
@@ -383,12 +416,22 @@
 
 		private void WriteByte_ZeroPageX(byte value)
 		{
-			this.SetByte(LowByte((ushort)(this.FetchByte() + this.X)), value);
+			this.SetByte(this.Address_ZeroPageX(), value);
+		}
+
+		private void WriteByte_ZeroPageY(byte value)
+		{
+			this.SetByte(LowByte((ushort)(this.FetchByte() + Y)), value);
 		}
 
 		private void WriteByte_IndirectIndexedY(byte value)
 		{
 			this.SetByte((ushort)(this.GetWord(this.FetchByte()) + this.Y), value);
+		}
+
+		private void WriteByte_IndexedIndirectX(byte value)
+		{
+			this.SetByte(this.GetWord(LowByte((ushort)(this.FetchByte() + X))), value);
 		}
 
 		////
@@ -427,6 +470,63 @@
 		}
 
 		////
+
+		private void DEC(ushort offset)
+		{
+			var content = (sbyte)this.GetByte(offset);
+			this.SetByte(offset, (byte)(--content));
+			this.ReflectFlags_ZeroNegative((byte)content);
+		}
+
+		private byte ROR(byte data)
+		{
+			bool carry = (this.P & StatusFlags.Carry) != 0;
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
+
+			if ((data & 1) != 0)
+			{
+				this.P |= StatusFlags.Carry;
+			}
+
+			var result = (byte)(data >> 1);
+			if (carry)
+			{
+				result |= 0x80;
+			}
+
+			this.UpdateFlags_ZeroNegative(result);
+
+			return result;
+		}
+
+		private void ROR(ushort offset)
+		{
+			this.SetByte(offset, this.ROR(this.GetByte(offset)));
+		}
+
+		private byte LSR(byte data)
+		{
+			this.P &= ~(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
+
+			if ((data & 1) != 0)
+			{
+				this.P |= StatusFlags.Carry;
+			}
+
+			var result = (byte)(data >> 1);
+
+			if (result == 0)
+			{
+				this.P |= StatusFlags.Zero;
+			}
+
+			return result;
+		}
+
+		private void LSR(ushort offset)
+		{
+			this.SetByte(offset, this.LSR(this.GetByte(offset)));
+		}
 
 		private void BIT(byte data)
 		{
@@ -772,7 +872,7 @@
 
 		private void LDA_xind()
 		{
-			throw new NotImplementedException();
+			this.LDA(this.ReadByte_IndexedIndirectX());
 		}
 
 		private void LDY_imm()
@@ -787,17 +887,17 @@
 
 		private void LDY_abs()
 		{
-			throw new NotImplementedException();
+			this.LDY(this.ReadByte_Absolute());
 		}
 
 		private void LDY_zpx()
 		{
-			throw new NotImplementedException();
+			this.LDY(this.ReadByte_ZeroPageX());
 		}
 
 		private void LDY_absx()
 		{
-			throw new NotImplementedException();
+			this.LDY(this.ReadByte_AbsoluteX());
 		}
 
 		private void LDX_imm()
@@ -812,17 +912,17 @@
 
 		private void LDX_abs()
 		{
-			throw new NotImplementedException();
+			this.LDX(this.ReadByte_AbsoluteX());
 		}
 
 		private void LDX_zpy()
 		{
-			throw new NotImplementedException();
+			this.LDX(this.ReadByte_ZeroPageY());
 		}
 
 		private void LDX_absy()
 		{
-			throw new NotImplementedException();
+			this.LDX(this.ReadByte_AbsoluteY());
 		}
 
 		private void CMP_absx()
@@ -847,7 +947,7 @@
 
 		private void CMP_abs()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_Absolute());
 		}
 
 		private void CMP_imm()
@@ -887,7 +987,7 @@
 
 		private void CPX_zp()
 		{
-			throw new NotImplementedException();
+			this.CPX(this.ReadByte_ZeroPage());
 		}
 
 		private void CPX_imm()
@@ -912,7 +1012,7 @@
 
 		private void DEC_zp()
 		{
-			throw new NotImplementedException();
+			this.DEC((ushort)this.FetchByte());
 		}
 
 		private void DEX_imp()
@@ -947,7 +1047,7 @@
 
 		private void INC_zpx()
 		{
-			throw new NotImplementedException();
+			this.INC(this.Address_ZeroPageX());
 		}
 
 		private void INC_abs()
@@ -957,7 +1057,7 @@
 
 		private void STX_zpy()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_ZeroPageY(this.X);
 		}
 
 		private void STX_abs()
@@ -972,12 +1072,12 @@
 
 		private void STY_zpx()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_ZeroPageX(this.Y);
 		}
 
 		private void STY_abs()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_Absolute(this.Y);
 		}
 
 		private void STY_zp()
@@ -1017,7 +1117,7 @@
 
 		private void STA_xind()
 		{
-			throw new NotImplementedException();
+			this.WriteByte_IndexedIndirectX(this.A);
 		}
 
 		private void SBC_xind()
@@ -1128,7 +1228,7 @@
 
 		private void LSR_zpx()
 		{
-			throw new NotImplementedException();
+			this.LSR(this.Address_ZeroPageX());
 		}
 
 		private void LSR_abs()
@@ -1143,7 +1243,7 @@
 
 		private void LSR_zp()
 		{
-			throw new NotImplementedException();
+			this.LSR(this.ReadByte_ZeroPage());
 		}
 
 		private void EOR_absx()
@@ -1178,7 +1278,7 @@
 
 		private void EOR_zp()
 		{
-			throw new NotImplementedException();
+			this.EOR(this.ReadByte_ZeroPage());
 		}
 
 		private void EOR_xind()
@@ -1193,7 +1293,7 @@
 
 		private void ROR_zpx()
 		{
-			throw new NotImplementedException();
+			this.ROR(this.Address_ZeroPageX());
 		}
 
 		private void ROR_abs()
@@ -1203,12 +1303,12 @@
 
 		private void ROR_imp()
 		{
-			throw new NotImplementedException();
+			this.A = this.ROR(this.A);
 		}
 
 		private void ROR_zp()
 		{
-			throw new NotImplementedException();
+			this.ROR(this.ReadByte_ZeroPage());
 		}
 
 		private void ROL_absx()
@@ -1218,7 +1318,7 @@
 
 		private void ROL_zpx()
 		{
-			throw new NotImplementedException();
+			this.ROL(this.Address_ZeroPageX());
 		}
 
 		private void ROL_abs()
@@ -1238,7 +1338,7 @@
 
 		private void BIT_zp()
 		{
-			throw new NotImplementedException();
+			this.BIT(this.ReadByte_ZeroPage());
 		}
 
 		private void BIT_abs()
@@ -1283,7 +1383,7 @@
 
 		private void AND_abs()
 		{
-			throw new NotImplementedException();
+			this.AND(this.ReadByte_AbsoluteX());
 		}
 
 		private void JSR_abs()
@@ -1324,7 +1424,7 @@
 
 		private void ASL_imp()
 		{
-			throw new NotImplementedException();
+			this.A = this.ASL(this.A);
 		}
 
 		private void ASL_zp()
@@ -1344,17 +1444,17 @@
 
 		private void ASL_zpx()
 		{
-			throw new NotImplementedException();
+			this.ASL(this.Address_ZeroPageX());
 		}
 
 		private void ORA_xind()
 		{
-			throw new NotImplementedException();
+			this.ORA(this.ReadByte_IndexedIndirectX());
 		}
 
 		private void ORA_zp()
 		{
-			throw new NotImplementedException();
+			this.ORA(this.ReadByte_ZeroPage());
 		}
 
 		private void ORA_imm()

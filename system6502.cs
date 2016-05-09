@@ -1,6 +1,9 @@
 ﻿#define INSTRUCTION_COUNT
 #define ADDRESS_PROFILE
 
+#define TEST_SUITE1
+//#define TEST_SUITE2
+
 namespace Simulator
 {
 	using System;
@@ -19,6 +22,10 @@ namespace Simulator
 #endif
 #if ADDRESS_PROFILE
 		private readonly ulong[] addressProfiles;
+#endif
+
+#if TEST_SUITE2
+		private ushort oldPC = 0;
 #endif
 
 		private readonly ushort input;
@@ -64,6 +71,10 @@ namespace Simulator
 		{
 			this.ClearMemory();
 			this.ResetRegisters();
+
+#if TEST_SUITE2
+			this.oldPC = (ushort)0xffff;
+#endif
 		}
 
 		public void LoadRom(string path, ushort offset)
@@ -80,6 +91,39 @@ namespace Simulator
 		{
 			Array.Clear(this.memory, 0, this.memory.Length);
 		}
+
+		protected override bool Step()
+		{
+#if TEST_SUITE1
+			if (this.PC == 0x45c0)
+			{
+				var test = this.GetByte(0x0210);
+				if (test == 0xff)
+					System.Console.Out.WriteLine("\n** success!!");
+				else
+					System.Console.Out.WriteLine("\n** {0} failed!!", test);
+				return false;
+			}
+#endif
+
+#if TEST_SUITE2
+			var test = this.GetByte(0x0200);
+			if (oldPC == PC)
+			{
+				System.Console.Out.WriteLine("\n** PC={0:x4}: test={1:x2}: stopped!!", this.PC, test);
+				return false;
+			}
+			else
+			{
+				oldPC = PC;
+			}
+#endif
+			return base.Step();
+		}
+
+
+
+
 
 		protected override bool Execute(byte instruction)
 		{
