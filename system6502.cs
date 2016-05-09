@@ -4,7 +4,6 @@
 namespace Simulator
 {
 	using System;
-	using System.Collections.Generic;
 	using System.IO;
 
 	public class System6502 : MOS6502, IDisposable
@@ -45,7 +44,7 @@ namespace Simulator
 			this.addressProfiles = new ulong[0x10000];
 #endif
 
-			this.inputPollTimer = new System.Timers.Timer(pollInterval.TotalMilliseconds);
+			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
 			this.inputPollTimer.Start();
 		}
@@ -127,6 +126,7 @@ namespace Simulator
 				System.Console.Out.Write((char)value);
 			}
 		}
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && !this.disposed)
