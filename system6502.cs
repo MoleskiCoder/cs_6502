@@ -7,23 +7,27 @@ namespace Simulator
 	using System.Collections.Generic;
 	using System.IO;
 
-	public class System6502 : MOS6502
+	public class System6502 : MOS6502, IDisposable
 	{
-		private const ulong PollInterval = 10000;
+		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 250);
 
-		private byte[] memory;
+		private readonly System.Timers.Timer inputPollTimer;
+
+		private readonly byte[] memory;
 
 #if INSTRUCTION_COUNT
-		private ulong[] instructionCounts;
+		private readonly ulong[] instructionCounts;
 #endif
 #if ADDRESS_PROFILE
-		private ulong[] addressProfiles;
+		private readonly ulong[] addressProfiles;
 #endif
 
-		private ushort input;
-		private ushort output;
+		private readonly ushort input;
+		private readonly ushort output;
 
-		private byte breakInstruction;
+		private readonly byte breakInstruction;
+
+		private bool disposed;
 
 		public System6502(ushort addressInput, ushort addressOutput, byte breakInstruction)
 		{
@@ -40,11 +44,21 @@ namespace Simulator
 #if ADDRESS_PROFILE
 			this.addressProfiles = new ulong[0x10000];
 #endif
+
+			this.inputPollTimer = new System.Timers.Timer(pollInterval.TotalMilliseconds);
+			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
+			this.inputPollTimer.Start();
 		}
 
 		public System6502(ushort addressInput, ushort addressOutput)
 		:	this(addressInput, addressOutput, 0x00)
 		{
+		}
+
+		public void Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		public void Clear()
@@ -66,12 +80,6 @@ namespace Simulator
 		protected void ClearMemory()
 		{
 			Array.Clear(this.memory, 0, this.memory.Length);
-		}
-
-		protected override bool Step() 
-		{
-			this.Poll();
-			return base.Step();
 		}
 
 		protected override bool Execute(byte instruction)
@@ -119,21 +127,34 @@ namespace Simulator
 				System.Console.Out.Write((char)value);
 			}
 		}
-
-		private void Poll()
+		protected virtual void Dispose(bool disposing)
 		{
-			this.PollInput();
+			if (disposing && !this.disposed)
+			{
+				if (this.inputPollTimer != null)
+				{
+					this.inputPollTimer.Stop();
+					this.inputPollTimer.Dispose();
+				}
+
+				this.disposed = true;
+			}
 		}
 
-		private void PollInput()
+		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
-			if (this.Cycles % PollInterval == 0)
+			if (System.Console.KeyAvailable)
 			{
-				if (System.Console.KeyAvailable)
-				{
-					var key = System.Console.Read();
-					this.SetByte(this.input, (byte)key);
-				}
+				var key = System.Console.Read();
+				this.SetByte(this.input, (byte)key);
+			}
+		}
+
+		private void CheckDisposed()
+		{
+			if (this.disposed)
+			{
+				throw new ObjectDisposedException(this.GetType().FullName);
 			}
 		}
 	}
