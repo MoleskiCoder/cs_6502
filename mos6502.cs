@@ -206,6 +206,13 @@
 			return this.Execute(this.FetchByte());
 		}
 
+		protected ushort GetWord(ushort offset)
+		{
+			var low = this.GetByte(offset);
+			var high = this.GetByte((ushort)(offset + 1));
+			return MakeWord(low, high);
+		}
+
 		protected abstract byte GetByte(ushort offset);
 
 		protected abstract void SetByte(ushort offset, byte value);
@@ -260,13 +267,6 @@
 		{
 			var low = this.PopByte();
 			var high = this.PopByte();
-			return MakeWord(low, high);
-		}
-
-		private ushort GetWord(ushort offset)
-		{
-			var low = this.GetByte(offset);
-			var high = this.GetByte((ushort)(offset + 1));
 			return MakeWord(low, high);
 		}
 
