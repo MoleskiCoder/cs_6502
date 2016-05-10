@@ -304,7 +304,6 @@
 			return LowByte((ushort)(this.FetchByte() + this.X));
 		}
 
-
 		private ushort Address_ZeroPageY()
 		{
 			return LowByte((ushort)(this.FetchByte() + this.Y));
@@ -344,12 +343,12 @@
 
 		private ushort Address_AbsoluteX()
 		{
-			return (ushort)(this.FetchWord() + X);
+			return (ushort)(this.FetchWord() + this.X);
 		}
 
 		private ushort Address_AbsoluteY()
 		{
-			return (ushort)(this.FetchWord() + Y);
+			return (ushort)(this.FetchWord() + this.Y);
 		}
 
 		////
@@ -457,7 +456,7 @@
 
 		private void WriteByte_IndexedIndirectX(byte value)
 		{
-			this.SetByte(this.GetWord(LowByte((ushort)(this.FetchByte() + X))), value);
+			this.SetByte(this.GetWord(LowByte((ushort)(this.FetchByte() + this.X))), value);
 		}
 
 		////
@@ -859,619 +858,16 @@
 			}
 		}
 
-		//// Instructions...
-
-		private void LDA_absx()
-		{
-			this.LDA(this.ReadByte_AbsoluteX());
-		}
-
-		private void LDA_absy()
-		{
-			this.LDA(this.ReadByte_AbsoluteY());
-		}
-
-		private void LDA_zpx()
-		{
-			this.LDA(this.ReadByte_ZeroPageX());
-		}
-
-		private void LDA_indy()
-		{
-			this.LDA(this.ReadByte_IndirectIndexedY());
-		}
-
-		private void LDA_abs()
-		{
-			this.LDA(this.ReadByte_Absolute());
-		}
-
-		private void LDA_imm()
-		{
-			this.LDA(this.ReadByte_Immediate());
-		}
-
-		private void LDA_zp()
-		{
-			this.LDA(this.ReadByte_ZeroPage());
-		}
-
-		private void LDA_xind()
-		{
-			this.LDA(this.ReadByte_IndexedIndirectX());
-		}
-
-		private void LDY_imm()
-		{
-			this.LDY(this.ReadByte_Immediate());
-		}
-
-		private void LDY_zp()
-		{
-			this.LDY(this.ReadByte_ZeroPage());
-		}
-
-		private void LDY_abs()
-		{
-			this.LDY(this.ReadByte_Absolute());
-		}
-
-		private void LDY_zpx()
-		{
-			this.LDY(this.ReadByte_ZeroPageX());
-		}
-
-		private void LDY_absx()
-		{
-			this.LDY(this.ReadByte_AbsoluteX());
-		}
-
-		private void LDX_imm()
-		{
-			this.LDX(this.ReadByte_Immediate());
-		}
-
-		private void LDX_zp()
-		{
-			this.LDX(this.ReadByte_ZeroPage());
-		}
-
-		private void LDX_abs()
-		{
-			this.LDX(this.ReadByte_Absolute());
-		}
-
-		private void LDX_zpy()
-		{
-			this.LDX(this.ReadByte_ZeroPageY());
-		}
-
-		private void LDX_absy()
-		{
-			this.LDX(this.ReadByte_AbsoluteY());
-		}
-
-		private void CMP_absx()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CMP_absy()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CMP_zpx()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CMP_indy()
-		{
-			this.CMP(this.ReadByte_IndirectIndexedY());
-		}
-
-		private void CMP_abs()
-		{
-			this.CMP(this.ReadByte_Absolute());
-		}
-
-		private void CMP_imm()
-		{
-			this.CMP(this.ReadByte_Immediate());
-		}
-
-		private void CMP_zp()
-		{
-			this.CMP(this.ReadByte_ZeroPage());
-		}
-
-		private void CMP_xind()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CPY_imm()
-		{
-			this.CPY(this.ReadByte_Immediate());
-		}
-
-		private void CPY_zp()
-		{
-			this.CPY(this.ReadByte_ZeroPage());
-		}
-
-		private void CPY_abs()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CPX_abs()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CPX_zp()
-		{
-			this.CPX(this.ReadByte_ZeroPage());
-		}
-
-		private void CPX_imm()
-		{
-			this.CPX(this.ReadByte_Immediate());
-		}
-
-		private void DEC_absx()
-		{
-			this.DEC(this.Address_AbsoluteX());
-		}
-
-		private void DEC_zpx()
-		{
-			this.DEC(this.Address_ZeroPageX());
-		}
-
-		private void DEC_abs()
-		{
-			this.DEC(this.Address_Absolute());
-		}
-
-		private void DEC_zp()
-		{
-			this.DEC(this.Address_ZeroPage());
-		}
-
-		private void DEX_imp()
-		{
-			this.ReflectFlags_ZeroNegative(--this.X);
-		}
-
-		private void DEY_imp()
-		{
-			this.ReflectFlags_ZeroNegative(--this.Y);
-		}
-
-		private void INY_imp()
-		{
-			this.ReflectFlags_ZeroNegative(++this.Y);
-		}
-
-		private void INX_imp()
-		{
-			this.ReflectFlags_ZeroNegative(++this.X);
-		}
-
-		private void INC_zp()
-		{
-			this.INC(this.Address_ZeroPage());
-		}
-
-		private void INC_absx()
-		{
-			this.INC(this.Address_AbsoluteX());
-		}
-
-		private void INC_zpx()
-		{
-			this.INC(this.Address_ZeroPageX());
-		}
-
-		private void INC_abs()
-		{
-			this.INC(this.Address_Absolute());
-		}
-
-		private void STX_zpy()
-		{
-			this.WriteByte_ZeroPageY(this.X);
-		}
-
-		private void STX_abs()
-		{
-			this.WriteByte_Absolute(this.X);
-		}
-
-		private void STX_zp()
-		{
-			this.WriteByte_ZeroPage(this.X);
-		}
-
-		private void STY_zpx()
-		{
-			this.WriteByte_ZeroPageX(this.Y);
-		}
-
-		private void STY_abs()
-		{
-			this.WriteByte_Absolute(this.Y);
-		}
-
-		private void STY_zp()
-		{
-			this.WriteByte_ZeroPage(this.Y);
-		}
-
-		private void STA_absx()
-		{
-			this.WriteByte_AbsoluteX(this.A);
-		}
-
-		private void STA_absy()
-		{
-			this.WriteByte_AbsoluteY(this.A);
-		}
-
-		private void STA_zpx()
-		{
-			this.WriteByte_ZeroPageX(this.A);
-		}
-
-		private void STA_indy()
-		{
-			this.WriteByte_IndirectIndexedY(this.A);
-		}
-
-		private void STA_abs()
-		{
-			this.WriteByte_Absolute(this.A);
-		}
-
-		private void STA_zp()
-		{
-			this.WriteByte_ZeroPage(this.A);
-		}
-
-		private void STA_xind()
-		{
-			this.WriteByte_IndexedIndirectX(this.A);
-		}
-
-		private void SBC_xind()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void SBC_zp()
-		{
-			this.SBC(this.ReadByte_ZeroPage());
-		}
-
-		private void SBC_imm()
-		{
-			this.SBC(this.ReadByte_Immediate());
-		}
-
-		private void SBC_abs()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void SBC_zpx()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void SBC_indy()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void SBC_absx()
-		{
-			throw new NotImplementedException();
-		}
-
-		private void SBC_absy()
-		{
-			throw new NotImplementedException();
-		}
+		#region Instruction implementations
 
 		private void NOP_imp()
 		{
 			throw new NotImplementedException();
 		}
 
-		private void TSX_imp()
-		{
-			throw new NotImplementedException();
-		}
+		#region Readers
 
-		private void TAX_imp()
-		{
-			this.X = this.A;
-			this.ReflectFlags_ZeroNegative(this.X);
-		}
-
-		private void TAY_imp()
-		{
-			this.Y = this.A;
-			this.ReflectFlags_ZeroNegative(this.Y);
-		}
-
-		private void TXS_imp()
-		{
-			this.S = this.X;
-		}
-
-		private void TYA_imp()
-		{
-			this.A = this.Y;
-			this.ReflectFlags_ZeroNegative(this.A);
-		}
-
-		private void TXA_imp()
-		{
-			this.A = this.X;
-			this.ReflectFlags_ZeroNegative(this.A);
-		}
-
-		private void PHP_imp()
-		{
-			this.P |= StatusFlags.Break;
-			this.PushByte((byte)this.P);
-		}
-
-		private void PLP_imp()
-		{
-			this.P = (StatusFlags)this.PopByte() | StatusFlags.Reserved;
-		}
-
-		private void PLA_imp()
-		{
-			this.A = this.PopByte();
-			this.ReflectFlags_ZeroNegative(this.A);
-		}
-
-		private void PHA_imp()
-		{
-			this.PushByte(this.A);
-		}
-
-		private void LSR_absx()
-		{
-			this.LSR(this.Address_AbsoluteX());
-		}
-
-		private void LSR_zpx()
-		{
-			this.LSR(this.Address_ZeroPageX());
-		}
-
-		private void LSR_abs()
-		{
-			this.LSR(this.Address_Absolute());
-		}
-
-		private void LSR_imp()
-		{
-			this.A = this.LSR(this.A);
-		}
-
-		private void LSR_zp()
-		{
-			this.LSR(this.ReadByte_ZeroPage());
-		}
-
-		private void EOR_absx()
-		{
-			this.EOR(this.ReadByte_AbsoluteX());
-		}
-
-		private void EOR_absy()
-		{
-			this.EOR(this.ReadByte_AbsoluteY());
-		}
-
-		private void EOR_zpx()
-		{
-			this.EOR(this.ReadByte_ZeroPageX());
-		}
-
-		private void EOR_indy()
-		{
-			this.EOR(this.ReadByte_IndirectIndexedY());
-		}
-
-		private void EOR_abs()
-		{
-			this.EOR(this.ReadByte_Absolute());
-		}
-
-		private void EOR_imm()
-		{
-			this.EOR(this.ReadByte_Immediate());
-		}
-
-		private void EOR_zp()
-		{
-			this.EOR(this.ReadByte_ZeroPage());
-		}
-
-		private void EOR_xind()
-		{
-			this.EOR(this.ReadByte_IndexedIndirectX());
-		}
-
-		private void ROR_absx()
-		{
-			this.ROR(this.Address_AbsoluteX());
-		}
-
-		private void ROR_zpx()
-		{
-			this.ROR(this.Address_ZeroPageX());
-		}
-
-		private void ROR_abs()
-		{
-			this.ROR(this.Address_Absolute());
-		}
-
-		private void ROR_imp()
-		{
-			this.A = this.ROR(this.A);
-		}
-
-		private void ROR_zp()
-		{
-			this.ROR(this.ReadByte_ZeroPage());
-		}
-
-		private void ROL_absx()
-		{
-			this.ROL(this.Address_AbsoluteX());
-		}
-
-		private void ROL_zpx()
-		{
-			this.ROL(this.Address_ZeroPageX());
-		}
-
-		private void ROL_abs()
-		{
-			this.ROL(this.Address_Absolute());
-		}
-
-		private void ROL_imp()
-		{
-			this.A = this.ROL(this.A);
-		}
-
-		private void ROL_zp()
-		{
-			this.ROL(this.ReadByte_ZeroPage());
-		}
-
-		private void BIT_zp()
-		{
-			this.BIT(this.ReadByte_ZeroPage());
-		}
-
-		private void BIT_abs()
-		{
-			this.BIT(this.ReadByte_Absolute());
-		}
-
-		private void AND_zpx()
-		{
-			this.AND(this.ReadByte_ZeroPageX());
-		}
-
-		private void AND_indy()
-		{
-			this.AND(this.ReadByte_IndirectIndexedY());
-		}
-
-		private void AND_zp()
-		{
-			this.AND(this.ReadByte_ZeroPage());
-		}
-
-		private void AND_absx()
-		{
-			this.AND(this.ReadByte_AbsoluteX());
-		}
-
-		private void AND_absy()
-		{
-			this.AND(this.ReadByte_AbsoluteY());
-		}
-
-		private void AND_imm()
-		{
-			this.AND(this.ReadByte_Immediate());
-		}
-
-		private void AND_xind()
-		{
-			this.AND(this.ReadByte_IndexedIndirectX());
-		}
-
-		private void AND_abs()
-		{
-			this.AND(this.ReadByte_Absolute());
-		}
-
-		private void JSR_abs()
-		{
-			var destination = this.Address_Absolute();
-			this.PushWord((ushort)(this.PC - 1));
-			this.PC = destination;
-		}
-
-		private void RTI_imp()
-		{
-			this.PLP_imp();
-			this.PC = this.PopWord();
-		}
-
-		private void RTS_imp()
-		{
-			this.PC = (ushort)(this.PopWord() + 1);
-		}
-
-		private void JMP_abs()
-		{
-			this.PC = this.Address_Absolute();
-		}
-
-		private void JMP_ind()
-		{
-			this.PC = this.GetWord(this.Address_Absolute());
-		}
-
-		private void BRK_imp()
-		{
-			this.PushWord((ushort)(this.PC + 1));
-			this.PHP_imp();
-			this.P |= StatusFlags.Interrupt;
-			this.PC = this.GetWord(IRQvector);
-		}
-
-		private void ASL_imp()
-		{
-			this.A = this.ASL(this.A);
-		}
-
-		private void ASL_zp()
-		{
-			this.ASL(this.Address_ZeroPage());
-		}
-
-		private void ASL_abs()
-		{
-			this.ASL(this.Address_Absolute());
-		}
-
-		private void ASL_absx()
-		{
-			this.ASL(this.Address_AbsoluteX());
-		}
-
-		private void ASL_zpx()
-		{
-			this.ASL(this.Address_ZeroPageX());
-		}
+		#region ORA
 
 		private void ORA_xind()
 		{
@@ -1513,6 +909,282 @@
 			this.ORA(this.ReadByte_IndirectIndexedY());
 		}
 
+		#endregion
+
+		#region AND
+
+		private void AND_zpx()
+		{
+			this.AND(this.ReadByte_ZeroPageX());
+		}
+
+		private void AND_indy()
+		{
+			this.AND(this.ReadByte_IndirectIndexedY());
+		}
+
+		private void AND_zp()
+		{
+			this.AND(this.ReadByte_ZeroPage());
+		}
+
+		private void AND_absx()
+		{
+			this.AND(this.ReadByte_AbsoluteX());
+		}
+
+		private void AND_absy()
+		{
+			this.AND(this.ReadByte_AbsoluteY());
+		}
+
+		private void AND_imm()
+		{
+			this.AND(this.ReadByte_Immediate());
+		}
+
+		private void AND_xind()
+		{
+			this.AND(this.ReadByte_IndexedIndirectX());
+		}
+
+		private void AND_abs()
+		{
+			this.AND(this.ReadByte_Absolute());
+		}
+
+		#endregion
+
+		#region EOR
+
+		private void EOR_absx()
+		{
+			this.EOR(this.ReadByte_AbsoluteX());
+		}
+
+		private void EOR_absy()
+		{
+			this.EOR(this.ReadByte_AbsoluteY());
+		}
+
+		private void EOR_zpx()
+		{
+			this.EOR(this.ReadByte_ZeroPageX());
+		}
+
+		private void EOR_indy()
+		{
+			this.EOR(this.ReadByte_IndirectIndexedY());
+		}
+
+		private void EOR_abs()
+		{
+			this.EOR(this.ReadByte_Absolute());
+		}
+
+		private void EOR_imm()
+		{
+			this.EOR(this.ReadByte_Immediate());
+		}
+
+		private void EOR_zp()
+		{
+			this.EOR(this.ReadByte_ZeroPage());
+		}
+
+		private void EOR_xind()
+		{
+			this.EOR(this.ReadByte_IndexedIndirectX());
+		}
+
+		#endregion
+
+		#region LDA
+
+		private void LDA_absx()
+		{
+			this.LDA(this.ReadByte_AbsoluteX());
+		}
+
+		private void LDA_absy()
+		{
+			this.LDA(this.ReadByte_AbsoluteY());
+		}
+
+		private void LDA_zpx()
+		{
+			this.LDA(this.ReadByte_ZeroPageX());
+		}
+
+		private void LDA_indy()
+		{
+			this.LDA(this.ReadByte_IndirectIndexedY());
+		}
+
+		private void LDA_abs()
+		{
+			this.LDA(this.ReadByte_Absolute());
+		}
+
+		private void LDA_imm()
+		{
+			this.LDA(this.ReadByte_Immediate());
+		}
+
+		private void LDA_zp()
+		{
+			this.LDA(this.ReadByte_ZeroPage());
+		}
+
+		private void LDA_xind()
+		{
+			this.LDA(this.ReadByte_IndexedIndirectX());
+		}
+
+		#endregion
+
+		#region LDX
+
+		private void LDX_imm()
+		{
+			this.LDX(this.ReadByte_Immediate());
+		}
+
+		private void LDX_zp()
+		{
+			this.LDX(this.ReadByte_ZeroPage());
+		}
+
+		private void LDX_abs()
+		{
+			this.LDX(this.ReadByte_Absolute());
+		}
+
+		private void LDX_zpy()
+		{
+			this.LDX(this.ReadByte_ZeroPageY());
+		}
+
+		private void LDX_absy()
+		{
+			this.LDX(this.ReadByte_AbsoluteY());
+		}
+
+		#endregion
+
+		#region LDY
+
+		private void LDY_imm()
+		{
+			this.LDY(this.ReadByte_Immediate());
+		}
+
+		private void LDY_zp()
+		{
+			this.LDY(this.ReadByte_ZeroPage());
+		}
+
+		private void LDY_abs()
+		{
+			this.LDY(this.ReadByte_Absolute());
+		}
+
+		private void LDY_zpx()
+		{
+			this.LDY(this.ReadByte_ZeroPageX());
+		}
+
+		private void LDY_absx()
+		{
+			this.LDY(this.ReadByte_AbsoluteX());
+		}
+
+		#endregion
+
+		#region CMP
+
+		private void CMP_absx()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void CMP_absy()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void CMP_zpx()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void CMP_indy()
+		{
+			this.CMP(this.ReadByte_IndirectIndexedY());
+		}
+
+		private void CMP_abs()
+		{
+			this.CMP(this.ReadByte_Absolute());
+		}
+
+		private void CMP_imm()
+		{
+			this.CMP(this.ReadByte_Immediate());
+		}
+
+		private void CMP_zp()
+		{
+			this.CMP(this.ReadByte_ZeroPage());
+		}
+
+		private void CMP_xind()
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region CPX
+
+		private void CPX_abs()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void CPX_zp()
+		{
+			this.CPX(this.ReadByte_ZeroPage());
+		}
+
+		private void CPX_imm()
+		{
+			this.CPX(this.ReadByte_Immediate());
+		}
+
+		#endregion
+
+		#region CPY
+
+		private void CPY_imm()
+		{
+			this.CPY(this.ReadByte_Immediate());
+		}
+
+		private void CPY_zp()
+		{
+			this.CPY(this.ReadByte_ZeroPage());
+		}
+
+		private void CPY_abs()
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region ADC
+
 		private void ADC_zp()
 		{
 			this.ADC(this.ReadByte_ZeroPage());
@@ -1553,6 +1225,455 @@
 			this.ADC(this.ReadByte_AbsoluteY());
 		}
 
+		#endregion
+
+		#region SBC
+
+		private void SBC_xind()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void SBC_zp()
+		{
+			this.SBC(this.ReadByte_ZeroPage());
+		}
+
+		private void SBC_imm()
+		{
+			this.SBC(this.ReadByte_Immediate());
+		}
+
+		private void SBC_abs()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void SBC_zpx()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void SBC_indy()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void SBC_absx()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void SBC_absy()
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region BIT
+
+		private void BIT_zp()
+		{
+			this.BIT(this.ReadByte_ZeroPage());
+		}
+
+		private void BIT_abs()
+		{
+			this.BIT(this.ReadByte_Absolute());
+		}
+
+		#endregion
+
+		#endregion
+
+		#region Increment and decrement
+
+		#region DEC
+
+		private void DEC_absx()
+		{
+			this.DEC(this.Address_AbsoluteX());
+		}
+
+		private void DEC_zpx()
+		{
+			this.DEC(this.Address_ZeroPageX());
+		}
+
+		private void DEC_abs()
+		{
+			this.DEC(this.Address_Absolute());
+		}
+
+		private void DEC_zp()
+		{
+			this.DEC(this.Address_ZeroPage());
+		}
+
+		#region X/Y
+
+		private void DEX_imp()
+		{
+			this.ReflectFlags_ZeroNegative(--this.X);
+		}
+
+		private void DEY_imp()
+		{
+			this.ReflectFlags_ZeroNegative(--this.Y);
+		}
+
+		#endregion
+
+		#endregion
+
+		#region INC
+
+		private void INC_zp()
+		{
+			this.INC(this.Address_ZeroPage());
+		}
+
+		private void INC_absx()
+		{
+			this.INC(this.Address_AbsoluteX());
+		}
+
+		private void INC_zpx()
+		{
+			this.INC(this.Address_ZeroPageX());
+		}
+
+		private void INC_abs()
+		{
+			this.INC(this.Address_Absolute());
+		}
+
+		#region X/Y
+
+		private void INX_imp()
+		{
+			this.ReflectFlags_ZeroNegative(++this.X);
+		}
+
+		private void INY_imp()
+		{
+			this.ReflectFlags_ZeroNegative(++this.Y);
+		}
+
+		#endregion
+
+		#endregion
+
+		#endregion
+
+		#region Writers
+
+		#region STX
+
+		private void STX_zpy()
+		{
+			this.WriteByte_ZeroPageY(this.X);
+		}
+
+		private void STX_abs()
+		{
+			this.WriteByte_Absolute(this.X);
+		}
+
+		private void STX_zp()
+		{
+			this.WriteByte_ZeroPage(this.X);
+		}
+
+		#endregion
+
+		#region STY
+
+		private void STY_zpx()
+		{
+			this.WriteByte_ZeroPageX(this.Y);
+		}
+
+		private void STY_abs()
+		{
+			this.WriteByte_Absolute(this.Y);
+		}
+
+		private void STY_zp()
+		{
+			this.WriteByte_ZeroPage(this.Y);
+		}
+
+		#endregion
+
+		#region STA
+
+		private void STA_absx()
+		{
+			this.WriteByte_AbsoluteX(this.A);
+		}
+
+		private void STA_absy()
+		{
+			this.WriteByte_AbsoluteY(this.A);
+		}
+
+		private void STA_zpx()
+		{
+			this.WriteByte_ZeroPageX(this.A);
+		}
+
+		private void STA_indy()
+		{
+			this.WriteByte_IndirectIndexedY(this.A);
+		}
+
+		private void STA_abs()
+		{
+			this.WriteByte_Absolute(this.A);
+		}
+
+		private void STA_zp()
+		{
+			this.WriteByte_ZeroPage(this.A);
+		}
+
+		private void STA_xind()
+		{
+			this.WriteByte_IndexedIndirectX(this.A);
+		}
+
+		#endregion
+
+		#endregion
+
+		#region Transfers
+
+		private void TSX_imp()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void TAX_imp()
+		{
+			this.X = this.A;
+			this.ReflectFlags_ZeroNegative(this.X);
+		}
+
+		private void TAY_imp()
+		{
+			this.Y = this.A;
+			this.ReflectFlags_ZeroNegative(this.Y);
+		}
+
+		private void TXS_imp()
+		{
+			this.S = this.X;
+		}
+
+		private void TYA_imp()
+		{
+			this.A = this.Y;
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		private void TXA_imp()
+		{
+			this.A = this.X;
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		#endregion
+
+		#region Stack operations
+
+		private void PHP_imp()
+		{
+			this.P |= StatusFlags.Break;
+			this.PushByte((byte)this.P);
+		}
+
+		private void PLP_imp()
+		{
+			this.P = (StatusFlags)this.PopByte() | StatusFlags.Reserved;
+		}
+
+		private void PLA_imp()
+		{
+			this.A = this.PopByte();
+			this.ReflectFlags_ZeroNegative(this.A);
+		}
+
+		private void PHA_imp()
+		{
+			this.PushByte(this.A);
+		}
+
+		#endregion
+
+		#region Shifts and rotations
+
+		#region ASL
+
+		private void ASL_imp()
+		{
+			this.A = this.ASL(this.A);
+		}
+
+		private void ASL_zp()
+		{
+			this.ASL(this.Address_ZeroPage());
+		}
+
+		private void ASL_abs()
+		{
+			this.ASL(this.Address_Absolute());
+		}
+
+		private void ASL_absx()
+		{
+			this.ASL(this.Address_AbsoluteX());
+		}
+
+		private void ASL_zpx()
+		{
+			this.ASL(this.Address_ZeroPageX());
+		}
+
+		#endregion
+
+		#region LSR
+
+		private void LSR_absx()
+		{
+			this.LSR(this.Address_AbsoluteX());
+		}
+
+		private void LSR_zpx()
+		{
+			this.LSR(this.Address_ZeroPageX());
+		}
+
+		private void LSR_abs()
+		{
+			this.LSR(this.Address_Absolute());
+		}
+
+		private void LSR_imp()
+		{
+			this.A = this.LSR(this.A);
+		}
+
+		private void LSR_zp()
+		{
+			this.LSR(this.ReadByte_ZeroPage());
+		}
+
+		#endregion
+
+		#region ROL
+
+		private void ROL_absx()
+		{
+			this.ROL(this.Address_AbsoluteX());
+		}
+
+		private void ROL_zpx()
+		{
+			this.ROL(this.Address_ZeroPageX());
+		}
+
+		private void ROL_abs()
+		{
+			this.ROL(this.Address_Absolute());
+		}
+
+		private void ROL_imp()
+		{
+			this.A = this.ROL(this.A);
+		}
+
+		private void ROL_zp()
+		{
+			this.ROL(this.ReadByte_ZeroPage());
+		}
+
+		#endregion
+
+		#region ROR
+
+		private void ROR_absx()
+		{
+			this.ROR(this.Address_AbsoluteX());
+		}
+
+		private void ROR_zpx()
+		{
+			this.ROR(this.Address_ZeroPageX());
+		}
+
+		private void ROR_abs()
+		{
+			this.ROR(this.Address_Absolute());
+		}
+
+		private void ROR_imp()
+		{
+			this.A = this.ROR(this.A);
+		}
+
+		private void ROR_zp()
+		{
+			this.ROR(this.ReadByte_ZeroPage());
+		}
+
+		#endregion
+
+		#endregion
+		
+		#region Jumps and calls
+
+		private void JSR_abs()
+		{
+			var destination = this.Address_Absolute();
+			this.PushWord((ushort)(this.PC - 1));
+			this.PC = destination;
+		}
+
+		private void RTI_imp()
+		{
+			this.PLP_imp();
+			this.PC = this.PopWord();
+		}
+
+		private void RTS_imp()
+		{
+			this.PC = (ushort)(this.PopWord() + 1);
+		}
+
+		private void JMP_abs()
+		{
+			this.PC = this.Address_Absolute();
+		}
+
+		private void JMP_ind()
+		{
+			this.PC = this.GetWord(this.Address_Absolute());
+		}
+
+		private void BRK_imp()
+		{
+			this.PushWord((ushort)(this.PC + 1));
+			this.PHP_imp();
+			this.P |= StatusFlags.Interrupt;
+			this.PC = this.GetWord(IRQvector);
+		}
+
+		#endregion
+
+		#region Flags
+
 		private void SED_imp()
 		{
 			this.P |= StatusFlags.Decimal;
@@ -1587,6 +1708,10 @@
 		{
 			this.P |= StatusFlags.Carry;
 		}
+
+		#endregion
+
+		#region Branches
 
 		private void BMI_rel()
 		{
@@ -1659,5 +1784,9 @@
 				this.Branch(displacement);
 			}
 		}
+
+		#endregion
+
+		#endregion
 	}
 }
