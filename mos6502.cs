@@ -912,7 +912,7 @@
 
 		private void LDX_abs()
 		{
-			this.LDX(this.ReadByte_AbsoluteX());
+			this.LDX(this.ReadByte_Absolute());
 		}
 
 		private void LDX_zpy()
