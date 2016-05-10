@@ -51,6 +51,7 @@ namespace Simulator
 #if SUDOKU_ASSEMBLE
 				processor.LoadRom("C:\\github\\cpp\\cpp_6502\\sudoku.bin", 0xf000);
 				processor.Reset();
+                processor.BreakAllowed = true;
 #endif
 
 				processor.Run();

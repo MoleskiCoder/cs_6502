@@ -34,7 +34,8 @@ namespace Simulator
 		private readonly ushort input;
 		private readonly ushort output;
 
-		private readonly byte breakInstruction;
+		private byte breakInstruction;
+		private bool breakAllowed;
 
 #if DEBUG
 		private Dictionary<AddressingMode, AddressingModeDumper> dumper;
@@ -42,12 +43,13 @@ namespace Simulator
 
 		private bool disposed;
 
-		public System6502(ushort addressInput, ushort addressOutput, byte breakInstruction)
+		public System6502(ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
 		{
 			this.input = addressInput;
 			this.output = addressOutput;
 
 			this.breakInstruction = breakInstruction;
+			this.breakAllowed = breakAllowed;
 
 			this.memory = new byte[0x10000];
 
@@ -83,8 +85,39 @@ namespace Simulator
 		}
 
 		public System6502(ushort addressInput, ushort addressOutput)
-		:	this(addressInput, addressOutput, 0x00)
+		:	this(addressInput, addressOutput, 0x00, false)
 		{
+		}
+
+		public System6502(ushort addressInput, ushort addressOutput, byte breakInstruction)
+		:	this(addressInput, addressOutput, breakInstruction, true)
+		{
+		}
+
+		public byte BreakInstruction
+		{
+			get
+			{
+				return this.breakInstruction;
+			}
+
+			set
+			{
+				this.breakInstruction = value;
+			}
+		}
+
+		public bool BreakAllowed
+		{
+			get
+			{
+				return this.breakAllowed;
+			}
+
+			set
+			{
+				this.breakAllowed = value;
+			}
 		}
 
 		public void Dispose()
@@ -175,7 +208,7 @@ namespace Simulator
 			this.addressProfiles[profileAddress] += cycleCount;
 #endif
 
-			if (instruction == this.breakInstruction)
+			if (this.BreakAllowed && instruction == this.BreakInstruction)
 			{
 				return false;
 			}
