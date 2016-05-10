@@ -1567,7 +1567,7 @@
 
 		private void LSR_zp()
 		{
-			this.LSR(this.ReadByte_ZeroPage());
+			this.LSR(this.Address_ZeroPage());
 		}
 
 		#endregion
@@ -1596,7 +1596,7 @@
 
 		private void ROL_zp()
 		{
-			this.ROL(this.ReadByte_ZeroPage());
+			this.ROL(this.Address_ZeroPage());
 		}
 
 		#endregion
@@ -1625,7 +1625,7 @@
 
 		private void ROR_zp()
 		{
-			this.ROR(this.ReadByte_ZeroPage());
+			this.ROR(this.Address_ZeroPage());
 		}
 
 		#endregion
