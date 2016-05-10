@@ -1105,17 +1105,17 @@
 
 		private void CMP_absx()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_AbsoluteX());
 		}
 
 		private void CMP_absy()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_AbsoluteY());
 		}
 
 		private void CMP_zpx()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_ZeroPageX());
 		}
 
 		private void CMP_indy()
@@ -1140,7 +1140,7 @@
 
 		private void CMP_xind()
 		{
-			throw new NotImplementedException();
+			this.CMP(this.ReadByte_IndexedIndirectX());
 		}
 
 		#endregion
@@ -1149,7 +1149,7 @@
 
 		private void CPX_abs()
 		{
-			throw new NotImplementedException();
+			this.CPX(this.ReadByte_Absolute());
 		}
 
 		private void CPX_zp()
@@ -1178,7 +1178,7 @@
 
 		private void CPY_abs()
 		{
-			throw new NotImplementedException();
+			this.CPY(this.ReadByte_Absolute());
 		}
 
 		#endregion
@@ -1231,7 +1231,7 @@
 
 		private void SBC_xind()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_IndexedIndirectX());
 		}
 
 		private void SBC_zp()
@@ -1246,17 +1246,17 @@
 
 		private void SBC_abs()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_Absolute());
 		}
 
 		private void SBC_zpx()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_ZeroPageX());
 		}
 
 		private void SBC_indy()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_IndirectIndexedY());
 		}
 
 		private void SBC_absx()
@@ -1266,7 +1266,7 @@
 
 		private void SBC_absy()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_AbsoluteY());
 		}
 
 		#endregion
