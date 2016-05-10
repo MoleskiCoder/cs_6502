@@ -294,9 +294,20 @@
 
 		////
 
+		private ushort Address_ZeroPage()
+		{
+			return (ushort)this.FetchByte();
+		}
+
 		private ushort Address_ZeroPageX()
 		{
 			return LowByte((ushort)(this.FetchByte() + this.X));
+		}
+
+
+		private ushort Address_ZeroPageY()
+		{
+			return LowByte((ushort)(this.FetchByte() + this.Y));
 		}
 
 		private ushort Address_IndexedIndirectX()
@@ -355,7 +366,7 @@
 
 		private byte ReadByte_ZeroPage()
 		{
-			return this.GetByte(this.FetchByte());
+			return this.GetByte(this.Address_ZeroPage());
 		}
 
 		private byte ReadByte_ZeroPageX()
@@ -365,7 +376,7 @@
 
 		private byte ReadByte_ZeroPageY()
 		{
-			return this.GetByte(LowByte((ushort)(this.FetchByte() + Y)));
+			return this.GetByte(this.Address_ZeroPageY());
 		}
 
 		private byte ReadByte_Absolute()
@@ -411,7 +422,7 @@
 
 		private void WriteByte_ZeroPage(byte value)
 		{
-			this.SetByte(this.FetchByte(), value);
+			this.SetByte(this.Address_ZeroPage(), value);
 		}
 
 		private void WriteByte_Absolute(byte value)
@@ -436,7 +447,7 @@
 
 		private void WriteByte_ZeroPageY(byte value)
 		{
-			this.SetByte(LowByte((ushort)(this.FetchByte() + Y)), value);
+			this.SetByte(this.Address_ZeroPageY(), value);
 		}
 
 		private void WriteByte_IndirectIndexedY(byte value)
@@ -1027,7 +1038,7 @@
 
 		private void DEC_zp()
 		{
-			this.DEC((ushort)this.FetchByte());
+			this.DEC(this.Address_ZeroPage());
 		}
 
 		private void DEX_imp()
@@ -1052,7 +1063,7 @@
 
 		private void INC_zp()
 		{
-			this.INC((ushort)this.FetchByte());
+			this.INC(this.Address_ZeroPage());
 		}
 
 		private void INC_absx()
@@ -1444,7 +1455,7 @@
 
 		private void ASL_zp()
 		{
-			this.ASL((ushort)this.FetchByte());
+			this.ASL(this.Address_ZeroPage());
 		}
 
 		private void ASL_abs()
