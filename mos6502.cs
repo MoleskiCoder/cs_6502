@@ -561,7 +561,7 @@
 
 			if (result == 0)
 			{
-				this.P |= StatusFlags.Overflow;
+				this.P |= StatusFlags.Zero;
 			}
 
 			if ((data & 0x80) != 0)
@@ -862,7 +862,6 @@
 
 		private void NOP_imp()
 		{
-			throw new NotImplementedException();
 		}
 
 		#region Readers
@@ -1261,7 +1260,7 @@
 
 		private void SBC_absx()
 		{
-			throw new NotImplementedException();
+			this.SBC(this.ReadByte_AbsoluteX());
 		}
 
 		private void SBC_absy()
@@ -1452,7 +1451,8 @@
 
 		private void TSX_imp()
 		{
-			throw new NotImplementedException();
+			this.X = this.S;
+			this.ReflectFlags_ZeroNegative(this.X);
 		}
 
 		private void TAX_imp()
