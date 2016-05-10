@@ -327,13 +327,7 @@
 
 		private ushort Address_IndexedIndirectY_Write()
 		{
-			var indirection = this.GetWord(this.FetchByte());
-			if (LowByte(indirection) == 0xff)
-			{
-				++this.Cycles;
-			}
-
-			return (ushort)(indirection + this.Y);
+			return (ushort)(this.GetWord(this.FetchByte()) + this.Y);
 		}
 
 		private ushort Address_Absolute()
@@ -341,12 +335,36 @@
 			return this.FetchWord();
 		}
 
-		private ushort Address_AbsoluteX()
+		private ushort Address_AbsoluteX_Read()
+		{
+			var address = this.FetchWord();
+			var offset = (ushort)(address + this.X);
+			if (LowByte(offset) == 0xff)
+			{
+				++this.Cycles;
+			}
+
+			return offset;
+		}
+
+		private ushort Address_AbsoluteX_Write()
 		{
 			return (ushort)(this.FetchWord() + this.X);
 		}
 
-		private ushort Address_AbsoluteY()
+		private ushort Address_AbsoluteY_Read()
+		{
+			var address = this.FetchWord();
+			var offset = (ushort)(address + this.Y);
+			if (LowByte(offset) == 0xff)
+			{
+				++this.Cycles;
+			}
+
+			return offset;
+		}
+
+		private ushort Address_AbsoluteY_Write()
 		{
 			return (ushort)(this.FetchWord() + this.Y);
 		}
@@ -385,26 +403,12 @@
 
 		private byte ReadByte_AbsoluteX()
 		{
-			var address = this.FetchWord();
-			var offset = (ushort)(address + this.X);
-			if (LowByte(offset) == 0xff)
-			{
-				++this.Cycles;
-			}
-
-			return this.GetByte(offset);
+			return this.GetByte(this.Address_AbsoluteX_Read());
 		}
 
 		private byte ReadByte_AbsoluteY()
 		{
-			var address = this.FetchWord();
-			var offset = (ushort)(address + this.Y);
-			if (LowByte(offset) == 0xff)
-			{
-				++this.Cycles;
-			}
-
-			return this.GetByte(offset);
+			return this.GetByte(this.Address_AbsoluteY_Read());
 		}
 
 		private byte ReadByte_IndexedIndirectX()
@@ -431,12 +435,12 @@
 
 		private void WriteByte_AbsoluteX(byte value)
 		{
-			this.SetByte(this.Address_AbsoluteX(), value);
+			this.SetByte(this.Address_AbsoluteX_Write(), value);
 		}
 
 		private void WriteByte_AbsoluteY(byte value)
 		{
-			this.SetByte(this.Address_AbsoluteY(), value);
+			this.SetByte(this.Address_AbsoluteY_Write(), value);
 		}
 
 		private void WriteByte_ZeroPageX(byte value)
@@ -451,12 +455,12 @@
 
 		private void WriteByte_IndirectIndexedY(byte value)
 		{
-			this.SetByte((ushort)(this.GetWord(this.FetchByte()) + this.Y), value);
+			this.SetByte(this.Address_IndexedIndirectY_Write(), value);
 		}
 
 		private void WriteByte_IndexedIndirectX(byte value)
 		{
-			this.SetByte(this.GetWord(LowByte((ushort)(this.FetchByte() + this.X))), value);
+			this.SetByte(this.Address_IndexedIndirectX(), value);
 		}
 
 		////
@@ -1292,7 +1296,7 @@
 
 		private void DEC_absx()
 		{
-			this.DEC(this.Address_AbsoluteX());
+			this.DEC(this.Address_AbsoluteX_Write());
 		}
 
 		private void DEC_zpx()
@@ -1335,7 +1339,7 @@
 
 		private void INC_absx()
 		{
-			this.INC(this.Address_AbsoluteX());
+			this.INC(this.Address_AbsoluteX_Write());
 		}
 
 		private void INC_zpx()
@@ -1533,7 +1537,7 @@
 
 		private void ASL_absx()
 		{
-			this.ASL(this.Address_AbsoluteX());
+			this.ASL(this.Address_AbsoluteX_Write());
 		}
 
 		private void ASL_zpx()
@@ -1547,7 +1551,7 @@
 
 		private void LSR_absx()
 		{
-			this.LSR(this.Address_AbsoluteX());
+			this.LSR(this.Address_AbsoluteX_Write());
 		}
 
 		private void LSR_zpx()
@@ -1576,7 +1580,7 @@
 
 		private void ROL_absx()
 		{
-			this.ROL(this.Address_AbsoluteX());
+			this.ROL(this.Address_AbsoluteX_Write());
 		}
 
 		private void ROL_zpx()
@@ -1605,7 +1609,7 @@
 
 		private void ROR_absx()
 		{
-			this.ROR(this.Address_AbsoluteX());
+			this.ROR(this.Address_AbsoluteX_Write());
 		}
 
 		private void ROR_zpx()
