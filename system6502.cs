@@ -1,8 +1,8 @@
-﻿#define INSTRUCTION_COUNT
-#define ADDRESS_PROFILE
+﻿////#define INSTRUCTION_COUNT
+////#define ADDRESS_PROFILE
 
-#define TEST_SUITE1
-////#define TEST_SUITE2
+////#define TEST_SUITE1
+#define TEST_SUITE2
 
 #if DEBUG
 #define DISSASSEMBLE

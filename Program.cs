@@ -1,7 +1,7 @@
 ﻿////#define SUDOKU_ASSEMBLE
 ////#define EHBASIC
-#define TEST_SUITE1
-////#define TEST_SUITE2
+////#define TEST_SUITE1
+#define TEST_SUITE2
 
 namespace Simulator
 {
@@ -51,7 +51,7 @@ namespace Simulator
 #if SUDOKU_ASSEMBLE
 				processor.LoadRom("C:\\github\\cpp\\cpp_6502\\sudoku.bin", 0xf000);
 				processor.Reset();
-                processor.BreakAllowed = true;
+				processor.BreakAllowed = true;
 #endif
 
 				processor.Run();
