@@ -2,12 +2,16 @@
 #define ADDRESS_PROFILE
 
 #define TEST_SUITE1
-//#define TEST_SUITE2
+////#define TEST_SUITE2
+
+#if DEBUG
+#define DISSASSEMBLE
+#endif
 
 namespace Simulator
 {
 	using System;
-#if DEBUG
+#if DISSASSEMBLE
 	using System.Collections.Generic;
 #endif
 	using System.IO;
@@ -27,17 +31,17 @@ namespace Simulator
 		private readonly ulong[] addressProfiles;
 #endif
 
+		private readonly ushort input;
+		private readonly ushort output;
+
 #if TEST_SUITE2
 		private ushort oldPC = 0;
 #endif
 
-		private readonly ushort input;
-		private readonly ushort output;
-
 		private byte breakInstruction;
 		private bool breakAllowed;
 
-#if DEBUG
+#if DISSASSEMBLE
 		private Dictionary<AddressingMode, AddressingModeDumper> dumper;
 #endif
 
@@ -56,6 +60,7 @@ namespace Simulator
 #if INSTRUCTION_COUNT
 			this.instructionCounts = new ulong[0x100];
 #endif
+
 #if ADDRESS_PROFILE
 			this.addressProfiles = new ulong[0x10000];
 #endif
@@ -64,7 +69,7 @@ namespace Simulator
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
 			this.inputPollTimer.Start();
 
-#if DEBUG
+#if DISSASSEMBLE
 			this.dumper = new Dictionary<AddressingMode, AddressingModeDumper>()
 			{
 				{ AddressingMode.Illegal, new AddressingModeDumper {ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing}},
@@ -166,19 +171,19 @@ namespace Simulator
 #endif
 
 #if TEST_SUITE2
-			var test = this.GetByte(0x0200);
-			if (oldPC == PC)
+			if (this.oldPC == this.PC)
 			{
+				var test = this.GetByte(0x0200);
 				System.Console.Out.WriteLine("\n** PC={0:x4}: test={1:x2}: stopped!!", this.PC, test);
 				return false;
 			}
 			else
 			{
-				oldPC = PC;
+				this.oldPC = this.PC;
 			}
 #endif
 
-#if DEBUG
+#if DISSASSEMBLE
 			System.Console.Out.Write(
 				"\n[{0:d9}] PC={1:x4}:P={2:x2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t", this.Cycles, this.PC, (byte)this.P, this.A, this.X, this.Y, this.S);
 #endif
@@ -188,7 +193,7 @@ namespace Simulator
 
 		protected override bool Execute(byte instruction)
 		{
-#if DEBUG
+#if DISSASSEMBLE
 			Dump_ByteValue(instruction);
 #endif
 
@@ -216,7 +221,7 @@ namespace Simulator
 			return returnValue;
 		}
 
-#if DEBUG
+#if DISSASSEMBLE
 		protected override bool Execute(Instruction instruction)
 		{
 			var mode = instruction.Mode;
@@ -276,7 +281,7 @@ namespace Simulator
 			}
 		}
 
-#if DEBUG
+#if DISSASSEMBLE
 		private static void Dump_Nothing()
 		{
 		}
