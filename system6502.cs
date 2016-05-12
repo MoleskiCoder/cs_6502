@@ -11,10 +11,9 @@
 namespace Simulator
 {
 	using System;
-#if DISSASSEMBLE
 	using System.Collections.Generic;
-#endif
 	using System.IO;
+	using System.Linq;
 
 	public class System6502 : MOS6502, IDisposable
 	{
@@ -151,6 +150,57 @@ namespace Simulator
 			}
 		}
 
+		public override void Run()
+		{
+			base.Run();
+
+#if INSTRUCTION_COUNT
+			{
+				byte i = 0;
+				var instructions = this.instructionCounts.ToDictionary(s => i++, s => s);
+
+				var organisedInstructions = new Dictionary<byte, Tuple<Instruction, ulong>>();
+				foreach (var instruction in instructions)
+				{
+					var key = instruction.Key;
+					var count = instruction.Value;
+					var details = this.Instructions[key];
+					if (count > 0)
+					{
+						organisedInstructions[key] = new Tuple<Instruction, ulong>(details, count);
+					}
+				}
+			}
+#endif
+
+#if ADDRESS_PROFILE
+			{
+				ushort i = 0;
+				var addresses = this.addressProfiles.ToDictionary(s => i++, s => s);
+
+				var organisedAddresses = new Dictionary<ushort, Tuple<Instruction, ulong>>();
+				foreach (var address in addresses)
+				{
+					var key = address.Key;
+					var cycles = address.Value;
+					var details = this.Instructions[this.memory[key]];
+					if (cycles > 0)
+					{
+						organisedAddresses[key] = new Tuple<Instruction, ulong>(details, cycles);
+					}
+				}
+
+				var ordered = from address in organisedAddresses
+							  let cycles = address.Value.Item2
+							  let details = address.Value.Item1
+							  let key = address.Key
+							  let returned = new Tuple<ushort, Instruction, ulong>(key, details, cycles)
+							  orderby cycles descending
+							  select returned;
+			}
+#endif
+		}
+
 		protected void ClearMemory()
 		{
 			Array.Clear(this.memory, 0, this.memory.Length);
@@ -237,6 +287,11 @@ namespace Simulator
 			return base.Execute(instruction);
 		}
 #endif
+
+		protected override ushort GetWord(ushort offset)
+		{
+			return BitConverter.ToUInt16(this.memory, offset);
+		}
 
 		protected override byte GetByte(ushort offset)
 		{

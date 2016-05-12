@@ -30,7 +30,7 @@
 				/* 3 */	INS(this.BMI_rel, 2, AddressingMode.Relative, "BMI"),   INS(this.AND_indy, 5, AddressingMode.IndexedY, "AND"),  INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.AND_zpx, 4, AddressingMode.ZeroPageX, "AND"),	INS(this.ROL_zpx, 6, AddressingMode.ZeroPageX, "ROL"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.SEC_imp, 2, AddressingMode.Implied, "SEC"),		INS(this.AND_absy, 4, AddressingMode.AbsoluteY, "AND"),		INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.AND_absx, 4, AddressingMode.AbsoluteX, "AND"),		INS(this.ROL_absx, 7, AddressingMode.AbsoluteX, "ROL"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 				/* 4 */	INS(this.RTI_imp, 6, AddressingMode.Implied, "RTI"),	INS(this.EOR_xind, 6, AddressingMode.XIndexed, "EOR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.EOR_zp, 3, AddressingMode.ZeroPage, "EOR"),	INS(this.LSR_zp, 5, AddressingMode.ZeroPage, "LSR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.PHA_imp, 3, AddressingMode.Implied, "PHA"),		INS(this.EOR_imm, 2, AddressingMode.Immediate, "EOR"),		INS(this.LSR_imp, 2, AddressingMode.Implied, "LSR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.JMP_abs, 3, AddressingMode.Absolute, "JMP"),	INS(this.EOR_abs, 4, AddressingMode.Absolute, "EOR"),		INS(this.LSR_abs, 6, AddressingMode.Absolute, "LSR"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 				/* 5 */	INS(this.BVC_rel, 2, AddressingMode.Relative, "BVC"),   INS(this.EOR_indy, 5, AddressingMode.IndexedY, "EOR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.EOR_zpx, 4, AddressingMode.ZeroPageX, "EOR"),	INS(this.LSR_zpx, 6, AddressingMode.ZeroPageX, "LSR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.CLI_imp, 2, AddressingMode.Implied, "CLI"),		INS(this.EOR_absy, 4, AddressingMode.AbsoluteY, "EOR"),		INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.EOR_absx, 4, AddressingMode.AbsoluteX, "EOR"),		INS(this.LSR_absx, 7, AddressingMode.AbsoluteX, "LSR"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
-				/* 6 */	INS(this.RTS_imp, 6, AddressingMode.Implied, "RTI"),	INS(this.ADC_xind, 6, AddressingMode.XIndexed, "ADC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.ADC_zp, 3, AddressingMode.ZeroPage, "ADC"),	INS(this.ROR_zp, 5, AddressingMode.ZeroPage, "ROR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.PLA_imp, 4, AddressingMode.Implied, "PLA"),		INS(this.ADC_imm, 2, AddressingMode.Immediate, "ADC"),		INS(this.ROR_imp, 2, AddressingMode.Implied, "ROR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.JMP_ind, 5, AddressingMode.Indirect, "JMP"),	INS(this.ADC_abs, 4, AddressingMode.Absolute, "ADC"),		INS(this.ROR_abs, 6, AddressingMode.Absolute, "ROR"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
+				/* 6 */	INS(this.RTS_imp, 6, AddressingMode.Implied, "RTS"),	INS(this.ADC_xind, 6, AddressingMode.XIndexed, "ADC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.ADC_zp, 3, AddressingMode.ZeroPage, "ADC"),	INS(this.ROR_zp, 5, AddressingMode.ZeroPage, "ROR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.PLA_imp, 4, AddressingMode.Implied, "PLA"),		INS(this.ADC_imm, 2, AddressingMode.Immediate, "ADC"),		INS(this.ROR_imp, 2, AddressingMode.Implied, "ROR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.JMP_ind, 5, AddressingMode.Indirect, "JMP"),	INS(this.ADC_abs, 4, AddressingMode.Absolute, "ADC"),		INS(this.ROR_abs, 6, AddressingMode.Absolute, "ROR"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 				/* 7 */	INS(this.BVS_rel, 2, AddressingMode.Relative, "BVS"),	INS(this.ADC_indy, 5, AddressingMode.IndexedY, "ADC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.ADC_zpx, 4, AddressingMode.ZeroPageX, "ADC"),	INS(this.ROR_zpx, 6, AddressingMode.ZeroPageX, "ROR"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.SEI_imp, 2, AddressingMode.Implied, "SEI"),		INS(this.ADC_absy, 4, AddressingMode.AbsoluteY, "ADC"),		INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.ADC_absx, 4, AddressingMode.AbsoluteX, "ADC"),		INS(this.ROR_absx, 7, AddressingMode.AbsoluteX, "ROR"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 				/* 8 */	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.STA_xind, 6, AddressingMode.XIndexed, "STA"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.STY_zp, 3, AddressingMode.ZeroPage, "STY"),	INS(this.STA_zp, 3, AddressingMode.ZeroPage, "STA"),	INS(this.STX_zp, 3, AddressingMode.ZeroPage, "STX"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.DEY_imp, 2, AddressingMode.Implied, "DEY"),		INS(this.___, 0, AddressingMode.Illegal, "___"),			INS(this.TXA_imp, 2, AddressingMode.Implied, "TXA"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.STY_abs, 4, AddressingMode.Absolute, "STY"),	INS(this.STA_abs, 4, AddressingMode.Absolute, "STA"),		INS(this.STX_abs, 4, AddressingMode.Absolute, "STX"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 				/* 9 */	INS(this.BCC_rel, 2, AddressingMode.Relative, "BCC"),   INS(this.STA_indy, 6, AddressingMode.IndexedY, "STA"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.STY_zpx, 4, AddressingMode.ZeroPageX, "STY"),	INS(this.STA_zpx, 4, AddressingMode.ZeroPageX, "STA"),	INS(this.STX_zpy, 4, AddressingMode.ZeroPageY, "STX"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.TYA_imp, 2, AddressingMode.Implied, "TYA"),		INS(this.STA_absy, 5, AddressingMode.AbsoluteY, "STA"),		INS(this.TXS_imp, 2, AddressingMode.Implied, "TXS"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.STA_absx, 5, AddressingMode.AbsoluteX, "STA"),		INS(this.___, 0, AddressingMode.Illegal, "___"),			INS(this.___, 0, AddressingMode.Illegal, "___"),
@@ -41,6 +41,14 @@
 				/* E */	INS(this.CPX_imm, 2, AddressingMode.Immediate, "CPX"),	INS(this.SBC_xind, 6, AddressingMode.XIndexed, "SBC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.CPX_zp, 3, AddressingMode.ZeroPage, "CPX"),	INS(this.SBC_zp, 3, AddressingMode.ZeroPage, "SBC"),	INS(this.INC_zp, 5, AddressingMode.ZeroPage, "INC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.INX_imp, 2, AddressingMode.Implied, "INX"),		INS(this.SBC_imm, 2, AddressingMode.Immediate, "SBC"),		INS(this.NOP_imp, 2, AddressingMode.Implied, "NOP"),	INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.CPX_abs, 4, AddressingMode.Absolute, "CPX"),	INS(this.SBC_abs, 4, AddressingMode.Absolute, "SBC"),		INS(this.INC_abs, 6, AddressingMode.Absolute, "INC"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 				/* F */	INS(this.BEQ_rel, 2, AddressingMode.Relative, "BEQ"),	INS(this.SBC_indy, 5, AddressingMode.IndexedY, "SBC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.SBC_zpx, 4, AddressingMode.ZeroPageX, "SBC"),	INS(this.INC_zpx, 6, AddressingMode.ZeroPageX, "INC"),	INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.SED_imp, 2, AddressingMode.Implied, "SED"),		INS(this.SBC_absy, 4, AddressingMode.AbsoluteY, "SBC"),		INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.___, 0, AddressingMode.Illegal, "___"),	INS(this.___, 0, AddressingMode.Illegal, "___"),		INS(this.SBC_absx, 4, AddressingMode.AbsoluteX, "SBC"),		INS(this.INC_absx, 7, AddressingMode.AbsoluteX, "INC"),		INS(this.___, 0, AddressingMode.Illegal, "___"),
 			};
+		}
+
+		protected Instruction[] Instructions
+		{
+			get
+			{
+				return this.instructions;
+			}
 		}
 
 		public ulong Cycles
@@ -204,7 +212,7 @@
 			return this.Execute(this.FetchByte());
 		}
 
-		protected ushort GetWord(ushort offset)
+		protected virtual ushort GetWord(ushort offset)
 		{
 			var low = this.GetByte(offset);
 			var high = this.GetByte((ushort)(offset + 1));
@@ -517,7 +525,7 @@
 
 		private byte ROR(byte data)
 		{
-			bool carry = (this.P & StatusFlags.Carry) != 0;
+			bool carry = this.IsFlagSet(StatusFlags.Carry);
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
 
 			if ((data & 1) != 0)
@@ -601,7 +609,7 @@
 
 		private byte ROL(byte data)
 		{
-			var carry = (this.P & StatusFlags.Carry) != 0;
+			var carry = this.IsFlagSet(StatusFlags.Carry);
 
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
 
@@ -668,11 +676,12 @@
 
 		private void SBC_b(byte data)
 		{
-			var carry = (byte)((this.P & StatusFlags.Carry) == 0 ? 1 : 0);
+			// Start:: Common subtraction code!!
+
+			var carry = (byte)(this.IsFlagClear(StatusFlags.Carry) ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
 			this.ClearFlag(StatusFlags.Zero | StatusFlags.Overflow | StatusFlags.Negative | StatusFlags.Carry);
-
 			this.UpdateFlags_ZeroNegative((byte)difference);
 
 			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
@@ -685,16 +694,32 @@
 				this.SetFlag(StatusFlags.Carry);
 			}
 
+			// Finish:: Common subtraction code!!
+
 			this.A = (byte)difference;
 		}
 
 		private void SBC_d(byte data)
 		{
-			var carry = (byte)((this.P & StatusFlags.Carry) == 0 ? 1 : 0);
+			// Start:: Common subtraction code!!
+
+			var carry = (byte)(this.IsFlagClear(StatusFlags.Carry) ? 1 : 0);
+			var difference = (ushort)(this.A - data - carry);
 
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
+			this.UpdateFlags_ZeroNegative((byte)difference);
 
-			var difference = (ushort)(this.A - data - carry);
+			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
+			{
+				this.SetFlag(StatusFlags.Overflow);
+			}
+
+			if ((difference & 0xff00) == 0)
+			{
+				this.SetFlag(StatusFlags.Carry);
+			}
+
+			// Finish:: Common subtraction code!!
 
 			var low = (byte)(LowNybble(this.A) - LowNybble(data) - carry);
 
@@ -705,18 +730,6 @@
 			}
 
 			var high = (byte)(HighNybble(this.A) - HighNybble(data) - (lowNegative ? 1 : 0));
-
-			this.UpdateFlags_ZeroNegative((byte)difference);
-
-			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Overflow);
-			}
-
-			if ((difference & 0xff00) == 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
 
 			if ((sbyte)high < 0)
 			{
@@ -793,7 +806,7 @@
 
 		private void ADC_b(byte data)
 		{
-			var carry = (byte)((this.P & StatusFlags.Carry) == 0 ? 0 : 1);
+			var carry = (byte)(this.IsFlagSet(StatusFlags.Carry) ? 1 : 0);
 			var sum = (ushort)(this.A + data + carry);
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
 
@@ -814,9 +827,11 @@
 
 		private void ADC_d(byte data)
 		{
-			var carry = (byte)((this.P & StatusFlags.Carry) == 0 ? 0 : 1);
+			var carry = (byte)(this.IsFlagSet(StatusFlags.Carry) ? 1 : 0);
+			var sum = (ushort)(this.A + data + carry);
 
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
+			this.UpdateFlags_ZeroNegative((byte)sum);
 
 			var low = (byte)(LowNybble(this.A) + LowNybble(data) + carry);
 			if (low > 9)
@@ -825,19 +840,6 @@
 			}
 
 			var high = (byte)(HighNybble(this.A) + HighNybble(data) + (low > 0x0f ? 1 : 0));
-
-			if ((byte)(this.A + data + carry) == 0)
-			{
-				this.SetFlag(StatusFlags.Zero);
-			}
-			else
-			{
-				if ((high & 8) != 0)
-				{
-					this.SetFlag(StatusFlags.Negative);
-				}
-			}
-
 			if ((~(this.A ^ data) & (this.A ^ (high << 4)) & 0x80) != 0)
 			{
 				this.SetFlag(StatusFlags.Overflow);
@@ -871,10 +873,11 @@
 				this.Cycles += 2;
 			}
 		}
+
 		private void Branch_False(StatusFlags flag)
 		{
 			var displacement = this.ReadByte_ImmediateDisplacement();
-			if ((this.P & flag) == 0)
+			if (this.IsFlagClear(flag))
 			{
 				this.Branch(displacement);
 			}
@@ -883,7 +886,7 @@
 		private void Branch_True(StatusFlags flag)
 		{
 			var displacement = this.ReadByte_ImmediateDisplacement();
-			if ((this.P & flag) != 0)
+			if (this.IsFlagSet(flag))
 			{
 				this.Branch(displacement);
 			}
@@ -898,9 +901,19 @@
 			this.P |= flag;
 		}
 
+		private bool IsFlagSet(StatusFlags flag)
+		{
+			return (this.P & flag) != 0;
+		}
+
 		private void ClearFlag(StatusFlags flag)
 		{
 			this.P &= ~flag;
+		}
+
+		private bool IsFlagClear(StatusFlags flag)
+		{
+			return (this.P & flag) == 0;
 		}
 
 		#endregion
