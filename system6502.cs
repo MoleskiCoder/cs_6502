@@ -1,11 +1,10 @@
-﻿////#define INSTRUCTION_COUNT
-////#define ADDRESS_PROFILE
-
-////#define TEST_SUITE1
+﻿////#define TEST_SUITE1
 #define TEST_SUITE2
 
 #if DEBUG
 #define DISSASSEMBLE
+#define INSTRUCTION_COUNT
+#define ADDRESS_PROFILE
 #endif
 
 namespace Simulator
@@ -41,7 +40,7 @@ namespace Simulator
 		private bool breakAllowed;
 
 #if DISSASSEMBLE
-		private Dictionary<AddressingMode, AddressingModeDumper> dumper;
+		private Dictionary<AddressingMode, AddressingModeDumper> dumpers;
 #endif
 
 		private bool disposed;
@@ -69,21 +68,21 @@ namespace Simulator
 			this.inputPollTimer.Start();
 
 #if DISSASSEMBLE
-			this.dumper = new Dictionary<AddressingMode, AddressingModeDumper>()
+			this.dumpers = new Dictionary<AddressingMode, AddressingModeDumper>()
 			{
-				{ AddressingMode.Illegal, new AddressingModeDumper {ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing}},
-				{ AddressingMode.Implied, new AddressingModeDumper {ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing}},
-				{ AddressingMode.Immediate, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_imm}},
-				{ AddressingMode.Relative, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_rel}},
-				{ AddressingMode.XIndexed, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_xind}},
-				{ AddressingMode.IndexedY, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_indy}},
-				{ AddressingMode.ZeroPage, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_zp}},
-				{ AddressingMode.ZeroPageX, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_zpx}},
-				{ AddressingMode.ZeroPageY, new AddressingModeDumper {ByteDumper = Dump_Byte, DisassemblyDumper = Dump_zpy}},
-				{ AddressingMode.Absolute, new AddressingModeDumper {ByteDumper = Dump_DByte, DisassemblyDumper = Dump_abs}},
-				{ AddressingMode.AbsoluteX, new AddressingModeDumper {ByteDumper = Dump_DByte, DisassemblyDumper = Dump_absx}},
-				{ AddressingMode.AbsoluteY, new AddressingModeDumper {ByteDumper = Dump_DByte, DisassemblyDumper = Dump_absy}},
-				{ AddressingMode.Indirect, new AddressingModeDumper {ByteDumper = Dump_DByte, DisassemblyDumper = Dump_ind}},
+				{ AddressingMode.Illegal, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing } },
+				{ AddressingMode.Implied, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_A } },
+				{ AddressingMode.Immediate, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_imm } },
+				{ AddressingMode.Relative, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_rel } },
+				{ AddressingMode.XIndexed, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_xind } },
+				{ AddressingMode.IndexedY, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_indy } },
+				{ AddressingMode.ZeroPage, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zp } },
+				{ AddressingMode.ZeroPageX, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zpx } },
+				{ AddressingMode.ZeroPageY, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zpy } },
+				{ AddressingMode.Absolute, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_abs } },
+				{ AddressingMode.AbsoluteX, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absx } },
+				{ AddressingMode.AbsoluteY, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absy } },
+				{ AddressingMode.Indirect, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_ind } },
 			};
 #endif
 		}
@@ -277,7 +276,7 @@ namespace Simulator
 			var mode = instruction.Mode;
 			var mnemomic = instruction.Display;
 
-			var dumper = this.dumper[mode];
+			var dumper = this.dumpers[mode];
 
 			dumper.ByteDumper();
 
@@ -327,15 +326,6 @@ namespace Simulator
 			}
 		}
 
-		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-		{
-			if (System.Console.KeyAvailable)
-			{
-				var key = System.Console.Read();
-				this.SetByte(this.input, (byte)key);
-			}
-		}
-
 #if DISSASSEMBLE
 		private static void Dump_Nothing()
 		{
@@ -360,10 +350,6 @@ namespace Simulator
 		{
 			this.Dump_Byte(this.PC);
 			this.Dump_Byte((ushort)(this.PC + 1));
-		}
-
-		private static void dump_imp()
-		{
 		}
 
 		private static void Dump_A()
@@ -426,6 +412,15 @@ namespace Simulator
 			System.Console.Out.Write("{0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
 		}
 #endif
+
+		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			if (System.Console.KeyAvailable)
+			{
+				var key = System.Console.Read();
+				this.SetByte(this.input, (byte)key);
+			}
+		}
 
 		private void CheckDisposed()
 		{
