@@ -1,28 +1,14 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+bin/
+obj/
 
-# Precompiled Headers
-*.gch
-*.pch
+.vs/
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+*.swp
+*~
 
-# Fortran module files
-*.mod
+StyleCop.cache
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+*.psess
 
-# Executables
-*.exe
-*.out
-*.app
+*.csproj.user
+*.vsp
