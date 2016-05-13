@@ -69,7 +69,10 @@ namespace Simulator
 
 			this.processor.LoadRom(this.configuration.RomPath, this.configuration.LoadAddress);
 			this.processor.BreakAllowed = this.configuration.StopBreak;
+
 			this.processor.Disassemble = this.configuration.Disassemble;
+			this.processor.CountInstructions = this.configuration.CountInstructions;
+			this.processor.ProfileAddresses = this.configuration.ProfileAddresses;
 
 			if (this.configuration.ResetStart)
 			{

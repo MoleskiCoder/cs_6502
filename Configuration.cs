@@ -24,6 +24,8 @@ namespace Simulator
 		private byte breakInstruction = 0x0;
 
 		private bool disassemble = false;
+		private bool countInstructions = false;
+		private bool profileAddresses = false;
 
 		public Configuration()
 		{
@@ -61,7 +63,9 @@ namespace Simulator
 #endif
 
 #if DEBUG
-			//this.disassemble = true;
+			this.disassemble = true;
+			this.countInstructions = true;
+			this.profileAddresses = true;
 #endif
 		}
 
@@ -134,6 +138,22 @@ namespace Simulator
 			get
 			{
 				return this.disassemble;
+			}
+		}
+
+		public bool CountInstructions
+		{
+			get
+			{
+				return this.countInstructions;
+			}
+		}
+
+		public bool ProfileAddresses
+		{
+			get
+			{
+				return this.profileAddresses;
 			}
 		}
 	}
