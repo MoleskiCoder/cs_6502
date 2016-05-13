@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingModeDumper.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Controller.cs" />
     <Compile Include="Monitor.cs">
       <SubType>Form</SubType>
     </Compile>

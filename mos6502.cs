@@ -1,6 +1,9 @@
-﻿namespace Simulator
+﻿
+namespace Simulator
 {
-	public abstract class MOS6502
+	using System.ComponentModel;
+
+	public abstract class MOS6502 : INotifyPropertyChanged
 	{
 		private const ushort PageOne = 0x100;
 		private const ushort IRQvector = 0xfffe;
@@ -43,6 +46,9 @@
 			};
 		}
 
+		public event PropertyChangedEventHandler PropertyChanged;
+
+
 		protected Instruction[] Instructions
 		{
 			get
@@ -60,11 +66,15 @@
 
 			private set
 			{
-				this.cycles = value;
+				if (this.cycles != value)
+				{
+					this.cycles = value;
+					this.OnPropertyChanged("Cycles");
+				}
 			}
 		}
 
-		protected ushort PC
+		public ushort PC
 		{
 			get
 			{
@@ -73,7 +83,11 @@
 
 			private set
 			{
-				this.pc = value;
+				if (this.pc != value)
+				{
+					this.pc = value;
+					this.OnPropertyChanged("PC");
+				}
 			}
 		}
 
@@ -86,7 +100,11 @@
 
 			private set
 			{
-				this.x = value;
+				if (this.x != value)
+				{
+					this.x = value;
+					this.OnPropertyChanged("X");
+				}
 			}
 		}
 
@@ -99,7 +117,11 @@
 
 			private set
 			{
-				this.y = value;
+				if (this.y != value)
+				{
+					this.y = value;
+					this.OnPropertyChanged("Y");
+				}
 			}
 		}
 
@@ -112,7 +134,11 @@
 
 			private set
 			{
-				this.a = value;
+				if (this.a != value)
+				{
+					this.a = value;
+					this.OnPropertyChanged("A");
+				}
 			}
 		}
 
@@ -125,7 +151,11 @@
 
 			private set
 			{
-				this.s = value;
+				if (this.s != value)
+				{
+					this.s = value;
+					this.OnPropertyChanged("S");
+				}
 			}
 		}
 
@@ -138,7 +168,11 @@
 
 			private set
 			{
-				this.p = value;
+				if (this.p != value)
+				{
+					this.p = value;
+					this.OnPropertyChanged("P");
+				}
 			}
 		}
 
@@ -168,6 +202,15 @@
 		public virtual void TriggerNMI()
 		{
 			this.Interrupt(NMIvector);
+		}
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			var handler = this.PropertyChanged;
+			if (handler != null)
+			{
+				handler(this, new PropertyChangedEventArgs(propertyName));
+			}
 		}
 
 		protected virtual void Interrupt(ushort vector)
@@ -219,9 +262,9 @@
 			return MakeWord(low, high);
 		}
 
-		protected abstract byte GetByte(ushort offset);
+		public abstract byte GetByte(ushort offset);
 
-		protected abstract void SetByte(ushort offset, byte value);
+		public abstract void SetByte(ushort offset, byte value);
 
 		private static Instruction INS(Implementation method, ulong cycles, AddressingMode addressing, string display)
 		{
@@ -300,12 +343,16 @@
 
 		private byte FetchByte()
 		{
-			return this.FetchByte(ref this.pc);
+			var returnValue = this.FetchByte(ref this.pc);
+			this.OnPropertyChanged("PC");
+			return returnValue;
 		}
 
 		private ushort FetchWord()
 		{
-			return this.FetchWord(ref this.pc);
+			var returnValue = this.FetchWord(ref this.pc);
+			this.OnPropertyChanged("PC");
+			return returnValue;
 		}
 
 		////

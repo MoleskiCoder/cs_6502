@@ -1,13 +1,4 @@
-﻿////#define TEST_SUITE1
-#define TEST_SUITE2
-
-#if DEBUG
-#define DISSASSEMBLE
-#define INSTRUCTION_COUNT
-#define ADDRESS_PROFILE
-#endif
-
-namespace Simulator
+﻿namespace Simulator
 {
 	using System;
 	using System.Collections.Generic;
@@ -22,26 +13,22 @@ namespace Simulator
 
 		private readonly byte[] memory;
 
-#if INSTRUCTION_COUNT
 		private readonly ulong[] instructionCounts;
-#endif
-#if ADDRESS_PROFILE
 		private readonly ulong[] addressProfiles;
-#endif
 
 		private readonly ushort input;
 		private readonly ushort output;
 
-#if TEST_SUITE2
-		private ushort oldPC = 0;
-#endif
-
 		private byte breakInstruction;
 		private bool breakAllowed;
 
-#if DISSASSEMBLE
+		private bool disassemble;
+		private bool countInstructions;
+		private bool profileAddresses;
+
+		private bool proceed = true;
+
 		private Dictionary<AddressingMode, AddressingModeDumper> dumpers;
-#endif
 
 		private bool disposed;
 
@@ -55,19 +42,17 @@ namespace Simulator
 
 			this.memory = new byte[0x10000];
 
-#if INSTRUCTION_COUNT
 			this.instructionCounts = new ulong[0x100];
-#endif
-
-#if ADDRESS_PROFILE
 			this.addressProfiles = new ulong[0x10000];
-#endif
+
+			this.disassemble = false;
+			this.countInstructions = false;
+			this.profileAddresses = false;
 
 			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
 			this.inputPollTimer.Start();
 
-#if DISSASSEMBLE
 			this.dumpers = new Dictionary<AddressingMode, AddressingModeDumper>()
 			{
 				{ AddressingMode.Illegal, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing } },
@@ -84,7 +69,6 @@ namespace Simulator
 				{ AddressingMode.AbsoluteY, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absy } },
 				{ AddressingMode.Indirect, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_ind } },
 			};
-#endif
 		}
 
 		public System6502(ushort addressInput, ushort addressOutput)
@@ -97,6 +81,9 @@ namespace Simulator
 		{
 		}
 
+		public event EventHandler<EventArgs> Stepping;
+		public event EventHandler<EventArgs> Stepped;
+
 		public byte BreakInstruction
 		{
 			get
@@ -106,7 +93,11 @@ namespace Simulator
 
 			set
 			{
-				this.breakInstruction = value;
+				if (this.breakInstruction != value)
+				{
+					this.breakInstruction = value;
+					this.OnPropertyChanged("BreakInstruction");
+				}
 			}
 		}
 
@@ -119,7 +110,79 @@ namespace Simulator
 
 			set
 			{
-				this.breakAllowed = value;
+				if (this.breakAllowed != value)
+				{
+					this.breakAllowed = value;
+					this.OnPropertyChanged("BreakAllowed");
+				}
+			}
+		}
+
+		public bool Disassemble
+		{
+			get
+			{
+				return this.disassemble;
+			}
+
+			set
+			{
+				if (this.disassemble != value)
+				{
+					this.disassemble = value;
+					this.OnPropertyChanged("Disassemble");
+				}
+			}
+		}
+
+		public bool CountInstructions
+		{
+			get
+			{
+				return this.countInstructions;
+			}
+
+			set
+			{
+				if (this.countInstructions != value)
+				{
+					this.countInstructions = value;
+					this.OnPropertyChanged("CountInstructions");
+				}
+			}
+		}
+
+		public bool ProfileAddresses
+		{
+			get
+			{
+				return this.profileAddresses;
+			}
+
+			set
+			{
+				if (this.profileAddresses != value)
+				{
+					this.profileAddresses = value;
+					this.OnPropertyChanged("ProfileAddresses");
+				}
+			}
+		}
+
+		public bool Proceed
+		{
+			get
+			{
+				return this.proceed;
+			}
+
+			set
+			{
+				if (this.proceed != value)
+				{
+					this.proceed = value;
+					this.OnPropertyChanged("Proceed");
+				}
 			}
 		}
 
@@ -133,10 +196,6 @@ namespace Simulator
 		{
 			this.ClearMemory();
 			this.ResetRegisters();
-
-#if TEST_SUITE2
-			this.oldPC = (ushort)0xffff;
-#endif
 		}
 
 		public void LoadRom(string path, ushort offset)
@@ -153,7 +212,7 @@ namespace Simulator
 		{
 			base.Run();
 
-#if INSTRUCTION_COUNT
+			if (this.CountInstructions)
 			{
 				byte i = 0;
 				var instructions = this.instructionCounts.ToDictionary(s => i++, s => s);
@@ -170,9 +229,8 @@ namespace Simulator
 					}
 				}
 			}
-#endif
 
-#if ADDRESS_PROFILE
+			if (this.ProfileAddresses)
 			{
 				ushort i = 0;
 				var addresses = this.addressProfiles.ToDictionary(s => i++, s => s);
@@ -197,102 +255,9 @@ namespace Simulator
 							  orderby cycles descending
 							  select returned;
 			}
-#endif
 		}
 
-		protected void ClearMemory()
-		{
-			Array.Clear(this.memory, 0, this.memory.Length);
-		}
-
-		protected override bool Step()
-		{
-#if TEST_SUITE1
-			if (this.PC == 0x45c0)
-			{
-				var test = this.GetByte(0x0210);
-				if (test == 0xff)
-					System.Console.Out.WriteLine("\n** success!!");
-				else
-					System.Console.Out.WriteLine("\n** {0} failed!!", test);
-				return false;
-			}
-#endif
-
-#if TEST_SUITE2
-			if (this.oldPC == this.PC)
-			{
-				var test = this.GetByte(0x0200);
-				System.Console.Out.WriteLine("\n** PC={0:x4}: test={1:x2}: stopped!!", this.PC, test);
-				return false;
-			}
-			else
-			{
-				this.oldPC = this.PC;
-			}
-#endif
-
-#if DISSASSEMBLE
-			System.Console.Out.Write(
-				"\n[{0:d9}] PC={1:x4}:P={2:x2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t", this.Cycles, this.PC, (byte)this.P, this.A, this.X, this.Y, this.S);
-#endif
-
-			return base.Step();
-		}
-
-		protected override bool Execute(byte instruction)
-		{
-#if DISSASSEMBLE
-			Dump_ByteValue(instruction);
-#endif
-
-#if ADDRESS_PROFILE
-			var profileAddress = (ushort)(this.PC - 1);   // We've already completed the fetch cycle.
-			var currentCycles = this.Cycles;
-#endif
-
-#if INSTRUCTION_COUNT
-			++this.instructionCounts[instruction];
-#endif
-
-			var returnValue = base.Execute(instruction);
-
-#if ADDRESS_PROFILE
-			var cycleCount = this.Cycles - currentCycles;
-			this.addressProfiles[profileAddress] += cycleCount;
-#endif
-
-			if (this.BreakAllowed && instruction == this.BreakInstruction)
-			{
-				return false;
-			}
-
-			return returnValue;
-		}
-
-#if DISSASSEMBLE
-		protected override bool Execute(Instruction instruction)
-		{
-			var mode = instruction.Mode;
-			var mnemomic = instruction.Display;
-
-			var dumper = this.dumpers[mode];
-
-			dumper.ByteDumper();
-
-			System.Console.Out.Write("\t{0} ", mnemomic);
-			dumper.DisassemblyDumper();
-
-			return base.Execute(instruction);
-		}
-#endif
-
-		protected override ushort GetWord(ushort offset)
-		{
-			return BitConverter.ToUInt16(this.memory, offset);
-		}
-
-		protected override byte GetByte(ushort offset)
+		public override byte GetByte(ushort offset)
 		{
 			var content = this.memory[offset];
 			if (offset == this.input)
@@ -303,12 +268,113 @@ namespace Simulator
 			return content;
 		}
 
-		protected override void SetByte(ushort offset, byte value)
+		public override void SetByte(ushort offset, byte value)
 		{
 			this.memory[offset] = value;
 			if (offset == this.output)
 			{
 				System.Console.Out.Write((char)value);
+			}
+		}
+
+		protected void ClearMemory()
+		{
+			Array.Clear(this.memory, 0, this.memory.Length);
+		}
+
+		protected override bool Step()
+		{
+			if (this.Disassemble)
+			{
+				System.Console.Out.Write(
+					"\n[{0:d9}] PC={1:x4}:P={2:x2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t", this.Cycles, this.PC, (byte)this.P, this.A, this.X, this.Y, this.S);
+			}
+
+			this.OnStepping();
+			try
+			{
+				return this.Proceed ? base.Step() : false;
+			}
+			finally
+			{
+				this.OnStepped();
+			}
+		}
+
+		protected override bool Execute(byte instruction)
+		{
+			if (this.Disassemble)
+			{
+				Dump_ByteValue(instruction);
+			}
+
+			ushort profileAddress = 0;
+			ulong currentCycles = 0;
+			if (this.ProfileAddresses)
+			{
+				profileAddress = (ushort)(this.PC - 1);   // We've already completed the fetch cycle.
+				currentCycles = this.Cycles;
+			}
+
+			if (this.CountInstructions)
+			{
+				++this.instructionCounts[instruction];
+			}
+
+			var returnValue = base.Execute(instruction);
+
+			if (this.ProfileAddresses)
+			{
+				var cycleCount = this.Cycles - currentCycles;
+				this.addressProfiles[profileAddress] += cycleCount;
+			}
+
+			if (this.BreakAllowed && instruction == this.BreakInstruction)
+			{
+				return false;
+			}
+
+			return returnValue;
+		}
+
+		protected override bool Execute(Instruction instruction)
+		{
+			if (this.Disassemble)
+			{
+				var mode = instruction.Mode;
+				var mnemomic = instruction.Display;
+
+				var dumper = this.dumpers[mode];
+
+				dumper.ByteDumper();
+
+				System.Console.Out.Write("\t{0} ", mnemomic);
+				dumper.DisassemblyDumper();
+			}
+
+			return base.Execute(instruction);
+		}
+
+		protected override ushort GetWord(ushort offset)
+		{
+			return BitConverter.ToUInt16(this.memory, offset);
+		}
+
+		protected void OnStepping()
+		{
+			var handler = this.Stepping;
+			if (handler != null)
+			{
+				handler(this, EventArgs.Empty);
+			}
+		}
+
+		protected void OnStepped()
+		{
+			var handler = this.Stepped;
+			if (handler != null)
+			{
+				handler(this, EventArgs.Empty);
 			}
 		}
 
@@ -326,7 +392,6 @@ namespace Simulator
 			}
 		}
 
-#if DISSASSEMBLE
 		private static void Dump_Nothing()
 		{
 		}
@@ -411,7 +476,6 @@ namespace Simulator
 		{
 			System.Console.Out.Write("{0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
 		}
-#endif
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
