@@ -82,17 +82,20 @@
 		}
 
 		public event EventHandler<EventArgs> Stepping;
+
 		public event EventHandler<EventArgs> Stepped;
 
 		public byte BreakInstruction
 		{
 			get
 			{
+				this.CheckDisposed();
 				return this.breakInstruction;
 			}
 
 			set
 			{
+				this.CheckDisposed();
 				if (this.breakInstruction != value)
 				{
 					this.breakInstruction = value;
@@ -105,11 +108,13 @@
 		{
 			get
 			{
+				this.CheckDisposed();
 				return this.breakAllowed;
 			}
 
 			set
 			{
+				this.CheckDisposed();
 				if (this.breakAllowed != value)
 				{
 					this.breakAllowed = value;
@@ -122,11 +127,13 @@
 		{
 			get
 			{
+				this.CheckDisposed();
 				return this.disassemble;
 			}
 
 			set
 			{
+				this.CheckDisposed();
 				if (this.disassemble != value)
 				{
 					this.disassemble = value;
@@ -139,11 +146,13 @@
 		{
 			get
 			{
+				this.CheckDisposed();
 				return this.countInstructions;
 			}
 
 			set
 			{
+				this.CheckDisposed();
 				if (this.countInstructions != value)
 				{
 					this.countInstructions = value;
@@ -156,11 +165,13 @@
 		{
 			get
 			{
+				this.CheckDisposed();
 				return this.profileAddresses;
 			}
 
 			set
 			{
+				this.CheckDisposed();
 				if (this.profileAddresses != value)
 				{
 					this.profileAddresses = value;
@@ -173,11 +184,13 @@
 		{
 			get
 			{
+				this.CheckDisposed();
 				return this.proceed;
 			}
 
 			set
 			{
+				this.CheckDisposed();
 				if (this.proceed != value)
 				{
 					this.proceed = value;
@@ -194,12 +207,14 @@
 
 		public void Clear()
 		{
+			this.CheckDisposed();
 			this.ClearMemory();
 			this.ResetRegisters();
 		}
 
 		public void LoadRom(string path, ushort offset)
 		{
+			this.CheckDisposed();
 			var file = File.Open(path, FileMode.Open);
 			using (var reader = new BinaryReader(file))
 			{
@@ -210,6 +225,8 @@
 
 		public override void Run()
 		{
+			this.CheckDisposed();
+
 			base.Run();
 
 			if (this.CountInstructions)
@@ -259,6 +276,7 @@
 
 		public override byte GetByte(ushort offset)
 		{
+			this.CheckDisposed();
 			var content = this.memory[offset];
 			if (offset == this.input)
 			{
@@ -270,6 +288,7 @@
 
 		public override void SetByte(ushort offset, byte value)
 		{
+			this.CheckDisposed();
 			this.memory[offset] = value;
 			if (offset == this.output)
 			{
@@ -279,11 +298,14 @@
 
 		protected void ClearMemory()
 		{
+			this.CheckDisposed();
 			Array.Clear(this.memory, 0, this.memory.Length);
 		}
 
 		protected override bool Step()
 		{
+			this.CheckDisposed();
+
 			if (this.Disassemble)
 			{
 				System.Console.Out.Write(
@@ -303,6 +325,8 @@
 
 		protected override bool Execute(byte instruction)
 		{
+			this.CheckDisposed();
+
 			if (this.Disassemble)
 			{
 				Dump_ByteValue(instruction);
@@ -339,6 +363,7 @@
 
 		protected override bool Execute(Instruction instruction)
 		{
+			this.CheckDisposed();
 			if (this.Disassemble)
 			{
 				var mode = instruction.Mode;
@@ -357,11 +382,13 @@
 
 		protected override ushort GetWord(ushort offset)
 		{
+			this.CheckDisposed();
 			return BitConverter.ToUInt16(this.memory, offset);
 		}
 
 		protected void OnStepping()
 		{
+			this.CheckDisposed();
 			var handler = this.Stepping;
 			if (handler != null)
 			{
@@ -371,6 +398,7 @@
 
 		protected void OnStepped()
 		{
+			this.CheckDisposed();
 			var handler = this.Stepped;
 			if (handler != null)
 			{
@@ -401,84 +429,99 @@
 			System.Console.Out.Write("{0:x2}", value);
 		}
 
-		private void Dump_Byte(ushort address)
-		{
-			Dump_ByteValue(this.GetByte(address));
-		}
-
-		private void Dump_Byte()
-		{
-			this.Dump_Byte(this.PC);
-		}
-
-		private void Dump_DByte()
-		{
-			this.Dump_Byte(this.PC);
-			this.Dump_Byte((ushort)(this.PC + 1));
-		}
-
 		private static void Dump_A()
 		{
 			System.Console.Out.Write("A");
 		}
 
+		private void Dump_Byte(ushort address)
+		{
+			this.CheckDisposed();
+			Dump_ByteValue(this.GetByte(address));
+		}
+
+		private void Dump_Byte()
+		{
+			this.CheckDisposed();
+			this.Dump_Byte(this.PC);
+		}
+
+		private void Dump_DByte()
+		{
+			this.CheckDisposed();
+			this.Dump_Byte(this.PC);
+			this.Dump_Byte((ushort)(this.PC + 1));
+		}
+
 		private void Dump_imm()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("#${0:x2}", this.GetByte(this.PC));
 		}
 
 		private void Dump_abs()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("${0:x4}", this.GetWord(this.PC));
 		}
 
 		private void Dump_zp()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("${0:x2}", this.GetByte(this.PC));
 		}
 
 		private void Dump_zpx()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("${0:x2},X", this.GetByte(this.PC));
 		}
 
 		private void Dump_zpy()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("${0:x2},Y", this.GetByte(this.PC));
 		}
 
 		private void Dump_absx()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("${0:x4},X", this.GetWord(this.PC));
 		}
 
 		private void Dump_absy()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("${0:x4},Y", this.GetWord(this.PC));
 		}
 
 		private void Dump_xind()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("(${0:x2},X)", this.GetByte(this.PC));
 		}
 
 		private void Dump_indy()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("(${0:x2}),Y", this.GetByte(this.PC));
 		}
 
 		private void Dump_ind()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("(${0:x4})", this.GetWord(this.PC));
 		}
 
 		private void Dump_rel()
 		{
+			this.CheckDisposed();
 			System.Console.Out.Write("{0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
 		}
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
+			this.CheckDisposed();
 			if (System.Console.KeyAvailable)
 			{
 				var key = System.Console.Read();

@@ -1,5 +1,4 @@
-﻿
-namespace Simulator
+﻿namespace Simulator
 {
 	using System.ComponentModel;
 
@@ -48,15 +47,6 @@ namespace Simulator
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-
-		protected Instruction[] Instructions
-		{
-			get
-			{
-				return this.instructions;
-			}
-		}
-
 		public ulong Cycles
 		{
 			get
@@ -88,6 +78,14 @@ namespace Simulator
 					this.pc = value;
 					this.OnPropertyChanged("PC");
 				}
+			}
+		}
+
+		protected Instruction[] Instructions
+		{
+			get
+			{
+				return this.instructions;
 			}
 		}
 
@@ -204,6 +202,10 @@ namespace Simulator
 			this.Interrupt(NMIvector);
 		}
 
+		public abstract byte GetByte(ushort offset);
+
+		public abstract void SetByte(ushort offset, byte value);
+
 		protected virtual void OnPropertyChanged(string propertyName)
 		{
 			var handler = this.PropertyChanged;
@@ -261,10 +263,6 @@ namespace Simulator
 			var high = this.GetByte((ushort)(offset + 1));
 			return MakeWord(low, high);
 		}
-
-		public abstract byte GetByte(ushort offset);
-
-		public abstract void SetByte(ushort offset, byte value);
 
 		private static Instruction INS(Implementation method, ulong cycles, AddressingMode addressing, string display)
 		{
@@ -723,8 +721,6 @@ namespace Simulator
 
 		private void SBC_b(byte data)
 		{
-			// Start:: Common subtraction code!!
-
 			var carry = (byte)(this.IsFlagClear(StatusFlags.Carry) ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
@@ -741,15 +737,11 @@ namespace Simulator
 				this.SetFlag(StatusFlags.Carry);
 			}
 
-			// Finish:: Common subtraction code!!
-
 			this.A = (byte)difference;
 		}
 
 		private void SBC_d(byte data)
 		{
-			// Start:: Common subtraction code!!
-
 			var carry = (byte)(this.IsFlagClear(StatusFlags.Carry) ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
@@ -765,8 +757,6 @@ namespace Simulator
 			{
 				this.SetFlag(StatusFlags.Carry);
 			}
-
-			// Finish:: Common subtraction code!!
 
 			var low = (byte)(LowNybble(this.A) - LowNybble(data) - carry);
 
@@ -1822,42 +1812,42 @@ namespace Simulator
 
 		private void BMI_rel()
 		{
-			Branch_True(StatusFlags.Negative);
+			this.Branch_True(StatusFlags.Negative);
 		}
 
 		private void BPL_rel()
 		{
-			Branch_False(StatusFlags.Negative);
+			this.Branch_False(StatusFlags.Negative);
 		}
 
 		private void BVC_rel()
 		{
-			Branch_False(StatusFlags.Overflow);
+			this.Branch_False(StatusFlags.Overflow);
 		}
 
 		private void BVS_rel()
 		{
-			Branch_True(StatusFlags.Overflow);
+			this.Branch_True(StatusFlags.Overflow);
 		}
 
 		private void BCC_rel()
 		{
-			Branch_False(StatusFlags.Carry);
+			this.Branch_False(StatusFlags.Carry);
 		}
 
 		private void BCS_rel()
 		{
-			Branch_True(StatusFlags.Carry);
+			this.Branch_True(StatusFlags.Carry);
 		}
 
 		private void BNE_rel()
 		{
-			Branch_False(StatusFlags.Zero);
+			this.Branch_False(StatusFlags.Zero);
 		}
 
 		private void BEQ_rel()
 		{
-			Branch_True(StatusFlags.Zero);
+			this.Branch_True(StatusFlags.Zero);
 		}
 
 		#endregion

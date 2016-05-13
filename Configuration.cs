@@ -1,10 +1,10 @@
 ﻿// Test suite one: https://github.com/pmonta/FPGA-netlist-tools/tree/master/6502-test-code
 // Test suite two: https://github.com/Klaus2m5/6502_65C02_functional_tests
 
-//#define SUDOKU
-//#define TEST_SUITE1
+////#define SUDOKU
+////#define TEST_SUITE1
 #define TEST_SUITE2
-//#define EHBASIC
+////#define EHBASIC
 
 namespace Simulator
 {

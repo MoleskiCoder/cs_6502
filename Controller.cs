@@ -1,7 +1,5 @@
-﻿//#define SUDOKU
-//#define TEST_SUITE1
+﻿////#define TEST_SUITE1
 #define TEST_SUITE2
-//#define EHBASIC
 
 namespace Simulator
 {
@@ -64,8 +62,8 @@ namespace Simulator
 					this.configuration.OutputAddress);
 			}
 
-			this.processor.Stepping += Processor_Stepping;
-			this.processor.Stepped += Processor_Stepped;
+			this.processor.Stepping += this.Processor_Stepping;
+			this.processor.Stepped += this.Processor_Stepped;
 
 			this.processor.Clear();
 
