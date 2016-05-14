@@ -20,7 +20,7 @@
 
 		private ulong cycles;
 
-		ProcessorType level;
+		private ProcessorType level;
 
 		private Instruction[] instructions;
 		private Instruction[] overlay6502;
@@ -59,23 +59,23 @@
 			{
 				this.overlay65c02 = new Instruction[]
 				{
-					////	0 														1														2														3													4														5														6														7													8														9															A														B													C														D															E															F
-					/* 0 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 1 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 2 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 3 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 4 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 5 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 6 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 7 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 8 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* 9 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* A */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* B */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* C */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* D */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* E */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
-					/* F */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					////	0 														1														2														        3													4														5														6														7													8														9															A														B													C														D															E															F
+					/* 0 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 1 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.INC_imp, 2, AddressingMode.Implied, "INC"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 2 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 3 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.DEC_imp, 2, AddressingMode.Implied, "DEC"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 4 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 5 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.PHY_imp, 2, AddressingMode.Implied, "PHY"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 6 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.STZ_zp, 3, AddressingMode.ZeroPage, "STZ"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 7 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.STZ_zpx, 0, AddressingMode.ZeroPageX, "STZ"),  INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.PLY_imp, 2, AddressingMode.Implied, "PLY"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 8 */	INS(this.BRA_rel, 2, AddressingMode.Relative, "BRA"),   INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* 9 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.STA_zpind, 0, AddressingMode.ZeroPageIndirect, "STA"), INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.STZ_abs, 0, AddressingMode.Absolute, "STZ"),   INS(this.___, 2, AddressingMode.Illegal, "___"),           INS(this.STZ_absx, 2, AddressingMode.AbsoluteX, "STZ"),     INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* A */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* B */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* C */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* D */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.PHX_imp, 2, AddressingMode.Implied, "PHX"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* E */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
+					/* F */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),                INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.PLX_imp, 2, AddressingMode.Implied, "PLX"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 0, AddressingMode.Illegal, "___"),
 				};
 
 				this.OverlayInstructionSet(this.overlay65c02);
@@ -334,7 +334,7 @@
 			return (ushort)((high << 8) + low);
 		}
 
-		//
+		////
 
 		private void InstallInstructionSet(Instruction[] basis)
 		{
@@ -350,7 +350,7 @@
 		{
 			for (uint i = 0; i < 0x100; ++i)
 			{
-				var instruction = this.overlay6502[i];
+				var instruction = overlay[i];
 				var illegal = instruction.Mode == AddressingMode.Illegal;
 				if (includeIllegal || !illegal)
 				{
@@ -359,7 +359,7 @@
 			}
 		}
 
-		//
+		////
 
 		private void PushByte(byte value)
 		{
@@ -487,6 +487,11 @@
 			return (ushort)(this.FetchWord() + this.Y);
 		}
 
+		private ushort Address_ZeroPageIndirect()
+		{
+			return LowByte((ushort)this.FetchByte());
+		}
+
 		////
 
 		private byte ReadByte_Immediate()
@@ -579,6 +584,11 @@
 		private void WriteByte_IndexedIndirectX(byte value)
 		{
 			this.SetByte(this.Address_IndexedIndirectX(), value);
+		}
+
+		private void WriteByte_ZeroPageIndirect(byte value)
+		{
+			this.SetByte(this.Address_ZeroPageIndirect(), value);
 		}
 
 		////
@@ -966,6 +976,12 @@
 			{
 				this.Cycles += 2;
 			}
+		}
+
+		private void Branch()
+		{
+			var displacement = this.ReadByte_ImmediateDisplacement();
+			this.Branch(displacement);
 		}
 
 		private void Branch_False(StatusFlags flag)
@@ -1444,6 +1460,11 @@
 
 		#region DEC
 
+		private void DEC_imp()
+		{
+			this.ReflectFlags_ZeroNegative(--this.A);
+		}
+
 		private void DEC_absx()
 		{
 			this.DEC(this.Address_AbsoluteX_Write());
@@ -1481,6 +1502,11 @@
 		#endregion
 
 		#region INC
+
+		private void INC_imp()
+		{
+			this.ReflectFlags_ZeroNegative(++this.A);
+		}
 
 		private void INC_zp()
 		{
@@ -1597,6 +1623,35 @@
 			this.WriteByte_IndexedIndirectX(this.A);
 		}
 
+		private void STA_zpind()
+		{
+			this.WriteByte_ZeroPageIndirect(this.A);
+		}
+
+		#endregion
+
+		#region STZ
+
+		private void STZ_zp()
+		{
+			this.WriteByte_ZeroPage((byte)0);
+		}
+
+		private void STZ_zpx()
+		{
+			this.WriteByte_ZeroPageX((byte)0);
+		}
+
+		private void STZ_abs()
+		{
+			this.WriteByte_Absolute((byte)0);
+		}
+
+		private void STZ_absx()
+		{
+			this.WriteByte_AbsoluteX((byte)0);
+		}
+
 		#endregion
 
 		#endregion
@@ -1662,6 +1717,28 @@
 		private void PHA_imp()
 		{
 			this.PushByte(this.A);
+		}
+
+		private void PHX_imp()
+		{
+			this.PushByte(this.X);
+		}
+
+		private void PHY_imp()
+		{
+			this.PushByte(this.Y);
+		}
+
+		private void PLX_imp()
+		{
+			this.X = this.PopByte();
+			this.ReflectFlags_ZeroNegative(this.X);
+		}
+
+		private void PLY_imp()
+		{
+			this.Y = this.PopByte();
+			this.ReflectFlags_ZeroNegative(this.Y);
 		}
 
 		#endregion
@@ -1905,6 +1982,11 @@
 		private void BEQ_rel()
 		{
 			this.Branch_True(StatusFlags.Zero);
+		}
+
+		private void BRA_rel()
+		{
+			this.Branch();
 		}
 
 		#endregion

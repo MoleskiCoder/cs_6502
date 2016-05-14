@@ -474,6 +474,11 @@
 			System.Console.Out.Write("(${0:x4})", this.GetWord(this.PC));
 		}
 
+		private void Dump_zpind()
+		{
+			System.Console.Out.Write("(${0:x2})", this.GetByte(this.PC));
+		}
+
 		private void Dump_rel()
 		{
 			System.Console.Out.Write("{0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
