@@ -8,11 +8,10 @@
 		"loadAddress": "c000"
 	},
 	"run": {
-		"resetStart": true,
+		"resetStart": true
 	},
 	"debug": {
-		"disassemble": true,
 		"countInstructions": true,
 		"profileAddresses": true
-	},
+	}
 }

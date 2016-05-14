@@ -482,8 +482,9 @@
 		{
 			if (System.Console.KeyAvailable)
 			{
-				var key = System.Console.Read();
-				this.SetByte(this.input, (byte)key);
+				var key = System.Console.ReadKey(true);
+				var character = key.KeyChar;
+				this.SetByte(this.input, (byte)character);
 			}
 		}
 	}
