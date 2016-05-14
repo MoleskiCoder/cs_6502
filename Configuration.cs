@@ -1,13 +1,11 @@
-﻿// Test suite one: https://github.com/pmonta/FPGA-netlist-tools/tree/master/6502-test-code
-// Test suite two: https://github.com/Klaus2m5/6502_65C02_functional_tests
-
-////#define SUDOKU
-////#define TEST_SUITE1
-#define TEST_SUITE2
-////#define EHBASIC
-
-namespace Simulator
+﻿namespace Simulator
 {
+	using System.Globalization;
+	using System.IO;
+	using System.Runtime.Serialization.Json;
+	using System.Xml.Linq;
+	using System.Xml.XPath;
+
 	public class Configuration
 	{
 		private ushort inputAddress;
@@ -27,46 +25,35 @@ namespace Simulator
 		private bool countInstructions = false;
 		private bool profileAddresses = false;
 
-		public Configuration()
+		public Configuration(string path)
 		{
-#if SUDOKU
-			this.inputAddress = (ushort)0xe000;
-			this.outputAddress = (ushort)0xe001;
-#else
-			this.inputAddress = (ushort)0xf004;
-			this.outputAddress = (ushort)0xf001;
-#endif
+			using (var input = File.Open(path, FileMode.Open))
+			{
+				using (var reader = JsonReaderWriterFactory.CreateJsonReader(input, new System.Xml.XmlDictionaryReaderQuotas()))
+				{
+					var root = XElement.Load(reader);
 
-#if TEST_SUITE1
-			this.romPath = "C:\\github\\cpp\\cpp_6502\\AllSuiteA.bin";
-			this.loadAddress = 0x4000;
-			this.startAddress = 0x4000;
-#endif
+					this.inputAddress = GetUShortValue(root, "//IO/inputAddress");
+					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
 
-#if TEST_SUITE2
-			this.romPath = "C:\\github\\cpp\\cpp_6502\\6502_functional_test.bin";
-			this.loadAddress = 0x0;
-			this.startAddress = 0x400;
-#endif
+					this.romPath = GetStringValue(root, "//ROM/path");
+					this.loadAddress = GetUShortValue(root, "//ROM/loadAddress");
+					this.startAddress = GetUShortValue(root, "//ROM/startAddress");
 
-#if EHBASIC
-			this.romPath = "C:\\github\\cpp\\cpp_6502\\ehbasic.bin";
-			this.loadAddress = 0xc000;
-			this.resetStart = true;
-#endif
-
-#if SUDOKU
-			this.romPath = "C:\\github\\cpp\\cpp_6502\\sudoku.bin";
-			this.loadAddress = 0xf000;
-			this.resetStart = true;
-			this.stopBreak = true;
-#endif
+					this.resetStart = GetBooleanValue(root, "//run/resetStart");
+					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
 
 #if DEBUG
-			this.disassemble = true;
-			this.countInstructions = true;
-			this.profileAddresses = true;
+					this.disassemble = GetBooleanValue(root, "//debug/disassemble");
+					this.countInstructions = GetBooleanValue(root, "//debug/countInstructions");
+					this.profileAddresses = GetBooleanValue(root, "//debug/profileAddresses");
+#else
+					this.disassemble = GetBooleanValue(root, "//release/disassemble");
+					this.countInstructions = GetBooleanValue(root, "//release/countInstructions");
+					this.profileAddresses = GetBooleanValue(root, "//release/profileAddresses");
 #endif
+				}
+			}
 		}
 
 		public ushort InputAddress
@@ -155,6 +142,24 @@ namespace Simulator
 			{
 				return this.profileAddresses;
 			}
+		}
+
+		private static bool GetBooleanValue(XElement root, string path)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? false : bool.Parse(value);
+		}
+
+		private static ushort GetUShortValue(XElement root, string path)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? (ushort)0 : ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+		}
+
+		private static string GetStringValue(XElement root, string path)
+		{
+			var element = root.XPathSelectElement(path);
+			return element == null ? string.Empty : element.Value;
 		}
 	}
 }

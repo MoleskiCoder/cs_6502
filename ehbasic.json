@@ -1,0 +1,18 @@
+{
+	"IO": {
+		"inputAddress": "f004",
+    		"outputAddress": "f001"
+	},
+	"ROM": {
+		"path": "C:\\github\\cpp\\cpp_6502\\ehbasic.bin",
+		"loadAddress": "c000"
+	},
+	"run": {
+		"resetStart": true,
+	},
+	"debug": {
+		"disassemble": true,
+		"countInstructions": true,
+		"profileAddresses": true
+	},
+}

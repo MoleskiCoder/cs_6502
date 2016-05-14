@@ -1,0 +1,16 @@
+{
+	"IO": {
+		"inputAddress": "f004",
+    		"outputAddress": "f001"
+	},
+	"ROM": {
+		"path": "C:\\github\\cpp\\cpp_6502\\AllSuiteA.bin",
+		"loadAddress": "4000"
+		"startAddress": "4000"
+	},
+	"debug": {
+		"disassemble": true,
+		"countInstructions": true,
+		"profileAddresses": true
+	},
+}

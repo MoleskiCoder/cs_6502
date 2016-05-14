@@ -1,4 +1,12 @@
-﻿namespace Simulator
+﻿// Test suite one: https://github.com/pmonta/FPGA-netlist-tools/tree/master/6502-test-code
+// Test suite two: https://github.com/Klaus2m5/6502_65C02_functional_tests
+
+////#define SUDOKU
+////#define TEST_SUITE1
+#define TEST_SUITE2
+////#define EHBASIC
+
+namespace Simulator
 {
 	using System;
 	using System.Globalization;
@@ -8,7 +16,19 @@
 		[STAThread]
 		public static void Main()
 		{
-			var configuration = new Configuration();
+#if SUDOKU
+			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\sudoku.json");
+#endif
+#if TEST_SUITE1
+			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\test_suite_one.json");
+#endif
+#if TEST_SUITE2
+			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\test_suite_two.json");
+#endif
+#if EHBASIC
+			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\ehbasic.json");
+#endif
+
 			using (var controller = new Controller(configuration))
 			{
 				controller.Configure();

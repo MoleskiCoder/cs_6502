@@ -1,0 +1,16 @@
+{
+	"IO": {
+		"inputAddress": "f004",
+    		"outputAddress": "f001"
+	},
+	"ROM": {
+		"path": "C:\\github\\cpp\\cpp_6502\\6502_functional_test.bin",
+		"loadAddress": "0",
+		"startAddress": "400"
+	},
+	"debug": {
+		"disassemble": true,
+		"countInstructions": true,
+		"profileAddresses": true
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"IO": {
+		"inputAddress": "e000",
+    		"outputAddress": "e001"
+	},
+	"ROM": {
+		"path": "C:\\github\\cpp\\cpp_6502\\sudoku.bin",
+		"loadAddress": "f000"
+	},
+	"run": {
+		"resetStart": true,
+		"stopBreak": true
+	},
+	"debug": {
+		"disassemble": true,
+		"countInstructions": true,
+		"profileAddresses": true
+	},
+}
