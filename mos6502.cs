@@ -56,11 +56,7 @@
 
 			private set
 			{
-				if (this.cycles != value)
-				{
-					this.cycles = value;
-					this.OnPropertyChanged("Cycles");
-				}
+				this.cycles = value;
 			}
 		}
 
@@ -73,11 +69,7 @@
 
 			private set
 			{
-				if (this.pc != value)
-				{
-					this.pc = value;
-					this.OnPropertyChanged("PC");
-				}
+				this.pc = value;
 			}
 		}
 
@@ -166,11 +158,7 @@
 
 			private set
 			{
-				if (this.p != value)
-				{
-					this.p = value;
-					this.OnPropertyChanged("P");
-				}
+				this.p = value;
 			}
 		}
 
@@ -234,6 +222,10 @@
 
 			method();
 			this.Cycles += instruction.Count;
+
+			this.OnPropertyChanged("P");
+			this.OnPropertyChanged("PC");
+			this.OnPropertyChanged("Cycles");
 
 			return true;
 		}
