@@ -8,6 +8,9 @@
 		"loadAddress": "0",
 		"startAddress": "400"
 	},
+	"run": {
+		"stopWhenLoopDetected": true
+	},
 	"debug": {
 		"disassemble": true,
 		"countInstructions": true,

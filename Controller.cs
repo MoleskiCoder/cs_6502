@@ -1,5 +1,4 @@
 ﻿////#define TEST_SUITE1
-#define TEST_SUITE2
 
 namespace Simulator
 {
@@ -10,6 +9,7 @@ namespace Simulator
 		private Configuration configuration;
 		private System6502 processor;
 
+		private bool stopWhenLoopDetected = false;
 		private ushort oldPC = 0;
 
 		private DateTime startTime;
@@ -69,6 +69,7 @@ namespace Simulator
 
 			this.processor.LoadRom(this.configuration.RomPath, this.configuration.LoadAddress);
 			this.processor.BreakAllowed = this.configuration.StopBreak;
+			this.stopWhenLoopDetected = this.configuration.StopWhenLoopDetected;
 
 			this.processor.Disassemble = this.configuration.Disassemble;
 			this.processor.CountInstructions = this.configuration.CountInstructions;
@@ -135,19 +136,17 @@ namespace Simulator
 			}
 #endif
 
-#if TEST_SUITE2
-			if (this.oldPC == this.processor.PC)
+			if (this.stopWhenLoopDetected)
 			{
-				var test = this.processor.GetByte(0x0200);
-				System.Console.Out.WriteLine("\n** PC={0:x4}: test={1:x2}: stopped!!", this.processor.PC, test);
-
-				this.processor.Proceed = false;
+				if (this.oldPC == this.processor.PC)
+				{
+					this.processor.Proceed = false;
+				}
+				else
+				{
+					this.oldPC = this.processor.PC;
+				}
 			}
-			else
-			{
-				this.oldPC = this.processor.PC;
-			}
-#endif
 		}
 
 		private void Processor_Stepped(object sender, EventArgs e)

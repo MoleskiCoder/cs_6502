@@ -44,6 +44,14 @@ namespace Simulator
 				var cyclesPerSecond = cycles / seconds;
 				var speedup = cyclesPerSecond / 2000000.0;
 
+				System.Console.Out.WriteLine("\n** Stopped PC={0:x4}", controller.Processor.PC);
+
+#if TEST_SUITE2
+				var test = controller.Processor.GetByte(0x0200);
+				System.Console.Out.WriteLine("\n**** Test={0:x2}", test);
+#endif
+
+
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles used {0}\n", cycles));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds\n", seconds));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles per second {0}\n", cyclesPerSecond));

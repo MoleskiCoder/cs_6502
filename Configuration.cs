@@ -18,6 +18,7 @@
 
 		private bool resetStart = false;
 
+		private bool stopWhenLoopDetected = false;
 		private bool stopBreak = false;
 		private byte breakInstruction = 0x0;
 
@@ -42,6 +43,7 @@
 
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
+					this.stopWhenLoopDetected = GetBooleanValue(root, "//run/stopWhenLoopDetected");
 
 #if DEBUG
 					this.disassemble = GetBooleanValue(root, "//debug/disassemble");
@@ -112,6 +114,14 @@
 			}
 		}
 
+		public bool StopWhenLoopDetected
+		{
+			get
+			{
+				return this.stopWhenLoopDetected;
+			}
+		}
+		
 		public byte BreakInstruction
 		{
 			get
