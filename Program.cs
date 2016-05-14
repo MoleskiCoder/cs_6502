@@ -3,8 +3,9 @@
 
 ////#define SUDOKU
 ////#define TEST_SUITE1
-#define TEST_SUITE2
+////#define TEST_SUITE2
 ////#define EHBASIC
+#define TALI_FORTH
 
 namespace Simulator
 {
@@ -28,6 +29,9 @@ namespace Simulator
 #if EHBASIC
 			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\ehbasic.json");
 #endif
+#if TALI_FORTH
+			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\tali.json");
+#endif
 
 			using (var controller = new Controller(configuration))
 			{
@@ -50,7 +54,6 @@ namespace Simulator
 				var test = controller.Processor.GetByte(0x0200);
 				System.Console.Out.WriteLine("\n**** Test={0:x2}", test);
 #endif
-
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles used {0}\n", cycles));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds\n", seconds));

@@ -1,5 +1,6 @@
 ﻿namespace Simulator
 {
+	using System;
 	using System.ComponentModel;
 
 	public abstract class MOS6502 : INotifyPropertyChanged
@@ -232,6 +233,7 @@
 
 		protected virtual void ___()
 		{
+			throw new InvalidOperationException();
 		}
 
 		protected void ResetRegisters()
