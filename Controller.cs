@@ -51,6 +51,7 @@ namespace Simulator
 			if (this.configuration.StopBreak)
 			{
 				this.processor = new System6502(
+					this.configuration.ProcessorLevel,
 					this.configuration.InputAddress,
 					this.configuration.OutputAddress,
 					this.configuration.BreakInstruction);
@@ -58,6 +59,7 @@ namespace Simulator
 			else
 			{
 				this.processor = new System6502(
+					this.configuration.ProcessorLevel,
 					this.configuration.InputAddress,
 					this.configuration.OutputAddress);
 			}

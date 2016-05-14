@@ -1,4 +1,7 @@
 {
+	"CPU": {
+		"level": "cpu65c02"
+	},
 	"IO": {
 		"inputAddress": "f004",
     		"outputAddress": "f001"

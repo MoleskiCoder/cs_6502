@@ -32,7 +32,8 @@
 
 		private bool disposed;
 
-		public System6502(ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
+		public System6502(ProcessorType level, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
+		: base(level)
 		{
 			this.input = addressInput;
 			this.output = addressOutput;
@@ -71,13 +72,13 @@
 			};
 		}
 
-		public System6502(ushort addressInput, ushort addressOutput)
-		:	this(addressInput, addressOutput, 0x00, false)
+		public System6502(ProcessorType level, ushort addressInput, ushort addressOutput)
+		:	this(level, addressInput, addressOutput, 0x00, false)
 		{
 		}
 
-		public System6502(ushort addressInput, ushort addressOutput, byte breakInstruction)
-		:	this(addressInput, addressOutput, breakInstruction, true)
+		public System6502(ProcessorType level, ushort addressInput, ushort addressOutput, byte breakInstruction)
+		:	this(level, addressInput, addressOutput, breakInstruction, true)
 		{
 		}
 

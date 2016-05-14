@@ -1,5 +1,6 @@
 ﻿namespace Simulator
 {
+	using System;
 	using System.Globalization;
 	using System.IO;
 	using System.Runtime.Serialization.Json;
@@ -8,6 +9,8 @@
 
 	public class Configuration
 	{
+		private ProcessorType processorLevel = ProcessorType.cpu6502;
+
 		private ushort inputAddress;
 		private ushort outputAddress;
 
@@ -34,6 +37,8 @@
 				{
 					var root = XElement.Load(reader);
 
+					this.processorLevel = GetProcessorTypeValue(root, "//CPU/level");
+
 					this.inputAddress = GetUShortValue(root, "//IO/inputAddress");
 					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
 
@@ -57,6 +62,14 @@
 				}
 			}
 		}
+
+        public ProcessorType ProcessorLevel
+        {
+            get
+            {
+                return this.processorLevel;
+            }
+        }
 
 		public ushort InputAddress
 		{
@@ -152,6 +165,12 @@
 			{
 				return this.profileAddresses;
 			}
+		}
+
+		private static ProcessorType GetProcessorTypeValue(XElement root, string path)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? ProcessorType.cpu6502 : (ProcessorType)Enum.Parse(typeof(ProcessorType), value);
 		}
 
 		private static bool GetBooleanValue(XElement root, string path)
