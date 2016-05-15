@@ -57,7 +57,7 @@
 			this.dumpers = new Dictionary<AddressingMode, AddressingModeDumper>()
 			{
 				{ AddressingMode.Illegal, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing } },
-				{ AddressingMode.Implied, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_A } },
+				{ AddressingMode.Implied, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing } },
 				{ AddressingMode.Immediate, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_imm } },
 				{ AddressingMode.Relative, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_rel } },
 				{ AddressingMode.XIndexed, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_xind } },
@@ -69,6 +69,7 @@
 				{ AddressingMode.AbsoluteX, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absx } },
 				{ AddressingMode.AbsoluteY, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absy } },
 				{ AddressingMode.Indirect, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_ind } },
+				{ AddressingMode.ZeroPageRelative, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_zprel } },
 			};
 		}
 
@@ -481,7 +482,15 @@
 
 		private void Dump_rel()
 		{
-			System.Console.Out.Write("{0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
+			System.Console.Out.Write("${0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
+		}
+
+		private void Dump_zprel()
+		{
+			var zp = this.GetByte(PC);
+			var displacement = (sbyte)this.GetByte((ushort)(PC + 1));
+			var address = (ushort)(1 + PC + displacement);
+			System.Console.Out.Write("${0:x2},${1:x4}", zp, address);
 		}
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
