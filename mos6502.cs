@@ -32,9 +32,9 @@
 			this.level = level;
 
 			this.instructions = new Instruction[0x100];
-			this.install6502Instructions();
-			this.install65sc02Instructions();
-			this.install65c02Instructions();
+			this.Install6502Instructions();
+			this.Install65sc02Instructions();
+			this.Install65c02Instructions();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -298,7 +298,7 @@
 
 		////
 
-		private void install6502Instructions()
+		private void Install6502Instructions()
 		{
 			this.overlay6502 = new Instruction[]
 			{
@@ -324,7 +324,7 @@
 			this.InstallInstructionSet(this.overlay6502);
 		}
 
-		private void install65sc02Instructions()
+		private void Install65sc02Instructions()
 		{
 			if (this.level >= ProcessorType.cpu65sc02)
 			{
@@ -353,7 +353,7 @@
 			}
 		}
 
-		private void install65c02Instructions()
+		private void Install65c02Instructions()
 		{
 			if (this.level >= ProcessorType.cpu65c02)
 			{
@@ -380,9 +380,6 @@
 
 				this.OverlayInstructionSet(this.overlay65c02);
 			}
-
-
-
 		}
 			
 		private void InstallInstructionSet(Instruction[] basis)
@@ -1057,7 +1054,7 @@
 			}
 		}
 
-		void BitBranch_Clear(byte check)
+		private void BitBranch_Clear(byte check)
 		{
 			var zp = this.FetchByte();
 			var contents = this.GetByte(zp);
@@ -1068,7 +1065,7 @@
 			}
 		}
 
-		void BitBranch_Set(byte check)
+		private void BitBranch_Set(byte check)
 		{
 			var zp = this.FetchByte();
 			var contents = this.GetByte(zp);
