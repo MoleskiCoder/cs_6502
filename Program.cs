@@ -54,6 +54,18 @@ namespace Simulator
 
 				System.Console.Out.WriteLine("\n** Stopped PC={0:x4}", controller.Processor.PC);
 
+#if TEST_SUITE1
+				var test = controller.Processor.GetByte(0x0210);
+				if (test == 0xff)
+				{
+					System.Console.Out.WriteLine("\n** success!!");
+				}
+				else
+				{
+					System.Console.Out.WriteLine("\n** {0} failed!!", test);
+				}
+#endif
+
 #if TEST_SUITE2
 				var test = controller.Processor.GetByte(0x0200);
 				System.Console.Out.WriteLine("\n**** Test={0:x2}", test);

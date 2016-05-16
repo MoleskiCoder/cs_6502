@@ -1,6 +1,4 @@
-﻿////#define TEST_SUITE1
-
-namespace Simulator
+﻿namespace Simulator
 {
 	using System;
 
@@ -121,22 +119,10 @@ namespace Simulator
 
 		private void Processor_Stepping(object sender, EventArgs e)
 		{
-#if TEST_SUITE1
-			if (this.processor.PC == 0x45c0)
+            if (this.configuration.StopAddressEnabled && this.configuration.StopAddress == this.Processor.PC)
 			{
-				var test = this.processor.GetByte(0x0210);
-				if (test == 0xff)
-				{
-					System.Console.Out.WriteLine("\n** success!!");
-				}
-				else
-				{
-					System.Console.Out.WriteLine("\n** {0} failed!!", test);
-				}
-
 				this.processor.Proceed = false;
 			}
-#endif
 
 			if (this.stopWhenLoopDetected)
 			{

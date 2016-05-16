@@ -24,6 +24,8 @@
 		private bool stopWhenLoopDetected = false;
 		private bool stopBreak = false;
 		private byte breakInstruction = 0x0;
+		private ushort stopAddress = 0;
+		private bool stopAddressEnabled = false;
 
 		private bool disassemble = false;
 		private bool countInstructions = false;
@@ -49,6 +51,8 @@
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
 					this.stopWhenLoopDetected = GetBooleanValue(root, "//run/stopWhenLoopDetected");
+					this.stopAddress =  GetUShortValue(root, "//run/stopAddress");
+					this.stopAddressEnabled = this.stopAddress != 0;
 
 #if DEBUG
 					this.disassemble = GetBooleanValue(root, "//debug/disassemble");
@@ -135,6 +139,22 @@
 			}
 		}
 		
+		public ushort StopAddress
+		{
+			get
+			{
+				return this.stopAddress;
+			}
+		}
+
+		public bool StopAddressEnabled
+		{
+			get
+			{
+				return this.stopAddressEnabled;
+			}
+		}
+
 		public byte BreakInstruction
 		{
 			get
