@@ -119,7 +119,7 @@
 
 		private void Processor_Stepping(object sender, EventArgs e)
 		{
-            if (this.configuration.StopAddressEnabled && this.configuration.StopAddress == this.Processor.PC)
+			if (this.configuration.StopAddressEnabled && this.configuration.StopAddress == this.Processor.PC)
 			{
 				this.processor.Proceed = false;
 			}

@@ -14,7 +14,7 @@
 		Absolute,
 		AbsoluteX,
 		AbsoluteY,
-        AbsoluteXIndirect,
+		AbsoluteXIndirect,
 		Indirect,
 		ZeroPageIndirect,
 		ZeroPageRelative

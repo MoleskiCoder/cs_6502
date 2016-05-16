@@ -507,6 +507,7 @@
 		{
 			return this.FetchWord();
 		}
+
 		private ushort Address_AbsoluteXIndirect()
 		{
 			return this.GetWord((ushort)(this.FetchWord() + this.X));

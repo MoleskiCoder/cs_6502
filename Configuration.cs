@@ -51,7 +51,7 @@
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
 					this.stopWhenLoopDetected = GetBooleanValue(root, "//run/stopWhenLoopDetected");
-					this.stopAddress =  GetUShortValue(root, "//run/stopAddress");
+					this.stopAddress = GetUShortValue(root, "//run/stopAddress");
 					this.stopAddressEnabled = this.stopAddress != 0;
 
 #if DEBUG
