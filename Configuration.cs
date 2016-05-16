@@ -67,13 +67,13 @@
 			}
 		}
 
-        public ProcessorType ProcessorLevel
-        {
-            get
-            {
-                return this.processorLevel;
-            }
-        }
+		public ProcessorType ProcessorLevel
+		{
+			get
+			{
+				return this.processorLevel;
+			}
+		}
 
 		public ushort InputAddress
 		{
