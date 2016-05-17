@@ -7,7 +7,7 @@
 
 	public class System6502 : MOS6502, IDisposable
 	{
-		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 250);
+		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 100);
 
 		private readonly System.Timers.Timer inputPollTimer;
 
