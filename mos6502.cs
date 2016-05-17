@@ -334,8 +334,8 @@
 				this.overlay65sc02 = new Instruction[]
 				{
 					////	0 														1														2														        3													4														5														6														7													8														9															A														B													C														            D															E															F
-					/* 0 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.NOP2_imp, 2, AddressingMode.Implied, "___"),           INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),                    INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
-					/* 1 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.ORA_zpind, 5, AddressingMode.ZeroPageIndirect, "ORA"), INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.INC_imp, 2, AddressingMode.Implied, "INC"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),                    INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
+					/* 0 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.NOP2_imp, 2, AddressingMode.Implied, "___"),           INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.TSB_zp, 0, AddressingMode.ZeroPage, "TSB"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.TSB_abs, 0, AddressingMode.Absolute, "TSB"),               INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
+					/* 1 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.ORA_zpind, 5, AddressingMode.ZeroPageIndirect, "ORA"), INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.TRB_zp, 0, AddressingMode.ZeroPage, "TRB"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.INC_imp, 2, AddressingMode.Implied, "INC"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.TRB_abs, 0, AddressingMode.Absolute, "TRB"),               INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
 					/* 2 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.NOP2_imp, 2, AddressingMode.Implied, "___"),           INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),                    INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
 					/* 3 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.AND_zpind, 5, AddressingMode.ZeroPageIndirect, "AND"), INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.BIT_zpx, 0, AddressingMode.ZeroPageX, "BIT"),  INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.DEC_imp, 2, AddressingMode.Implied, "DEC"),    INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.BIT_absx, 0, AddressingMode.AbsoluteX, "BIT"),             INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
 					/* 4 */	INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.NOP2_imp, 2, AddressingMode.Implied, "___"),           INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.NOP2_imp, 3, AddressingMode.Implied, "___"),   INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),        INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),        INS(this.___, 0, AddressingMode.Illegal, "___"),    INS(this.___, 0, AddressingMode.Illegal, "___"),                    INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),            INS(this.___, 2, AddressingMode.Illegal, "___"),
@@ -775,6 +775,24 @@
 			{
 				this.SetFlag(StatusFlags.Overflow);
 			}
+		}
+
+		private void TSB(ushort address)
+		{
+			var content = this.GetByte(address);
+			this.BIT_immediate(content);
+
+			var result = (byte)(content | this.A);
+			this.SetByte(address, result);
+		}
+
+		private void TRB(ushort address)
+		{
+			var content = this.GetByte(address);
+			this.BIT_immediate(content);
+
+			var result = (byte)(content & ~this.A);
+			this.SetByte(address, result);
 		}
 
 		private void INC(ushort offset)
@@ -2015,6 +2033,38 @@
 
 		#endregion
 		
+		#region Test set/reset bits
+
+		#region TSB
+
+		private void TSB_zp()
+		{
+			this.TSB(this.Address_ZeroPage());
+		}
+
+		private void TSB_abs()
+		{
+			this.TSB(this.Address_Absolute());
+		}
+
+		#endregion
+
+		#region TRB
+
+		private void TRB_zp()
+		{
+			this.TRB(this.Address_ZeroPage());
+		}
+
+		private void TRB_abs()
+		{
+			this.TRB(this.Address_Absolute());
+		}
+
+		#endregion
+
+		#endregion
+
 		#region Jumps and calls
 
 		private void JSR_abs()
