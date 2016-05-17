@@ -12,7 +12,6 @@
 		"stopBreak": true
 	},
 	"debug": {
-		"disassemble": true,
 		"countInstructions": true,
 		"profileAddresses": true
 	},
