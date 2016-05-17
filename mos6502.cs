@@ -750,16 +750,21 @@
 			this.SetByte(offset, this.LSR(this.GetByte(offset)));
 		}
 
-		private void BIT(byte data)
+		private void BIT_immediate(byte data)
 		{
-			this.ClearFlag(StatusFlags.Zero | StatusFlags.Overflow | StatusFlags.Negative);
-
+			this.ClearFlag(StatusFlags.Zero);
 			var result = (byte)(this.A & data);
-
 			if (result == 0)
 			{
 				this.SetFlag(StatusFlags.Zero);
 			}
+		}
+
+		private void BIT(byte data)
+		{
+			this.ClearFlag(StatusFlags.Overflow | StatusFlags.Negative);
+
+			BIT_immediate(data);
 
 			if ((data & 0x80) != 0)
 			{
@@ -1576,7 +1581,7 @@
 
 		private void BIT_imm()
 		{
-			this.BIT(this.A);
+			this.BIT_immediate(this.ReadByte_Immediate());
 		}
 
 		private void BIT_zp()
