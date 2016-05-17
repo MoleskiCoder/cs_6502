@@ -901,7 +901,10 @@
 			var difference = (ushort)(this.A - data - carry);
 
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
-			this.UpdateFlags_ZeroNegative((byte)difference);
+			if (this.level < ProcessorType.cpu65sc02)
+			{
+				this.UpdateFlags_ZeroNegative((byte)difference);
+			}
 
 			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
 			{
@@ -929,6 +932,10 @@
 			}
 
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
+			if (this.level >= ProcessorType.cpu65sc02)
+			{
+				this.UpdateFlags_ZeroNegative(this.A);
+			}
 		}
 
 		private void EOR(byte data)
@@ -1023,7 +1030,10 @@
 			var sum = (ushort)(this.A + data + carry);
 
 			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
-			this.UpdateFlags_ZeroNegative((byte)sum);
+			if (this.level < ProcessorType.cpu65sc02)
+			{
+				this.UpdateFlags_ZeroNegative((byte)sum);
+			}
 
 			var low = (byte)(LowNybble(this.A) + LowNybble(data) + carry);
 			if (low > 9)
@@ -1048,6 +1058,10 @@
 			}
 
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
+			if (this.level >= ProcessorType.cpu65sc02)
+			{
+				this.UpdateFlags_ZeroNegative(this.A);
+			}
 		}
 
 		////
