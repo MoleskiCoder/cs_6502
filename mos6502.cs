@@ -764,7 +764,7 @@
 		{
 			this.ClearFlag(StatusFlags.Overflow | StatusFlags.Negative);
 
-			BIT_immediate(data);
+			this.BIT_immediate(data);
 
 			if ((data & 0x80) != 0)
 			{
@@ -2163,7 +2163,6 @@
 			this.SMB(this.Address_ZeroPage(), 8);
 		}
 
-
 		private void SMB4_zp()
 		{
 			this.SMB(this.Address_ZeroPage(), 0x10);
@@ -2238,19 +2237,19 @@
 
 		#endregion
 
-        #region Halt and wait
+		#region Halt and wait
 
-        private void WAI_imp()
-        {
-            throw new NotImplementedException();
-        }
+		private void WAI_imp()
+		{
+			throw new NotImplementedException();
+		}
 
-        private void STP_imp()
-        {
-            throw new NotImplementedException();
-        }
+		private void STP_imp()
+		{
+			throw new NotImplementedException();
+		}
 
-        #endregion
+		#endregion
 
 		#region Flags
 
