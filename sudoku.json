@@ -4,7 +4,7 @@
     		"outputAddress": "e001"
 	},
 	"ROM": {
-		"path": "C:\\github\\cpp\\cpp_6502\\sudoku.bin",
+		"path": "C:\\github\\6502\\6502_sudoku\\sudoku.65b",
 		"loadAddress": "f000"
 	},
 	"run": {
