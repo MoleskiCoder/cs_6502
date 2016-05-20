@@ -4,6 +4,7 @@
 	{
 		Illegal,
 		Implied,
+		Accumulator,
 		Immediate,
 		Relative,
 		XIndexed,
