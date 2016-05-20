@@ -205,7 +205,7 @@
 
 		protected virtual bool Execute(byte instruction)
 		{
-			return this.Execute(this.instructions[instruction]);
+			return this.Execute(this.Instructions[instruction]);
 		}
 
 		protected virtual bool Execute(Instruction instruction)
@@ -403,13 +403,13 @@
 				var illegal = newInstruction.Mode == AddressingMode.Illegal;
 				if (includeIllegal || !illegal)
 				{
-					var oldInstruction = this.instructions[i];
+					var oldInstruction = this.Instructions[i];
 					if (oldInstruction.Mode != AddressingMode.Illegal)
 					{
 						throw new InvalidOperationException("Whoops: replacing a non-missing instruction.");
 					}
 
-					this.instructions[i] = newInstruction;
+					this.Instructions[i] = newInstruction;
 				}
 			}
 		}
@@ -737,10 +737,7 @@
 
 			var result = (byte)(data >> 1);
 
-			if (result == 0)
-			{
-				this.SetFlag(StatusFlags.Zero);
-			}
+			this.UpdateFlag_Zero(result);
 
 			return result;
 		}
@@ -754,10 +751,7 @@
 		{
 			this.ClearFlag(StatusFlags.Zero);
 			var result = (byte)(this.A & data);
-			if (result == 0)
-			{
-				this.SetFlag(StatusFlags.Zero);
-			}
+			this.UpdateFlag_Zero(result);
 		}
 
 		private void BIT(byte data)
@@ -1042,7 +1036,7 @@
 			}
 
 			var high = (byte)(HighNybble(this.A) + HighNybble(data) + (low > 0x0f ? 1 : 0));
-			if ((~(this.A ^ data) & (this.A ^ (high << 4)) & 0x80) != 0)
+			if ((~(this.A ^ data) & (this.A ^ PromoteNybble(high)) & 0x80) != 0)
 			{
 				this.SetFlag(StatusFlags.Overflow);
 			}
