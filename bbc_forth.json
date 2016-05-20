@@ -1,0 +1,26 @@
+{
+	"CPU": {
+		"level": "cpu6502"
+	},
+	"IO": {
+		"inputAddress": "e004",
+    		"outputAddress": "e001"
+	},
+	"BBC": {
+		"language": {
+			"path": "C:\\github\\cpp\\cpp_6502\\FORTH_1.03.rom"
+		},
+		"OS": {
+			"path": "C:\\github\\6502\\6502_mos\\mos.65b"
+		}
+	},
+	"run": {
+		"resetStart": true,
+		"stopBreak": true
+	},
+	"debug": {
+		"disassemble": true,
+		"countInstructions": true,
+		"profileAddresses": true
+	}
+}
