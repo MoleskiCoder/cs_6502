@@ -67,7 +67,17 @@
 
 			this.processor.Clear();
 
-			this.processor.LoadRom(this.configuration.RomPath, this.configuration.LoadAddress);
+			var bbc = !string.IsNullOrWhiteSpace(this.configuration.BBCLanguageRomPath) && !string.IsNullOrWhiteSpace(this.configuration.BBCOSRomPath);
+			if (bbc)
+			{
+				this.processor.LoadRom(this.configuration.BBCOSRomPath, 0xc000);
+				this.processor.LoadRom(this.configuration.BBCLanguageRomPath, 0x8000);
+			}
+			else
+			{
+				this.processor.LoadRom(this.configuration.RomPath, this.configuration.LoadAddress);
+			}
+
 			this.processor.BreakAllowed = this.configuration.StopBreak;
 			this.stopWhenLoopDetected = this.configuration.StopWhenLoopDetected;
 

@@ -17,6 +17,9 @@
 		private string romPath;
 		private ushort loadAddress;
 
+		private string bbcLanguageRomPath;
+		private string bbcOSRomPath;
+
 		private ushort startAddress = 0;
 
 		private bool resetStart = false;
@@ -47,6 +50,9 @@
 					this.romPath = GetStringValue(root, "//ROM/path");
 					this.loadAddress = GetUShortValue(root, "//ROM/loadAddress");
 					this.startAddress = GetUShortValue(root, "//ROM/startAddress");
+
+					this.bbcLanguageRomPath = GetStringValue(root, "//BBC/language/path");
+					this.bbcOSRomPath = GetStringValue(root, "//BBC/OS/path");
 
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
@@ -88,6 +94,22 @@
 			get
 			{
 				return this.outputAddress;
+			}
+		}
+
+		public string BBCLanguageRomPath
+		{
+			get
+			{
+				return this.bbcLanguageRomPath;
+			}
+		}
+
+		public string BBCOSRomPath
+		{
+			get
+			{
+				return this.bbcOSRomPath;
 			}
 		}
 

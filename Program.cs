@@ -7,6 +7,7 @@
 #define TEST_SUITE_65C02
 ////#define EHBASIC
 ////#define TALI_FORTH
+////#define BBC_FORTH
 
 namespace Simulator
 {
@@ -35,6 +36,9 @@ namespace Simulator
 #endif
 #if TALI_FORTH
 			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\tali.json");
+#endif
+#if BBC_FORTH
+			var configuration = new Configuration("C:\\github\\cs\\cs_6502\\bbc_forth.json");
 #endif
 
 			using (var controller = new Controller(configuration))
