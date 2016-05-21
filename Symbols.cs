@@ -15,13 +15,18 @@
 
         public Symbols(string path)
         {
-            this.Parse(path);
-            this.AssignLabels();
+            this.parsed = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
+            this.labels = new Dictionary<ushort, string>();
+
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                this.Parse(path);
+                this.AssignLabels();
+            }
         }
 
         private void AssignLabels()
         {
-            this.labels = new Dictionary<ushort, string>();
             var symbols = this.parsed["sym"];
             foreach (var symbol in symbols.Values)
             {
@@ -38,7 +43,6 @@
 
         private void Parse(string path)
         {
-            this.parsed = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
             using (var reader = new StreamReader(path))
             {
                 while (!reader.EndOfStream)
