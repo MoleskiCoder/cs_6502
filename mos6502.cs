@@ -1170,12 +1170,12 @@
 
 		private void NOP2_imp()
 		{
-			var discarded = this.FetchByte();
+			this.FetchByte();
 		}
 
 		private void NOP3_imp()
 		{
-			var discarded = this.FetchWord();
+			this.FetchWord();
 		}
 
 		#region Readers

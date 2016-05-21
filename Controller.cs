@@ -13,6 +13,8 @@
 		private DateTime startTime;
 		private DateTime finishTime;
 
+		private string disassemblyBuffer;
+
 		private bool disposed;
 
 		public Controller(Configuration configuration)
@@ -67,11 +69,11 @@
 
 			this.processor.Clear();
 
-			var bbc = !string.IsNullOrWhiteSpace(this.configuration.BBCLanguageRomPath) && !string.IsNullOrWhiteSpace(this.configuration.BBCOSRomPath);
+			var bbc = !string.IsNullOrWhiteSpace(this.configuration.BbcLanguageRomPath) && !string.IsNullOrWhiteSpace(this.configuration.BbcOSRomPath);
 			if (bbc)
 			{
-				this.processor.LoadRom(this.configuration.BBCOSRomPath, 0xc000);
-				this.processor.LoadRom(this.configuration.BBCLanguageRomPath, 0x8000);
+				this.processor.LoadRom(this.configuration.BbcOSRomPath, 0xc000);
+				this.processor.LoadRom(this.configuration.BbcLanguageRomPath, 0x8000);
 			}
 			else
 			{
@@ -97,6 +99,7 @@
 
 		public void Start()
 		{
+			this.Processor.Disassembly += this.Processor_Disassembly;
 			this.startTime = DateTime.Now;
 			try
 			{
@@ -149,6 +152,20 @@
 
 		private void Processor_Stepped(object sender, EventArgs e)
 		{
+		}
+
+		private void Processor_Disassembly(object sender, DisassemblyEventArgs e)
+		{
+			var output = e.Output;
+			foreach (var character in output)
+			{
+				this.disassemblyBuffer += character;
+				if (character == '\n')
+				{
+					System.Diagnostics.Debug.Write(this.disassemblyBuffer);
+					this.disassemblyBuffer = string.Empty;
+				}
+			}
 		}
 	}
 }

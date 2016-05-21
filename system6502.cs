@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Globalization;
 	using System.IO;
 	using System.Linq;
 
@@ -56,9 +57,9 @@
 
 			this.dumpers = new Dictionary<AddressingMode, AddressingModeDumper>()
 			{
-				{ AddressingMode.Illegal, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing } },
-				{ AddressingMode.Implied, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_Nothing } },
-				{ AddressingMode.Accumulator, new AddressingModeDumper { ByteDumper = Dump_Nothing, DisassemblyDumper = Dump_A } },
+				{ AddressingMode.Illegal, new AddressingModeDumper { ByteDumper = this.Dump_Nothing, DisassemblyDumper = this.Dump_Nothing } },
+				{ AddressingMode.Implied, new AddressingModeDumper { ByteDumper = this.Dump_Nothing, DisassemblyDumper = this.Dump_Nothing } },
+				{ AddressingMode.Accumulator, new AddressingModeDumper { ByteDumper = this.Dump_Nothing, DisassemblyDumper = this.Dump_A } },
 				{ AddressingMode.Immediate, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_imm } },
 				{ AddressingMode.Relative, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_rel } },
 				{ AddressingMode.XIndexed, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_xind } },
@@ -89,6 +90,8 @@
 		public event EventHandler<EventArgs> Stepping;
 
 		public event EventHandler<EventArgs> Stepped;
+
+		public event EventHandler<DisassemblyEventArgs> Disassembly;
 
 		public byte BreakInstruction
 		{
@@ -292,8 +295,17 @@
 		{
 			if (this.Disassemble)
 			{
-				System.Console.Out.Write(
-					"\n[{0:d9}] PC={1:x4}:P={2:x2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t", this.Cycles, this.PC, (byte)this.P, this.A, this.X, this.Y, this.S);
+				this.OnDisassembly(
+					string.Format(
+						CultureInfo.InvariantCulture,
+						"\n[{0:d9}] PC={1:x4}:P={2:x2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
+						this.Cycles,
+						this.PC,
+						(byte)this.P,
+						this.A,
+						this.X,
+						this.Y,
+						this.S));
 			}
 
 			this.OnStepping();
@@ -311,7 +323,7 @@
 		{
 			if (this.Disassemble)
 			{
-				Dump_ByteValue(instruction);
+				this.Dump_ByteValue(instruction);
 			}
 
 			ushort profileAddress = 0;
@@ -354,7 +366,7 @@
 
 				dumper.ByteDumper();
 
-				System.Console.Out.Write("\t{0} ", mnemomic);
+				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", mnemomic));
 				dumper.DisassemblyDumper();
 			}
 
@@ -384,6 +396,15 @@
 			}
 		}
 
+		protected void OnDisassembly(string test)
+		{
+			var handler = this.Disassembly;
+			if (handler != null)
+			{
+				handler(this, new DisassemblyEventArgs(test));
+			}
+		}
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && !this.disposed)
@@ -398,23 +419,23 @@
 			}
 		}
 
-		private static void Dump_Nothing()
+		private void Dump_Nothing()
 		{
 		}
 
-		private static void Dump_ByteValue(byte value)
+		private void Dump_ByteValue(byte value)
 		{
-			System.Console.Out.Write("{0:x2}", value);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0:x2}", value));
 		}
 
-		private static void Dump_A()
+		private void Dump_A()
 		{
-			System.Console.Out.Write("A");
+			this.OnDisassembly("A");
 		}
 
 		private void Dump_Byte(ushort address)
 		{
-			Dump_ByteValue(this.GetByte(address));
+			this.Dump_ByteValue(this.GetByte(address));
 		}
 
 		private void Dump_Byte()
@@ -430,67 +451,80 @@
 
 		private void Dump_imm()
 		{
-			System.Console.Out.Write("#${0:x2}", this.GetByte(this.PC));
+			var immediate = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "#${0:x2}", immediate));
 		}
 
 		private void Dump_abs()
 		{
-			System.Console.Out.Write("${0:x4}", this.GetWord(this.PC));
+			var address = this.GetWord(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4}", address));
 		}
 
 		private void Dump_zp()
 		{
-			System.Console.Out.Write("${0:x2}", this.GetByte(this.PC));
+			var zp = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2}", zp));
 		}
 
 		private void Dump_zpx()
 		{
-			System.Console.Out.Write("${0:x2},X", this.GetByte(this.PC));
+			var zp = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2},X", zp));
 		}
 
 		private void Dump_zpy()
 		{
-			System.Console.Out.Write("${0:x2},Y", this.GetByte(this.PC));
+			var zp = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2},Y", zp));
 		}
 
 		private void Dump_absx()
 		{
-			System.Console.Out.Write("${0:x4},X", this.GetWord(this.PC));
+			var address = this.GetWord(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4},X", address));
 		}
 
 		private void Dump_absy()
 		{
-			System.Console.Out.Write("${0:x4},Y", this.GetWord(this.PC));
+			var address = this.GetWord(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4},Y", address));
 		}
 
 		private void Dump_absxind()
 		{
-			System.Console.Out.Write("(${0:x4},X)", this.GetWord(this.PC));
+			var address = this.GetWord(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x4},X)", address));
 		}
 
 		private void Dump_xind()
 		{
-			System.Console.Out.Write("(${0:x2},X)", this.GetByte(this.PC));
+			var zp = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x2},X)", zp));
 		}
 
 		private void Dump_indy()
 		{
-			System.Console.Out.Write("(${0:x2}),Y", this.GetByte(this.PC));
+			var zp = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x2}),Y", zp));
 		}
 
 		private void Dump_ind()
 		{
-			System.Console.Out.Write("(${0:x4})", this.GetWord(this.PC));
+			var address = this.GetWord(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x4})", address));
 		}
 
 		private void Dump_zpind()
 		{
-			System.Console.Out.Write("(${0:x2})", this.GetByte(this.PC));
+			var zp = this.GetByte(this.PC);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x2})", zp));
 		}
 
 		private void Dump_rel()
 		{
-			System.Console.Out.Write("${0:x4}", (ushort)(1 + PC + (sbyte)this.GetByte(this.PC)));
+			var relative = (ushort)(1 + PC + (sbyte)this.GetByte(this.PC));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4}", relative));
 		}
 
 		private void Dump_zprel()
@@ -498,7 +532,7 @@
 			var zp = this.GetByte(PC);
 			var displacement = (sbyte)this.GetByte((ushort)(PC + 1));
 			var address = (ushort)(1 + PC + displacement);
-			System.Console.Out.Write("${0:x2},${1:x4}", zp, address);
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2},${1:x4}", zp, address));
 		}
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

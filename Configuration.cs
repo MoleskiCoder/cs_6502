@@ -97,7 +97,7 @@
 			}
 		}
 
-		public string BBCLanguageRomPath
+		public string BbcLanguageRomPath
 		{
 			get
 			{
@@ -105,7 +105,7 @@
 			}
 		}
 
-		public string BBCOSRomPath
+		public string BbcOSRomPath
 		{
 			get
 			{
