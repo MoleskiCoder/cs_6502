@@ -1,7 +1,7 @@
 ﻿namespace Simulator
 {
 	using System;
-
+	using System.IO;
 	public class Controller : IDisposable
 	{
 		private Configuration configuration;
@@ -14,6 +14,9 @@
 		private DateTime finishTime;
 
 		private string disassemblyBuffer;
+
+		private string disassemblyLogPath;
+		private StreamWriter disassemblyLog;
 
 		private bool disposed;
 
@@ -84,6 +87,7 @@
 			this.stopWhenLoopDetected = this.configuration.StopWhenLoopDetected;
 
 			this.processor.Disassemble = this.configuration.Disassemble;
+			this.disassemblyLogPath = this.configuration.DisassemblyLogPath;
 			this.processor.CountInstructions = this.configuration.CountInstructions;
 			this.processor.ProfileAddresses = this.configuration.ProfileAddresses;
 
@@ -99,6 +103,11 @@
 
 		public void Start()
 		{
+			if (!string.IsNullOrWhiteSpace(this.disassemblyLogPath))
+			{
+				this.disassemblyLog = new StreamWriter(this.disassemblyLogPath);
+			}
+
 			this.Processor.Disassembly += this.Processor_Disassembly;
 			this.startTime = DateTime.Now;
 			try
@@ -124,6 +133,12 @@
 				if (this.processor != null)
 				{
 					this.processor.Dispose();
+				}
+
+				if (this.disassemblyLog != null)
+				{
+					this.disassemblyLog.Close();
+					this.disassemblyLog.Dispose();
 				}
 
 				this.disposed = true;
@@ -157,6 +172,8 @@
 		private void Processor_Disassembly(object sender, DisassemblyEventArgs e)
 		{
 			var output = e.Output;
+
+#if DEBUG
 			foreach (var character in output)
 			{
 				this.disassemblyBuffer += character;
@@ -165,6 +182,12 @@
 					System.Diagnostics.Debug.Write(this.disassemblyBuffer);
 					this.disassemblyBuffer = string.Empty;
 				}
+			}
+#endif
+
+			if (this.disassemblyLog != null)
+			{
+				this.disassemblyLog.Write(output);
 			}
 		}
 	}
