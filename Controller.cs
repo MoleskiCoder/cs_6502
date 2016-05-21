@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.IO;
+
 	public class Controller : IDisposable
 	{
 		private Configuration configuration;
@@ -17,6 +18,8 @@
 
 		private string disassemblyLogPath;
 		private StreamWriter disassemblyLog;
+
+		private Symbols symbols;
 
 		private bool disposed;
 
@@ -51,10 +54,13 @@
 
 		public void Configure()
 		{
+			this.symbols = new Symbols(this.configuration.DebugFile);
+
 			if (this.configuration.StopBreak)
 			{
 				this.processor = new System6502(
 					this.configuration.ProcessorLevel,
+					this.symbols.Labels,
 					this.configuration.InputAddress,
 					this.configuration.OutputAddress,
 					this.configuration.BreakInstruction);
@@ -63,6 +69,7 @@
 			{
 				this.processor = new System6502(
 					this.configuration.ProcessorLevel,
+					this.symbols.Labels,
 					this.configuration.InputAddress,
 					this.configuration.OutputAddress);
 			}

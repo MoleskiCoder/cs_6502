@@ -67,6 +67,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StatusFlags.cs" />
+    <Compile Include="Symbol.cs" />
+    <Compile Include="Symbols.cs" />
     <Compile Include="system6502.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

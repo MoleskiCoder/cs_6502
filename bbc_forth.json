@@ -21,6 +21,7 @@
 	"debug": {
 		"disassemble": true,
 		"disassemblyLogPath": "c:\\github\\cs\\cs_6502\\bbc_forth.log",
+		"debugFile": "C:\\github\\6502\\6502_mos\\mos.dbg",
 		"countInstructions": true,
 		"profileAddresses": true
 	}

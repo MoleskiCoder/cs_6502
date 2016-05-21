@@ -21,6 +21,7 @@
 		private string bbcOSRomPath;
 
 		private string disassemblyLogPath;
+		private string debugFile;
 
 		private ushort startAddress = 0;
 
@@ -65,11 +66,13 @@
 #if DEBUG
 					this.disassemble = GetBooleanValue(root, "//debug/disassemble");
 					this.disassemblyLogPath = GetStringValue(root, "//debug/disassemblyLogPath");
+					this.debugFile = GetStringValue(root, "//debug/debugFile");
 					this.countInstructions = GetBooleanValue(root, "//debug/countInstructions");
 					this.profileAddresses = GetBooleanValue(root, "//debug/profileAddresses");
 #else
 					this.disassemble = GetBooleanValue(root, "//release/disassemble");
 					this.disassemblyLogPath = GetStringValue(root, "//release/disassemblyLogPath");
+					this.debugFile = GetStringValue(root, "//release/debugFile");
 					this.countInstructions = GetBooleanValue(root, "//release/countInstructions");
 					this.profileAddresses = GetBooleanValue(root, "//release/profileAddresses");
 #endif
@@ -202,6 +205,13 @@
 			get
 			{
 				return this.disassemblyLogPath;
+			}
+		}
+		public string DebugFile
+		{
+			get
+			{
+				return this.debugFile;
 			}
 		}
 

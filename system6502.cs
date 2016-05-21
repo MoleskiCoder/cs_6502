@@ -31,9 +31,11 @@
 
 		private Dictionary<AddressingMode, AddressingModeDumper> dumpers;
 
+		private Dictionary<ushort, string> labels;
+
 		private bool disposed;
 
-		public System6502(ProcessorType level, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
 		: base(level)
 		{
 			this.input = addressInput;
@@ -43,6 +45,8 @@
 			this.breakAllowed = breakAllowed;
 
 			this.memory = new byte[0x10000];
+
+			this.labels = labels;
 
 			this.instructionCounts = new ulong[0x100];
 			this.addressProfiles = new ulong[0x10000];
@@ -77,13 +81,13 @@
 			};
 		}
 
-		public System6502(ProcessorType level, ushort addressInput, ushort addressOutput)
-		:	this(level, addressInput, addressOutput, 0x00, false)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput)
+		:	this(level, labels, addressInput, addressOutput, 0x00, false)
 		{
 		}
 
-		public System6502(ProcessorType level, ushort addressInput, ushort addressOutput, byte breakInstruction)
-		:	this(level, addressInput, addressOutput, breakInstruction, true)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput, byte breakInstruction)
+		:	this(level,labels,  addressInput, addressOutput, breakInstruction, true)
 		{
 		}
 
@@ -449,6 +453,28 @@
 			this.Dump_Byte((ushort)(this.PC + 1));
 		}
 
+		private string ConvertAddress(ushort address)
+		{
+			string label;
+			if (this.labels.TryGetValue(address, out label))
+			{
+				return label;
+			}
+
+			return string.Format(CultureInfo.InvariantCulture, "${0:x4}", address);
+		}
+
+		private string ConvertAddress(byte address)
+		{
+			string label;
+			if (this.labels.TryGetValue(address, out label))
+			{
+				return label;
+			}
+
+			return string.Format(CultureInfo.InvariantCulture, "${0:x2}", address);
+		}
+
 		private void Dump_imm()
 		{
 			var immediate = this.GetByte(this.PC);
@@ -458,73 +484,73 @@
 		private void Dump_abs()
 		{
 			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4}", address));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}", this.ConvertAddress(address)));
 		}
 
 		private void Dump_zp()
 		{
 			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2}", zp));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}", this.ConvertAddress(zp)));
 		}
 
 		private void Dump_zpx()
 		{
 			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2},X", zp));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},X", this.ConvertAddress(zp)));
 		}
 
 		private void Dump_zpy()
 		{
 			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2},Y", zp));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},Y", this.ConvertAddress(zp)));
 		}
 
 		private void Dump_absx()
 		{
 			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4},X", address));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},X", this.ConvertAddress(address)));
 		}
 
 		private void Dump_absy()
 		{
 			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4},Y", address));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},Y", this.ConvertAddress(address)));
 		}
 
 		private void Dump_absxind()
 		{
 			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x4},X)", address));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0},X)", this.ConvertAddress(address)));
 		}
 
 		private void Dump_xind()
 		{
 			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x2},X)", zp));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0},X)", this.ConvertAddress(zp)));
 		}
 
 		private void Dump_indy()
 		{
 			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x2}),Y", zp));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0}),Y", this.ConvertAddress(zp)));
 		}
 
 		private void Dump_ind()
 		{
 			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x4})", address));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0})", this.ConvertAddress(address)));
 		}
 
 		private void Dump_zpind()
 		{
 			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "(${0:x2})", zp));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0})", this.ConvertAddress(zp)));
 		}
 
 		private void Dump_rel()
 		{
 			var relative = (ushort)(1 + PC + (sbyte)this.GetByte(this.PC));
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x4}", relative));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}", this.ConvertAddress(relative)));
 		}
 
 		private void Dump_zprel()
@@ -532,7 +558,7 @@
 			var zp = this.GetByte(PC);
 			var displacement = (sbyte)this.GetByte((ushort)(PC + 1));
 			var address = (ushort)(1 + PC + displacement);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "${0:x2},${1:x4}", zp, address));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},{1}", this.ConvertAddress(zp), this.ConvertAddress(address)));
 		}
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
