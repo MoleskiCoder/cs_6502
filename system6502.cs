@@ -32,11 +32,11 @@
 		private Dictionary<AddressingMode, AddressingModeDumper> dumpers;
 
 		private Dictionary<ushort, string> labels;
-		private Dictionary<byte, string> constants;
+		private Dictionary<ushort, string> constants;
 
 		private bool disposed;
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<byte, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<ushort, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
 		: base(level)
 		{
 			this.input = addressInput;
@@ -83,12 +83,12 @@
 			};
 		}
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<byte, string> constants, ushort addressInput, ushort addressOutput)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<ushort, string> constants, ushort addressInput, ushort addressOutput)
 		:	this(level, labels, constants, addressInput, addressOutput, 0x00, false)
 		{
 		}
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<byte, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<ushort, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction)
 		:	this(level, labels, constants, addressInput, addressOutput, breakInstruction, true)
 		{
 		}
@@ -498,6 +498,17 @@
 			}
 
 			return string.Format(CultureInfo.InvariantCulture, "${0:x2}", address);
+		}
+
+		private string ConvertConstant(ushort constant)
+		{
+			string label;
+			if (this.constants.TryGetValue(constant, out label))
+			{
+				return label;
+			}
+
+			return string.Format(CultureInfo.InvariantCulture, "${0:x4}", constant);
 		}
 
 		private string ConvertConstant(byte constant)

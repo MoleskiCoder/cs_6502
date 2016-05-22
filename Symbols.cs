@@ -4,14 +4,11 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     public class Symbols
     {
         private Dictionary<ushort, string> labels;
-        private Dictionary<byte, string> constants;
+        private Dictionary<ushort, string> constants;
 
         private Dictionary<string, Dictionary<string, Dictionary<string, string>>> parsed;
 
@@ -19,7 +16,7 @@
         {
             this.parsed = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
             this.labels = new Dictionary<ushort, string>();
-            this.constants = new Dictionary<byte, string>();
+            this.constants = new Dictionary<ushort, string>();
 
             if (!string.IsNullOrWhiteSpace(path))
             {
@@ -36,7 +33,7 @@
             }
         }
 
-        public Dictionary<byte, string> Constants
+        public Dictionary<ushort, string> Constants
         {
             get
             {
@@ -51,15 +48,16 @@
             {
                 var name = symbol["name"].Trim(new char[] { '"' });
                 var value = symbol["val"];
-                if (symbol["type"] == "lab")
+                var parsed = ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                switch (symbol["type"])
                 {
-                    var address = ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                    this.labels[address] = name;
-                }
-                if (symbol["type"] == "equ")
-                {
-                    var constant = byte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                    this.constants[constant] = name;
+                    case "lab":
+                        this.labels[parsed] = name;
+                        break;
+
+                    case "equ":
+                        this.constants[parsed] = name;
+                        break;
                 }
             }
         }
