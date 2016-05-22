@@ -51,18 +51,18 @@
 			return this.dumpers[mode].ByteDumper(current);
 		}
 
-        public string Disassemble(ushort current)
-        {
-            var content = this.processor.GetByte(current);
-            var instruction = this.processor.Instructions[content];
+		public string Disassemble(ushort current)
+		{
+			var content = this.processor.GetByte(current);
+			var instruction = this.processor.Instructions[content];
 
-            var mode = instruction.Mode;
-            var mnemomic = instruction.Display;
+			var mode = instruction.Mode;
+			var mnemomic = instruction.Display;
 
-            var operand = this.DumpOperand(mode, (ushort)(current + 1));
+			var operand = this.DumpOperand(mode, (ushort)(current + 1));
 
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", mnemomic, operand);
-        }
+			return string.Format(CultureInfo.InvariantCulture, "{0} {1}", mnemomic, operand);
+		}
 
 		public string DumpOperand(AddressingMode mode, ushort current)
 		{
