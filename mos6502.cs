@@ -65,7 +65,7 @@
 			}
 		}
 
-		protected Instruction[] Instructions
+		public Instruction[] Instructions
 		{
 			get
 			{

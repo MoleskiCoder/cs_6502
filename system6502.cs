@@ -297,6 +297,13 @@
 						this.X,
 						this.Y,
 						this.S));
+
+                var current = this.GetByte(this.PC);
+				var instruction = this.Instructions[current];
+				var mode = instruction.Mode;
+				this.OnDisassembly(this.disassembler.Dump_ByteValue(current));
+				this.OnDisassembly(this.disassembler.DumpBytes(mode, (ushort)(this.PC + 1)));
+				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", this.disassembler.Disassemble(this.PC)));
 			}
 
 			this.OnStepping();
@@ -312,11 +319,6 @@
 
 		protected override bool Execute(byte instruction)
 		{
-			if (this.Disassemble)
-			{
-				this.OnDisassembly(this.disassembler.Dump_ByteValue(instruction));
-			}
-
 			ushort profileAddress = 0;
 			ulong currentCycles = 0;
 			if (this.ProfileAddresses)
@@ -344,21 +346,6 @@
 			}
 
 			return returnValue;
-		}
-
-		protected override bool Execute(Instruction instruction)
-		{
-			if (this.Disassemble)
-			{
-				var mode = instruction.Mode;
-				var mnemomic = instruction.Display;
-
-				this.OnDisassembly(this.disassembler.DumpBytes(mode, this.PC));
-				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", mnemomic));
-				this.OnDisassembly(this.disassembler.DumpOperand(mode, this.PC));
-			}
-
-			return base.Execute(instruction);
 		}
 
 		protected void OnStepping()
