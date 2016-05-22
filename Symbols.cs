@@ -11,17 +11,20 @@
     public class Symbols
     {
         private Dictionary<ushort, string> labels;
+        private Dictionary<byte, string> constants;
+
         private Dictionary<string, Dictionary<string, Dictionary<string, string>>> parsed;
 
         public Symbols(string path)
         {
             this.parsed = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
             this.labels = new Dictionary<ushort, string>();
+            this.constants = new Dictionary<byte, string>();
 
             if (!string.IsNullOrWhiteSpace(path))
             {
                 this.Parse(path);
-                this.AssignLabels();
+                this.AssignSymbols();
             }
         }
 
@@ -33,17 +36,30 @@
             }
         }
 
-        private void AssignLabels()
+        public Dictionary<byte, string> Constants
+        {
+            get
+            {
+                return this.constants;
+            }
+        }
+
+        private void AssignSymbols()
         {
             var symbols = this.parsed["sym"];
             foreach (var symbol in symbols.Values)
             {
+                var name = symbol["name"].Trim(new char[] { '"' });
+                var value = symbol["val"];
                 if (symbol["type"] == "lab")
                 {
-                    var name = symbol["name"].Trim(new char[] { '"' });
-                    var value = symbol["val"];
                     var address = ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
                     this.labels[address] = name;
+                }
+                if (symbol["type"] == "equ")
+                {
+                    var constant = byte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                    this.constants[constant] = name;
                 }
             }
         }

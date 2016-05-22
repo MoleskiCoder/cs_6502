@@ -32,10 +32,11 @@
 		private Dictionary<AddressingMode, AddressingModeDumper> dumpers;
 
 		private Dictionary<ushort, string> labels;
+		private Dictionary<byte, string> constants;
 
 		private bool disposed;
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<byte, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
 		: base(level)
 		{
 			this.input = addressInput;
@@ -47,6 +48,7 @@
 			this.memory = new byte[0x10000];
 
 			this.labels = labels;
+			this.constants = constants;
 
 			this.instructionCounts = new ulong[0x100];
 			this.addressProfiles = new ulong[0x10000];
@@ -81,13 +83,13 @@
 			};
 		}
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput)
-		:	this(level, labels, addressInput, addressOutput, 0x00, false)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<byte, string> constants, ushort addressInput, ushort addressOutput)
+		:	this(level, labels, constants, addressInput, addressOutput, 0x00, false)
 		{
 		}
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput, byte breakInstruction)
-		:	this(level, labels, addressInput, addressOutput, breakInstruction, true)
+		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<byte, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction)
+		:	this(level, labels, constants, addressInput, addressOutput, breakInstruction, true)
 		{
 		}
 
@@ -498,10 +500,21 @@
 			return string.Format(CultureInfo.InvariantCulture, "${0:x2}", address);
 		}
 
+		private string ConvertConstant(byte constant)
+		{
+			string label;
+			if (this.constants.TryGetValue(constant, out label))
+			{
+				return label;
+			}
+
+			return string.Format(CultureInfo.InvariantCulture, "${0:x2}", constant);
+		}
+
 		private void Dump_imm()
 		{
 			var immediate = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "#${0:x2}", immediate));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "#{0}", this.ConvertConstant(immediate)));
 		}
 
 		private void Dump_abs()
