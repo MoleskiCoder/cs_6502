@@ -110,25 +110,14 @@
 			{
 				this.processor.Start(this.configuration.StartAddress);
 			}
+
+			this.processor.Starting += this.Processor_Starting;
+			this.processor.Finished += this.Processor_Finished;
 		}
 
 		public void Start()
 		{
-			if (!string.IsNullOrWhiteSpace(this.disassemblyLogPath))
-			{
-				this.disassemblyLog = new StreamWriter(this.disassemblyLogPath);
-			}
-
-			this.Processor.Disassembly += this.Processor_Disassembly;
-			this.startTime = DateTime.Now;
-			try
-			{
-				this.processor.Run();
-			}
-			finally
-			{
-				this.finishTime = DateTime.Now;
-			}
+			this.processor.Run();
 		}
 
 		public void Dispose()
@@ -154,6 +143,49 @@
 
 				this.disposed = true;
 			}
+		}
+
+		private void Processor_Finished(object sender, EventArgs e)
+		{
+			this.finishTime = DateTime.Now;
+
+			var disassembler = this.processor.Disassembler;
+			var profiles = this.processor.AddressProfiles;
+
+			ulong totalCycles = 0;
+			foreach (var cycles in profiles)
+			{
+				totalCycles += cycles;
+			}
+
+			for (var i = 0; i < 0x10000; ++i)
+			{
+				var cycles = profiles[i];
+				if (cycles > 0)
+				{
+					var address = (ushort)i;
+					string label;
+					if (this.symbols.Labels.TryGetValue(address, out label))
+					{
+						System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}:", label));
+					}
+
+					var source = disassembler.Disassemble(address);
+					var proportion = (double)cycles / totalCycles;
+					System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}", proportion, cycles, source));
+				}
+			}
+		}
+
+		private void Processor_Starting(object sender, EventArgs e)
+		{
+			if (!string.IsNullOrWhiteSpace(this.disassemblyLogPath))
+			{
+				this.disassemblyLog = new StreamWriter(this.disassemblyLogPath);
+			}
+
+			this.Processor.Disassembly += this.Processor_Disassembly;
+			this.startTime = DateTime.Now;
 		}
 
 		private void Processor_Stepping(object sender, EventArgs e)

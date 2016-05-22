@@ -39,6 +39,10 @@
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
+        public event EventHandler<EventArgs> Starting;
+
+        public event EventHandler<EventArgs> Finished;
+
 		public ulong Cycles
 		{
 			get
@@ -161,10 +165,18 @@
 
 		public virtual void Run()
 		{
-			this.Cycles = 0;
-			while (this.Step())
-			{
-			}
+            this.OnStarting();
+            try
+            {
+                this.Cycles = 0;
+                while (this.Step())
+                {
+                }
+            }
+            finally
+            {
+                this.OnFinished();
+            }
 		}
 
 		public virtual void Reset()
@@ -202,7 +214,25 @@
 			}
 		}
 
-		protected virtual void Interrupt(ushort vector)
+        protected virtual void OnStarting()
+        {
+        	var handler = this.Starting;
+			if (handler != null)
+			{
+				handler(this, EventArgs.Empty);
+			}
+        }
+
+        protected virtual void OnFinished()
+        {
+            var handler = this.Finished;
+			if (handler != null)
+			{
+				handler(this, EventArgs.Empty);
+			}
+        }
+
+        protected virtual void Interrupt(ushort vector)
 		{
 			this.PushWord(this.PC);
 			this.PushByte((byte)this.P);

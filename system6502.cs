@@ -129,6 +129,14 @@
 			}
 		}
 
+		public Disassembly Disassembler
+		{
+			get
+			{
+				return this.disassembler;
+			}
+		}
+
 		public bool CountInstructions
 		{
 			get
@@ -160,6 +168,14 @@
 					this.profileAddresses = value;
 					this.OnPropertyChanged("ProfileAddresses");
 				}
+			}
+		}
+
+		public ulong[] AddressProfiles
+		{
+			get
+			{
+				return this.addressProfiles;
 			}
 		}
 
@@ -199,55 +215,6 @@
 			{
 				var size = file.Length;
 				reader.Read(this.memory, offset, (int)size);
-			}
-		}
-
-		public override void Run()
-		{
-			base.Run();
-
-			if (this.CountInstructions)
-			{
-				byte i = 0;
-				var instructions = this.instructionCounts.ToDictionary(s => i++, s => s);
-
-				var organisedInstructions = new Dictionary<byte, Tuple<Instruction, ulong>>();
-				foreach (var instruction in instructions)
-				{
-					var key = instruction.Key;
-					var count = instruction.Value;
-					var details = this.Instructions[key];
-					if (count > 0)
-					{
-						organisedInstructions[key] = new Tuple<Instruction, ulong>(details, count);
-					}
-				}
-			}
-
-			if (this.ProfileAddresses)
-			{
-				ushort i = 0;
-				var addresses = this.addressProfiles.ToDictionary(s => i++, s => s);
-
-				var organisedAddresses = new Dictionary<ushort, Tuple<Instruction, ulong>>();
-				foreach (var address in addresses)
-				{
-					var key = address.Key;
-					var cycles = address.Value;
-					var details = this.Instructions[this.memory[key]];
-					if (cycles > 0)
-					{
-						organisedAddresses[key] = new Tuple<Instruction, ulong>(details, cycles);
-					}
-				}
-
-				var ordered = from address in organisedAddresses
-							  let cycles = address.Value.Item2
-							  let details = address.Value.Item1
-							  let key = address.Key
-							  let returned = new Tuple<ushort, Instruction, ulong>(key, details, cycles)
-							  orderby cycles descending
-							  select returned;
 			}
 		}
 
@@ -298,7 +265,7 @@
 						this.Y,
 						this.S));
 
-                var current = this.GetByte(this.PC);
+				var current = this.GetByte(this.PC);
 				var instruction = this.Instructions[current];
 				var mode = instruction.Mode;
 				this.OnDisassembly(this.disassembler.Dump_ByteValue(current));
