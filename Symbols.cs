@@ -25,6 +25,14 @@
             }
         }
 
+        public Dictionary<ushort, string> Labels
+        {
+            get
+            {
+                return this.labels;
+            }
+        }
+
         private void AssignLabels()
         {
             var symbols = this.parsed["sym"];
@@ -39,7 +47,6 @@
                 }
             }
         }
-
 
         private void Parse(string path)
         {
@@ -76,14 +83,6 @@
                         }
                     }
                 }
-            }
-        }
-
-        public Dictionary<ushort, string> Labels
-        {
-            get
-            {
-                return this.labels;
             }
         }
     }

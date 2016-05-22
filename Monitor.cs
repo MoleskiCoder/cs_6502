@@ -1,5 +1,4 @@
-﻿
-namespace Simulator
+﻿namespace Simulator
 {
     using System.Windows.Forms;
 

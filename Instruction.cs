@@ -60,6 +60,5 @@
                 this.display = value;
             }
         }
-
     }
 }

@@ -414,21 +414,21 @@
 			}
 		}
 
-		protected void OnWritingCharacter(byte output)
+		protected void OnWritingCharacter(byte character)
 		{
 			var handler = this.WritingCharacter;
 			if (handler != null)
 			{
-				handler(this, new ByteEventArgs(output));
+				handler(this, new ByteEventArgs(character));
 			}
 		}
 
-		protected void OnReadingCharacter(byte input)
+		protected void OnReadingCharacter(byte character)
 		{
 			var handler = this.ReadingCharacter;
 			if (handler != null)
 			{
-				handler(this, new ByteEventArgs(input));
+				handler(this, new ByteEventArgs(character));
 			}
 		}
 
