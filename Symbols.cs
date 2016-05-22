@@ -48,15 +48,15 @@
             {
                 var name = symbol["name"].Trim(new char[] { '"' });
                 var value = symbol["val"];
-                var parsed = ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                var number = ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
                 switch (symbol["type"])
                 {
                     case "lab":
-                        this.labels[parsed] = name;
+                        this.labels[number] = name;
                         break;
 
                     case "equ":
-                        this.constants[parsed] = name;
+                        this.constants[number] = name;
                         break;
                 }
             }
