@@ -19,6 +19,7 @@
 
 		private string bbcLanguageRomPath;
 		private string bbcOSRomPath;
+		private bool bbcVduEmulation;
 
 		private string disassemblyLogPath;
 		private string debugFile;
@@ -56,6 +57,7 @@
 
 					this.bbcLanguageRomPath = GetStringValue(root, "//BBC/language/path");
 					this.bbcOSRomPath = GetStringValue(root, "//BBC/OS/path");
+					this.bbcVduEmulation = GetBooleanValue(root, "//BBC/VDUEmulation");
 
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
@@ -117,6 +119,14 @@
 			get
 			{
 				return this.bbcOSRomPath;
+			}
+		}
+
+		public bool BbcVduEmulation
+		{
+			get
+			{
+				return this.bbcVduEmulation;
 			}
 		}
 
@@ -207,6 +217,7 @@
 				return this.disassemblyLogPath;
 			}
 		}
+
 		public string DebugFile
 		{
 			get

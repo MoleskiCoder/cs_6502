@@ -87,7 +87,7 @@
 		}
 
 		public System6502(ProcessorType level, Dictionary<ushort, string> labels, ushort addressInput, ushort addressOutput, byte breakInstruction)
-		:	this(level,labels,  addressInput, addressOutput, breakInstruction, true)
+		:	this(level, labels, addressInput, addressOutput, breakInstruction, true)
 		{
 		}
 
@@ -96,6 +96,10 @@
 		public event EventHandler<EventArgs> Stepped;
 
 		public event EventHandler<DisassemblyEventArgs> Disassembly;
+
+		public event EventHandler<ByteEventArgs> WritingCharacter;
+
+		public event EventHandler<ByteEventArgs> ReadingCharacter;
 
 		public byte BreakInstruction
 		{
@@ -273,8 +277,9 @@
 		public override byte GetByte(ushort offset)
 		{
 			var content = this.memory[offset];
-			if (offset == this.input)
+			if (offset == this.input && content != 0x0)
 			{
+				this.OnReadingCharacter(content);
 				this.memory[offset] = 0x0;
 			}
 
@@ -286,7 +291,7 @@
 			this.memory[offset] = value;
 			if (offset == this.output)
 			{
-				System.Console.Out.Write((char)value);
+				this.OnWritingCharacter(value);
 			}
 		}
 
@@ -406,6 +411,24 @@
 			if (handler != null)
 			{
 				handler(this, new DisassemblyEventArgs(test));
+			}
+		}
+
+		protected void OnWritingCharacter(byte output)
+		{
+			var handler = this.WritingCharacter;
+			if (handler != null)
+			{
+				handler(this, new ByteEventArgs(output));
+			}
+		}
+
+		protected void OnReadingCharacter(byte input)
+		{
+			var handler = this.ReadingCharacter;
+			if (handler != null)
+			{
+				handler(this, new ByteEventArgs(input));
 			}
 		}
 
