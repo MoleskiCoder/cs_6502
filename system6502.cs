@@ -29,14 +29,11 @@
 
 		private bool proceed = true;
 
-		private Dictionary<AddressingMode, AddressingModeDumper> dumpers;
-
-		private Dictionary<ushort, string> labels;
-		private Dictionary<ushort, string> constants;
+		private Disassembly disassembler;
 
 		private bool disposed;
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<ushort, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
+		public System6502(ProcessorType level, Symbols symbols, ushort addressInput, ushort addressOutput, byte breakInstruction, bool breakAllowed)
 		: base(level)
 		{
 			this.input = addressInput;
@@ -47,8 +44,7 @@
 
 			this.memory = new byte[0x10000];
 
-			this.labels = labels;
-			this.constants = constants;
+			this.disassembler = new Disassembly(this, symbols);
 
 			this.instructionCounts = new ulong[0x100];
 			this.addressProfiles = new ulong[0x10000];
@@ -60,36 +56,15 @@
 			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
 			this.inputPollTimer.Start();
-
-			this.dumpers = new Dictionary<AddressingMode, AddressingModeDumper>()
-			{
-				{ AddressingMode.Illegal, new AddressingModeDumper { ByteDumper = this.Dump_Nothing, DisassemblyDumper = this.Dump_Nothing } },
-				{ AddressingMode.Implied, new AddressingModeDumper { ByteDumper = this.Dump_Nothing, DisassemblyDumper = this.Dump_Nothing } },
-				{ AddressingMode.Accumulator, new AddressingModeDumper { ByteDumper = this.Dump_Nothing, DisassemblyDumper = this.Dump_A } },
-				{ AddressingMode.Immediate, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_imm } },
-				{ AddressingMode.Relative, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_rel } },
-				{ AddressingMode.XIndexed, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_xind } },
-				{ AddressingMode.IndexedY, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_indy } },
-				{ AddressingMode.ZeroPageIndirect, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zpind } },
-				{ AddressingMode.ZeroPage, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zp } },
-				{ AddressingMode.ZeroPageX, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zpx } },
-				{ AddressingMode.ZeroPageY, new AddressingModeDumper { ByteDumper = this.Dump_Byte, DisassemblyDumper = this.Dump_zpy } },
-				{ AddressingMode.Absolute, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_abs } },
-				{ AddressingMode.AbsoluteX, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absx } },
-				{ AddressingMode.AbsoluteY, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absy } },
-				{ AddressingMode.AbsoluteXIndirect, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_absxind } },
-				{ AddressingMode.Indirect, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_ind } },
-				{ AddressingMode.ZeroPageRelative, new AddressingModeDumper { ByteDumper = this.Dump_DByte, DisassemblyDumper = this.Dump_zprel } },
-			};
 		}
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<ushort, string> constants, ushort addressInput, ushort addressOutput)
-		:	this(level, labels, constants, addressInput, addressOutput, 0x00, false)
+		public System6502(ProcessorType level, Symbols symbols, ushort addressInput, ushort addressOutput)
+		:	this(level, symbols, addressInput, addressOutput, 0x00, false)
 		{
 		}
 
-		public System6502(ProcessorType level, Dictionary<ushort, string> labels, Dictionary<ushort, string> constants, ushort addressInput, ushort addressOutput, byte breakInstruction)
-		:	this(level, labels, constants, addressInput, addressOutput, breakInstruction, true)
+		public System6502(ProcessorType level, Symbols symbols, ushort addressInput, ushort addressOutput, byte breakInstruction)
+		:	this(level, symbols, addressInput, addressOutput, breakInstruction, true)
 		{
 		}
 
@@ -288,6 +263,11 @@
 			return content;
 		}
 
+		public override ushort GetWord(ushort offset)
+		{
+			return BitConverter.ToUInt16(this.memory, offset);
+		}
+
 		public override void SetByte(ushort offset, byte value)
 		{
 			this.memory[offset] = value;
@@ -334,7 +314,7 @@
 		{
 			if (this.Disassemble)
 			{
-				this.Dump_ByteValue(instruction);
+				this.OnDisassembly(this.disassembler.Dump_ByteValue(instruction));
 			}
 
 			ushort profileAddress = 0;
@@ -373,20 +353,12 @@
 				var mode = instruction.Mode;
 				var mnemomic = instruction.Display;
 
-				var dumper = this.dumpers[mode];
-
-				dumper.ByteDumper();
-
+				this.OnDisassembly(this.disassembler.DumpBytes(mode, this.PC));
 				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", mnemomic));
-				dumper.DisassemblyDumper();
+				this.OnDisassembly(this.disassembler.DumpOperand(mode, this.PC));
 			}
 
 			return base.Execute(instruction);
-		}
-
-		protected override ushort GetWord(ushort offset)
-		{
-			return BitConverter.ToUInt16(this.memory, offset);
 		}
 
 		protected void OnStepping()
@@ -446,166 +418,6 @@
 
 				this.disposed = true;
 			}
-		}
-
-		private void Dump_Nothing()
-		{
-		}
-
-		private void Dump_ByteValue(byte value)
-		{
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0:x2}", value));
-		}
-
-		private void Dump_A()
-		{
-			this.OnDisassembly("A");
-		}
-
-		private void Dump_Byte(ushort address)
-		{
-			this.Dump_ByteValue(this.GetByte(address));
-		}
-
-		private void Dump_Byte()
-		{
-			this.Dump_Byte(this.PC);
-		}
-
-		private void Dump_DByte()
-		{
-			this.Dump_Byte(this.PC);
-			this.Dump_Byte((ushort)(this.PC + 1));
-		}
-
-		private string ConvertAddress(ushort address)
-		{
-			string label;
-			if (this.labels.TryGetValue(address, out label))
-			{
-				return label;
-			}
-
-			return string.Format(CultureInfo.InvariantCulture, "${0:x4}", address);
-		}
-
-		private string ConvertAddress(byte address)
-		{
-			string label;
-			if (this.labels.TryGetValue(address, out label))
-			{
-				return label;
-			}
-
-			return string.Format(CultureInfo.InvariantCulture, "${0:x2}", address);
-		}
-
-		private string ConvertConstant(ushort constant)
-		{
-			string label;
-			if (this.constants.TryGetValue(constant, out label))
-			{
-				return label;
-			}
-
-			return string.Format(CultureInfo.InvariantCulture, "${0:x4}", constant);
-		}
-
-		private string ConvertConstant(byte constant)
-		{
-			string label;
-			if (this.constants.TryGetValue(constant, out label))
-			{
-				return label;
-			}
-
-			return string.Format(CultureInfo.InvariantCulture, "${0:x2}", constant);
-		}
-
-		private void Dump_imm()
-		{
-			var immediate = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "#{0}", this.ConvertConstant(immediate)));
-		}
-
-		private void Dump_abs()
-		{
-			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}", this.ConvertAddress(address)));
-		}
-
-		private void Dump_zp()
-		{
-			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}", this.ConvertAddress(zp)));
-		}
-
-		private void Dump_zpx()
-		{
-			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},X", this.ConvertAddress(zp)));
-		}
-
-		private void Dump_zpy()
-		{
-			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},Y", this.ConvertAddress(zp)));
-		}
-
-		private void Dump_absx()
-		{
-			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},X", this.ConvertAddress(address)));
-		}
-
-		private void Dump_absy()
-		{
-			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},Y", this.ConvertAddress(address)));
-		}
-
-		private void Dump_absxind()
-		{
-			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0},X)", this.ConvertAddress(address)));
-		}
-
-		private void Dump_xind()
-		{
-			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0},X)", this.ConvertAddress(zp)));
-		}
-
-		private void Dump_indy()
-		{
-			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0}),Y", this.ConvertAddress(zp)));
-		}
-
-		private void Dump_ind()
-		{
-			var address = this.GetWord(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0})", this.ConvertAddress(address)));
-		}
-
-		private void Dump_zpind()
-		{
-			var zp = this.GetByte(this.PC);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "({0})", this.ConvertAddress(zp)));
-		}
-
-		private void Dump_rel()
-		{
-			var relative = (ushort)(1 + PC + (sbyte)this.GetByte(this.PC));
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}", this.ConvertAddress(relative)));
-		}
-
-		private void Dump_zprel()
-		{
-			var zp = this.GetByte(PC);
-			var displacement = (sbyte)this.GetByte((ushort)(PC + 1));
-			var address = (ushort)(1 + PC + displacement);
-			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0},{1}", this.ConvertAddress(zp), this.ConvertAddress(address)));
 		}
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

@@ -182,6 +182,13 @@
 			this.Interrupt(NMIvector);
 		}
 
+		public virtual ushort GetWord(ushort offset)
+		{
+			var low = this.GetByte(offset);
+			var high = this.GetByte((ushort)(offset + 1));
+			return MakeWord(low, high);
+		}
+
 		public abstract byte GetByte(ushort offset);
 
 		public abstract void SetByte(ushort offset, byte value);
@@ -250,13 +257,6 @@
 		protected virtual bool Step()
 		{
 			return this.Execute(this.FetchByte());
-		}
-
-		protected virtual ushort GetWord(ushort offset)
-		{
-			var low = this.GetByte(offset);
-			var high = this.GetByte((ushort)(offset + 1));
-			return MakeWord(low, high);
 		}
 
 		private static Instruction INS(Implementation method, ulong cycles, AddressingMode addressing, string display)

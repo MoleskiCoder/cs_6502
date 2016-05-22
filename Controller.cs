@@ -61,8 +61,7 @@
 			{
 				this.processor = new System6502(
 					this.configuration.ProcessorLevel,
-					this.symbols.Labels,
-					this.symbols.Constants,
+					this.symbols,
 					this.configuration.InputAddress,
 					this.configuration.OutputAddress,
 					this.configuration.BreakInstruction);
@@ -71,8 +70,7 @@
 			{
 				this.processor = new System6502(
 					this.configuration.ProcessorLevel,
-					this.symbols.Labels,
-					this.symbols.Constants,
+					this.symbols,
 					this.configuration.InputAddress,
 					this.configuration.OutputAddress);
 			}

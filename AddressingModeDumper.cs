@@ -1,6 +1,6 @@
 ﻿namespace Simulator
 {
-    public delegate void Dumper();
+    public delegate string Dumper(ushort current);
 
     public struct AddressingModeDumper
     {
