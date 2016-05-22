@@ -12,7 +12,8 @@
 		},
 		"OS": {
 			"path": "C:\\github\\6502\\6502_mos\\mos.65b"
-		}
+		},
+		"VDUEmulation": true
 	},
 	"run": {
 		"resetStart": true,
