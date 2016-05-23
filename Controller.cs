@@ -1,6 +1,7 @@
 ﻿namespace Simulator
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Globalization;
 	using System.IO;
 
@@ -145,24 +146,48 @@
 			}
 		}
 
-		private void Processor_Finished(object sender, EventArgs e)
+		private void GenerateProfile()
 		{
-			this.finishTime = DateTime.Now;
-
 			var disassembler = this.processor.Disassembler;
 			var profiles = this.processor.AddressProfiles;
 
-			ulong totalCycles = 0;
-			foreach (var cycles in profiles)
+			var addressScopes = new string[0x10000];
+			foreach (var label in this.symbols.Labels)
 			{
-				totalCycles += cycles;
+				var address = label.Key;
+				var key = label.Value;
+
+				ushort scope;
+				if (this.symbols.Scopes.TryGetValue(key, out scope))
+				{
+					for (ushort i = address; i < address + scope; ++i)
+					{
+						addressScopes[i] = key;
+					}
+				}
 			}
 
+			var scopeCycles = new Dictionary<string, ulong>();
+
+			// For each memory address
 			for (var i = 0; i < 0x10000; ++i)
 			{
+				// If there are any cycles associated
 				var cycles = profiles[i];
 				if (cycles > 0)
 				{
+					var addressScope = addressScopes[i];
+					if (addressScope != null)
+					{
+						if (!scopeCycles.ContainsKey(addressScope))
+						{
+							scopeCycles[addressScope] = 0;
+						}
+
+						scopeCycles[addressScope] += cycles;
+					}
+
+					// Grab a label, if possible
 					var address = (ushort)i;
 					string label;
 					if (this.symbols.Labels.TryGetValue(address, out label))
@@ -170,11 +195,27 @@
 						System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}:", label));
 					}
 
+					// Dump a profile/disassembly line
 					var source = disassembler.Disassemble(address);
-					var proportion = (double)cycles / totalCycles;
+					var proportion = (double)cycles / this.Processor.Cycles;
 					System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}", proportion, cycles, source));
 				}
 			}
+
+			System.Diagnostics.Debug.WriteLine("Cycles used by scope:");
+			foreach (var scopeCycle in scopeCycles)
+			{
+				var name = scopeCycle.Key;
+				var cycles = scopeCycle.Value;
+				var proportion = (double)cycles / this.Processor.Cycles;
+				System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}", proportion, cycles, name));
+			}
+		}
+
+		private void Processor_Finished(object sender, EventArgs e)
+		{
+			this.finishTime = DateTime.Now;
+			this.GenerateProfile();
 		}
 
 		private void Processor_Starting(object sender, EventArgs e)

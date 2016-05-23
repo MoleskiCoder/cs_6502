@@ -9,6 +9,7 @@
     {
         private Dictionary<ushort, string> labels;
         private Dictionary<ushort, string> constants;
+        private Dictionary<string, ushort> scopes;
 
         private Dictionary<string, Dictionary<string, Dictionary<string, string>>> parsed;
 
@@ -17,11 +18,13 @@
             this.parsed = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
             this.labels = new Dictionary<ushort, string>();
             this.constants = new Dictionary<ushort, string>();
+            this.scopes = new Dictionary<string, ushort>();
 
             if (!string.IsNullOrWhiteSpace(path))
             {
                 this.Parse(path);
                 this.AssignSymbols();
+                this.AssignScopes();
             }
         }
 
@@ -38,6 +41,25 @@
             get
             {
                 return this.constants;
+            }
+        }
+
+        public Dictionary<string, ushort> Scopes
+        {
+            get
+            {
+                return this.scopes;
+            }
+        }
+
+        private void AssignScopes()
+        {
+            var parsedScopes = this.parsed["scope"];
+            foreach (var parsedScope in parsedScopes.Values)
+            {
+                var name = parsedScope["name"].Trim(new char[] { '"' });
+                var size = parsedScope["size"];
+                this.scopes[name] = ushort.Parse(size, CultureInfo.InvariantCulture);
             }
         }
 
