@@ -6,7 +6,7 @@
     {
         public Monitor()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }
