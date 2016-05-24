@@ -235,8 +235,8 @@
 		protected virtual void Interrupt(ushort vector)
 		{
 			this.PushWord(this.PC);
-			this.PushByte((byte)this.P);
-			this.SetFlag(StatusFlags.Interrupt);
+			this.PushByte(this.P);
+			this.P.Interrupt = true;
 			this.PC = this.GetWord(vector);
 		}
 
@@ -280,7 +280,10 @@
 			this.X = 0x80;
 			this.Y = 0x00;
 			this.A = 0x00;
-			this.P = StatusFlags.Reserved;
+
+			this.P = new StatusFlags(0);
+			this.P.Reserved = true;
+
 			this.S = 0xff;
 		}
 
@@ -688,37 +691,20 @@
 
 		////
 
-		private bool UpdateFlag_Zero(byte value)
+		private void UpdateFlag_Zero(byte value)
 		{
-			if (value == 0)
-			{
-				this.SetFlag(StatusFlags.Zero);
-				return true;
-			}
-
-			return false;
+			this.P.Zero = (value == 0);
 		}
 
 		private void UpdateFlag_Negative(sbyte value)
 		{
-			if (value < 0)
-			{
-				this.SetFlag(StatusFlags.Negative);
-			}
+			this.P.Negative = (value < 0);
 		}
 
 		private void UpdateFlags_ZeroNegative(byte value)
 		{
-			if (!this.UpdateFlag_Zero(value))
-			{
-				this.UpdateFlag_Negative((sbyte)value);
-			}
-		}
-
-		private void ReflectFlags_ZeroNegative(byte value)
-		{
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero);
-			this.UpdateFlags_ZeroNegative(value);
+			this.UpdateFlag_Zero(value);
+			this.UpdateFlag_Negative((sbyte)value);
 		}
 
 		////
@@ -727,18 +713,14 @@
 		{
 			var content = (sbyte)this.GetByte(offset);
 			this.SetByte(offset, (byte)(--content));
-			this.ReflectFlags_ZeroNegative((byte)content);
+			this.UpdateFlags_ZeroNegative((byte)content);
 		}
 
 		private byte ROR(byte data)
 		{
-			bool carry = this.IsFlagSet(StatusFlags.Carry);
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
+			var carry = this.P.Carry;
 
-			if ((data & 1) != 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Carry = ((data & 1) != 0);
 
 			var result = (byte)(data >> 1);
 			if (carry)
@@ -758,12 +740,8 @@
 
 		private byte LSR(byte data)
 		{
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
-
-			if ((data & 1) != 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Carry = ((data & 1) != 0);
+			this.P.Negative = false;
 
 			var result = (byte)(data >> 1);
 
@@ -779,26 +757,15 @@
 
 		private void BIT_immediate(byte data)
 		{
-			this.ClearFlag(StatusFlags.Zero);
 			var result = (byte)(this.A & data);
 			this.UpdateFlag_Zero(result);
 		}
 
 		private void BIT(byte data)
 		{
-			this.ClearFlag(StatusFlags.Overflow | StatusFlags.Negative);
-
 			this.BIT_immediate(data);
-
-			if ((data & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Negative);
-			}
-
-			if ((data & 0x40) != 0)
-			{
-				this.SetFlag(StatusFlags.Overflow);
-			}
+			this.P.Negative = ((data & 0x80) != 0);
+			this.P.Overflow = ((data & 0x40) != 0);
 		}
 
 		private void TSB(ushort address)
@@ -823,7 +790,7 @@
 		{
 			var content = this.GetByte(offset);
 			this.SetByte(offset, ++content);
-			this.ReflectFlags_ZeroNegative(content);
+			this.UpdateFlags_ZeroNegative(content);
 		}
 
 		private void ROL(ushort offset)
@@ -833,14 +800,9 @@
 
 		private byte ROL(byte data)
 		{
-			var carry = this.IsFlagSet(StatusFlags.Carry);
+			var carry = this.P.Carry;
 
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
-
-			if ((data & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Carry = ((data & 0x80) != 0);
 
 			var result = (byte)(data << 1);
 
@@ -861,15 +823,10 @@
 
 		private byte ASL(byte data)
 		{
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
+			var result = (byte)(data << 1);
 
-			byte result = (byte)(data << 1);
 			this.UpdateFlags_ZeroNegative(result);
-
-			if ((data & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Carry = ((data & 0x80) != 0);
 
 			return result;
 		}
@@ -877,18 +834,18 @@
 		private void ORA(byte data)
 		{
 			this.A |= data;
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		private void AND(byte data)
 		{
 			this.A &= data;
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		private void SBC(byte data)
 		{
-			if ((this.P & StatusFlags.Decimal) != 0)
+			if (this.P.Decimal)
 			{
 				this.SBC_d(data);
 			}
@@ -900,45 +857,28 @@
 
 		private void SBC_b(byte data)
 		{
-			var carry = (byte)(this.IsFlagClear(StatusFlags.Carry) ? 1 : 0);
+			var carry = (byte)(!this.P.Carry ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
-			this.ClearFlag(StatusFlags.Zero | StatusFlags.Overflow | StatusFlags.Negative | StatusFlags.Carry);
 			this.UpdateFlags_ZeroNegative((byte)difference);
-
-			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Overflow);
-			}
-
-			if ((difference & 0xff00) == 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Overflow = (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0);
+			this.P.Carry = ((difference & 0xff00) == 0);
 
 			this.A = (byte)difference;
 		}
 
 		private void SBC_d(byte data)
 		{
-			var carry = (byte)(this.IsFlagClear(StatusFlags.Carry) ? 1 : 0);
+			var carry = (byte)(!this.P.Carry ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
 			if (this.level < ProcessorType.cpu65sc02)
 			{
 				this.UpdateFlags_ZeroNegative((byte)difference);
 			}
 
-			if (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Overflow);
-			}
-
-			if ((difference & 0xff00) == 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Overflow = (((this.A ^ data) & (this.A ^ difference) & 0x80) != 0);
+			this.P.Carry = ((difference & 0xff00) == 0);
 
 			var low = (byte)(LowNybble(this.A) - LowNybble(data) - carry);
 
@@ -965,7 +905,7 @@
 		private void EOR(byte data)
 		{
 			this.A ^= data;
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		private void CPX(byte data)
@@ -985,39 +925,33 @@
 
 		private void CMP(byte first, byte second)
 		{
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Zero | StatusFlags.Carry);
-
 			var result = (ushort)(first - second);
 
 			this.UpdateFlags_ZeroNegative((byte)result);
-
-			if ((result & 0xff00) == 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Carry = ((result & 0xff00) == 0);
 		}
 
 		private void LDA(byte data)
 		{
 			this.A = data;
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		private void LDY(byte data)
 		{
 			this.Y = data;
-			this.ReflectFlags_ZeroNegative(this.Y);
+			this.UpdateFlags_ZeroNegative(this.Y);
 		}
 
 		private void LDX(byte data)
 		{
 			this.X = data;
-			this.ReflectFlags_ZeroNegative(this.X);
+			this.UpdateFlags_ZeroNegative(this.X);
 		}
 
 		private void ADC(byte data)
 		{
-			if ((this.P & StatusFlags.Decimal) != 0)
+			if (this.P.Decimal)
 			{
 				this.ADC_d(data);
 			}
@@ -1029,31 +963,21 @@
 
 		private void ADC_b(byte data)
 		{
-			var carry = (byte)(this.IsFlagSet(StatusFlags.Carry) ? 1 : 0);
+			var carry = (byte)(this.P.Carry ? 1 : 0);
 			var sum = (ushort)(this.A + data + carry);
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
 
 			this.UpdateFlags_ZeroNegative((byte)sum);
-
-			if ((~(this.A ^ data) & (this.A ^ sum) & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Overflow);
-			}
-
-			if (HighByte(sum) != 0)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Overflow = ((~(this.A ^ data) & (this.A ^ sum) & 0x80) != 0);
+			this.P.Carry = (HighByte(sum) != 0);
 
 			this.A = (byte)sum;
 		}
 
 		private void ADC_d(byte data)
 		{
-			var carry = (byte)(this.IsFlagSet(StatusFlags.Carry) ? 1 : 0);
+			var carry = (byte)(this.P.Carry ? 1 : 0);
 			var sum = (ushort)(this.A + data + carry);
 
-			this.ClearFlag(StatusFlags.Negative | StatusFlags.Overflow | StatusFlags.Zero | StatusFlags.Carry);
 			if (this.level < ProcessorType.cpu65sc02)
 			{
 				this.UpdateFlags_ZeroNegative((byte)sum);
@@ -1066,20 +990,14 @@
 			}
 
 			var high = (byte)(HighNybble(this.A) + HighNybble(data) + (low > 0x0f ? 1 : 0));
-			if ((~(this.A ^ data) & (this.A ^ PromoteNybble(high)) & 0x80) != 0)
-			{
-				this.SetFlag(StatusFlags.Overflow);
-			}
+			this.P.Overflow = ((~(this.A ^ data) & (this.A ^ PromoteNybble(high)) & 0x80) != 0);
 
 			if (high > 9)
 			{
 				high += 6;
 			}
 
-			if (high > 0x0f)
-			{
-				this.SetFlag(StatusFlags.Carry);
-			}
+			this.P.Carry = (high > 0x0f);
 
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
 			if (this.level >= ProcessorType.cpu65sc02)
@@ -1126,19 +1044,10 @@
 			this.Branch(displacement);
 		}
 
-		private void Branch_False(StatusFlags flag)
+		private void Branch(bool flag)
 		{
 			var displacement = this.ReadByte_ImmediateDisplacement();
-			if (this.IsFlagClear(flag))
-			{
-				this.Branch(displacement);
-			}
-		}
-
-		private void Branch_True(StatusFlags flag)
-		{
-			var displacement = this.ReadByte_ImmediateDisplacement();
-			if (this.IsFlagSet(flag))
+			if (flag)
 			{
 				this.Branch(displacement);
 			}
@@ -1164,30 +1073,6 @@
 			{
 				this.PC += (ushort)displacement;
 			}
-		}
-
-		#endregion
-
-		#region Flag clear/set
-
-		private void SetFlag(StatusFlags flag)
-		{
-			this.P |= flag;
-		}
-
-		private bool IsFlagSet(StatusFlags flag)
-		{
-			return (this.P & flag) != 0;
-		}
-
-		private void ClearFlag(StatusFlags flag)
-		{
-			this.P &= ~flag;
-		}
-
-		private bool IsFlagClear(StatusFlags flag)
-		{
-			return (this.P & flag) == 0;
 		}
 
 		#endregion
@@ -1686,7 +1571,7 @@
 
 		private void DEC_a()
 		{
-			this.ReflectFlags_ZeroNegative(--this.A);
+			this.UpdateFlags_ZeroNegative(--this.A);
 		}
 
 		private void DEC_absx()
@@ -1713,12 +1598,12 @@
 
 		private void DEX_imp()
 		{
-			this.ReflectFlags_ZeroNegative(--this.X);
+			this.UpdateFlags_ZeroNegative(--this.X);
 		}
 
 		private void DEY_imp()
 		{
-			this.ReflectFlags_ZeroNegative(--this.Y);
+			this.UpdateFlags_ZeroNegative(--this.Y);
 		}
 
 		#endregion
@@ -1729,7 +1614,7 @@
 
 		private void INC_a()
 		{
-			this.ReflectFlags_ZeroNegative(++this.A);
+			this.UpdateFlags_ZeroNegative(++this.A);
 		}
 
 		private void INC_zp()
@@ -1756,12 +1641,12 @@
 
 		private void INX_imp()
 		{
-			this.ReflectFlags_ZeroNegative(++this.X);
+			this.UpdateFlags_ZeroNegative(++this.X);
 		}
 
 		private void INY_imp()
 		{
-			this.ReflectFlags_ZeroNegative(++this.Y);
+			this.UpdateFlags_ZeroNegative(++this.Y);
 		}
 
 		#endregion
@@ -1885,19 +1770,19 @@
 		private void TSX_imp()
 		{
 			this.X = this.S;
-			this.ReflectFlags_ZeroNegative(this.X);
+			this.UpdateFlags_ZeroNegative(this.X);
 		}
 
 		private void TAX_imp()
 		{
 			this.X = this.A;
-			this.ReflectFlags_ZeroNegative(this.X);
+			this.UpdateFlags_ZeroNegative(this.X);
 		}
 
 		private void TAY_imp()
 		{
 			this.Y = this.A;
-			this.ReflectFlags_ZeroNegative(this.Y);
+			this.UpdateFlags_ZeroNegative(this.Y);
 		}
 
 		private void TXS_imp()
@@ -1908,13 +1793,13 @@
 		private void TYA_imp()
 		{
 			this.A = this.Y;
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		private void TXA_imp()
 		{
 			this.A = this.X;
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		#endregion
@@ -1923,19 +1808,20 @@
 
 		private void PHP_imp()
 		{
-			this.SetFlag(StatusFlags.Break);
-			this.PushByte((byte)this.P);
+			this.P.Break = true;
+			this.PushByte(this.P);
 		}
 
 		private void PLP_imp()
 		{
-			this.P = (StatusFlags)this.PopByte() | StatusFlags.Reserved;
+			this.P = new StatusFlags(this.PopByte());
+			this.P.Reserved = true;
 		}
 
 		private void PLA_imp()
 		{
 			this.A = this.PopByte();
-			this.ReflectFlags_ZeroNegative(this.A);
+			this.UpdateFlags_ZeroNegative(this.A);
 		}
 
 		private void PHA_imp()
@@ -1956,13 +1842,13 @@
 		private void PLX_imp()
 		{
 			this.X = this.PopByte();
-			this.ReflectFlags_ZeroNegative(this.X);
+			this.UpdateFlags_ZeroNegative(this.X);
 		}
 
 		private void PLY_imp()
 		{
 			this.Y = this.PopByte();
-			this.ReflectFlags_ZeroNegative(this.Y);
+			this.UpdateFlags_ZeroNegative(this.Y);
 		}
 
 		#endregion
@@ -2250,10 +2136,10 @@
 		{
 			this.PushWord((ushort)(this.PC + 1));
 			this.PHP_imp();
-			this.SetFlag(StatusFlags.Interrupt);
+			this.P.Interrupt = true;
 			if (this.level >= ProcessorType.cpu65sc02)
 			{
-				this.ClearFlag(StatusFlags.Decimal);
+				this.P.Decimal = false;
 			}
 
 			this.PC = this.GetWord(IRQvector);
@@ -2279,37 +2165,37 @@
 
 		private void SED_imp()
 		{
-			this.SetFlag(StatusFlags.Decimal);
+			this.P.Decimal = true;
 		}
 
 		private void CLD_imp()
 		{
-			this.ClearFlag(StatusFlags.Decimal);
+			this.P.Decimal = false;
 		}
 
 		private void CLV_imp()
 		{
-			this.ClearFlag(StatusFlags.Overflow);
+			this.P.Overflow = false;
 		}
 
 		private void SEI_imp()
 		{
-			this.SetFlag(StatusFlags.Interrupt);
+			this.P.Interrupt = true;
 		}
 
 		private void CLI_imp()
 		{
-			this.ClearFlag(StatusFlags.Interrupt);
+			this.P.Interrupt = false;
 		}
 
 		private void CLC_imp()
 		{
-			this.ClearFlag(StatusFlags.Carry);
+			this.P.Carry = false;
 		}
 
 		private void SEC_imp()
 		{
-			this.SetFlag(StatusFlags.Carry);
+			this.P.Carry = true;
 		}
 
 		#endregion
@@ -2318,42 +2204,42 @@
 
 		private void BMI_rel()
 		{
-			this.Branch_True(StatusFlags.Negative);
+			this.Branch(this.P.Negative);
 		}
 
 		private void BPL_rel()
 		{
-			this.Branch_False(StatusFlags.Negative);
+			this.Branch(!this.P.Negative);
 		}
 
 		private void BVC_rel()
 		{
-			this.Branch_False(StatusFlags.Overflow);
+			this.Branch(!this.P.Overflow);
 		}
 
 		private void BVS_rel()
 		{
-			this.Branch_True(StatusFlags.Overflow);
+			this.Branch(this.P.Overflow);
 		}
 
 		private void BCC_rel()
 		{
-			this.Branch_False(StatusFlags.Carry);
+			this.Branch(!this.P.Carry);
 		}
 
 		private void BCS_rel()
 		{
-			this.Branch_True(StatusFlags.Carry);
+			this.Branch(this.P.Carry);
 		}
 
 		private void BNE_rel()
 		{
-			this.Branch_False(StatusFlags.Zero);
+			this.Branch(!this.P.Zero);
 		}
 
 		private void BEQ_rel()
 		{
-			this.Branch_True(StatusFlags.Zero);
+			this.Branch(this.P.Zero);
 		}
 
 		private void BRA_rel()

@@ -256,10 +256,10 @@
 				this.OnDisassembly(
 					string.Format(
 						CultureInfo.InvariantCulture,
-						"\n[{0:d9}] PC={1:x4}:P={2:x2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
+						"\n[{0:d9}] PC={1:x4}:P={2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
 						this.Cycles,
 						this.PC,
-						(byte)this.P,
+						(string)this.P,
 						this.A,
 						this.X,
 						this.Y,
