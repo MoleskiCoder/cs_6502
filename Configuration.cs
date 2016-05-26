@@ -15,7 +15,10 @@
 		private ushort outputAddress;
 
 		private string romPath;
-		private ushort loadAddress;
+		private ushort romLoadAddress;
+
+		private string ramPath;
+		private ushort ramLoadAddress;
 
 		private string bbcLanguageRomPath;
 		private string bbcOSRomPath;
@@ -52,13 +55,16 @@
 					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
 
 					this.romPath = GetStringValue(root, "//ROM/path");
-					this.loadAddress = GetUShortValue(root, "//ROM/loadAddress");
-					this.startAddress = GetUShortValue(root, "//ROM/startAddress");
+					this.romLoadAddress = GetUShortValue(root, "//ROM/loadAddress");
+
+					this.ramPath = GetStringValue(root, "//RAM/path");
+					this.ramLoadAddress = GetUShortValue(root, "//RAM/loadAddress");
 
 					this.bbcLanguageRomPath = GetStringValue(root, "//BBC/language/path");
 					this.bbcOSRomPath = GetStringValue(root, "//BBC/OS/path");
 					this.bbcVduEmulation = GetBooleanValue(root, "//BBC/VDUEmulation");
 
+					this.startAddress = GetUShortValue(root, "//run/startAddress");
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
 					this.stopWhenLoopDetected = GetBooleanValue(root, "//run/stopWhenLoopDetected");
@@ -138,11 +144,27 @@
 			}
 		}
 
-		public ushort LoadAddress
+		public ushort RomLoadAddress
 		{
 			get
 			{
-				return this.loadAddress;
+				return this.romLoadAddress;
+			}
+		}
+
+		public string RamPath
+		{
+			get
+			{
+				return this.ramPath;
+			}
+		}
+
+		public ushort RamLoadAddress
+		{
+			get
+			{
+				return this.ramLoadAddress;
 			}
 		}
 

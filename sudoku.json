@@ -3,7 +3,7 @@
 		"inputAddress": "e000",
     		"outputAddress": "e001"
 	},
-	"ROM": {
+	"RAM": {
 		"path": "C:\\github\\6502\\6502_sudoku\\sudoku.65b",
 		"loadAddress": "f000"
 	},

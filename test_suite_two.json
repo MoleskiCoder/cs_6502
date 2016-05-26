@@ -3,13 +3,13 @@
 		"inputAddress": "f004",
     		"outputAddress": "f001"
 	},
-	"ROM": {
+	"RAM": {
 		"path": "C:\\github\\cpp\\cpp_6502\\6502_functional_test.bin",
-		"loadAddress": "0",
-		"startAddress": "400"
+		"loadAddress": "0"
 	},
 	"run": {
-		"stopWhenLoopDetected": true
+		"stopWhenLoopDetected": true,
+		"startAddress": "400"
 	},
 	"debug": {
 		"disassemble": true,

@@ -3,12 +3,12 @@
 		"inputAddress": "f004",
     		"outputAddress": "f001"
 	},
-	"ROM": {
+	"RAM": {
 		"path": "C:\\github\\cpp\\cpp_6502\\AllSuiteA.bin",
-		"loadAddress": "4000",
-		"startAddress": "4000"
+		"loadAddress": "4000"
 	},
 	"run": {
+		"startAddress": "4000",
 		"stopAddress": "45c0"
 	},
 	"debug": {

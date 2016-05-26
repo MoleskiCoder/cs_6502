@@ -7,19 +7,29 @@
 
 	public class Controller : IDisposable
 	{
-		private Configuration configuration;
+		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 100);
+		private readonly System.Timers.Timer inputPollTimer;
+
+		private readonly ulong[] instructionCounts;
+		private readonly ulong[] addressProfiles;
+
+		private readonly Configuration configuration;
+
+		private ulong priorCycleCount = 0;
+
 		private System6502 processor;
 
-		private bool stopWhenLoopDetected = false;
 		private ushort oldPC = 0;
 
 		private DateTime startTime;
 		private DateTime finishTime;
 
-		private string disassemblyBuffer;
-
-		private string disassemblyLogPath;
+		private Disassembly disassembler;
 		private StreamWriter disassemblyLog;
+
+#if DEBUG
+		private string disassemblyBuffer;
+#endif
 
 		private Symbols symbols;
 
@@ -28,7 +38,15 @@
 		public Controller(Configuration configuration)
 		{
 			this.configuration = configuration;
+
+			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
+			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
+
+			this.instructionCounts = new ulong[0x100];
+			this.addressProfiles = new ulong[0x10000];
 		}
+
+		public event EventHandler<DisassemblyEventArgs> Disassembly;
 
 		public System6502 Processor
 		{
@@ -56,28 +74,25 @@
 
 		public void Configure()
 		{
-			this.symbols = new Symbols(this.configuration.DebugFile);
+			this.processor = new System6502(this.configuration.ProcessorLevel);
 
-			if (this.configuration.StopBreak)
+			if (this.configuration.Disassemble || this.configuration.StopAddressEnabled || this.configuration.StopWhenLoopDetected || this.configuration.ProfileAddresses || this.configuration.CountInstructions)
 			{
-				this.processor = new System6502(
-					this.configuration.ProcessorLevel,
-					this.symbols,
-					this.configuration.InputAddress,
-					this.configuration.OutputAddress,
-					this.configuration.BreakInstruction);
-			}
-			else
-			{
-				this.processor = new System6502(
-					this.configuration.ProcessorLevel,
-					this.symbols,
-					this.configuration.InputAddress,
-					this.configuration.OutputAddress);
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction;
 			}
 
-			this.processor.Stepping += this.Processor_Stepping;
-			this.processor.Stepped += this.Processor_Stepped;
+			if (this.configuration.StopBreak || this.configuration.ProfileAddresses)
+			{
+				this.processor.ExecutedInstruction += this.Processor_ExecutedInstruction;
+			}
+
+			this.processor.WritingByte += this.Processor_WritingByte;
+			this.processor.ReadingByte += this.Processor_ReadingByte;
+
+			this.processor.InvalidWriteAttempt += this.Processor_InvalidWriteAttempt;
+
+			this.processor.Starting += this.Processor_Starting;
+			this.processor.Finished += this.Processor_Finished;
 
 			this.processor.Clear();
 
@@ -87,21 +102,18 @@
 				this.processor.LoadRom(this.configuration.BbcOSRomPath, 0xc000);
 				this.processor.LoadRom(this.configuration.BbcLanguageRomPath, 0x8000);
 			}
-			else
+
+			var rom = !string.IsNullOrWhiteSpace(this.configuration.RomPath);
+			if (rom)
 			{
-				this.processor.LoadRom(this.configuration.RomPath, this.configuration.LoadAddress);
+				this.processor.LoadRom(this.configuration.RomPath, this.configuration.RomLoadAddress);
 			}
 
-			this.processor.BreakAllowed = this.configuration.StopBreak;
-			this.stopWhenLoopDetected = this.configuration.StopWhenLoopDetected;
-
-			this.processor.Disassemble = this.configuration.Disassemble;
-			this.disassemblyLogPath = this.configuration.DisassemblyLogPath;
-			this.processor.CountInstructions = this.configuration.CountInstructions;
-			this.processor.ProfileAddresses = this.configuration.ProfileAddresses;
-
-			this.processor.WritingCharacter += this.Processor_WritingCharacter;
-			this.processor.ReadingCharacter += this.Processor_ReadingCharacter;
+			var ram = !string.IsNullOrWhiteSpace(this.configuration.RamPath);
+			if (ram)
+			{
+				this.processor.LoadRam(this.configuration.RamPath, this.configuration.RamLoadAddress);
+			}
 
 			if (this.configuration.ResetStart)
 			{
@@ -112,8 +124,9 @@
 				this.processor.Start(this.configuration.StartAddress);
 			}
 
-			this.processor.Starting += this.Processor_Starting;
-			this.processor.Finished += this.Processor_Finished;
+			this.symbols = new Symbols(this.configuration.DebugFile);
+			this.disassembler = new Disassembly(this.processor, this.symbols);
+			this.Disassembly += this.Controller_Disassembly;
 		}
 
 		public void Start()
@@ -131,9 +144,10 @@
 		{
 			if (disposing && !this.disposed)
 			{
-				if (this.processor != null)
+				if (this.inputPollTimer != null)
 				{
-					this.processor.Dispose();
+					this.inputPollTimer.Stop();
+					this.inputPollTimer.Dispose();
 				}
 
 				if (this.disassemblyLog != null)
@@ -146,10 +160,15 @@
 			}
 		}
 
+		protected void OnDisassembly(string output)
+		{
+			this.Disassembly?.Invoke(this, new DisassemblyEventArgs(output));
+		}
+
 		private void GenerateProfile()
 		{
-			var disassembler = this.processor.Disassembler;
-			var profiles = this.processor.AddressProfiles;
+			var disassembler = this.disassembler;
+			var profiles = this.addressProfiles;
 
 			var addressScopes = new string[0x10000];
 			foreach (var label in this.symbols.Labels)
@@ -212,31 +231,54 @@
 			}
 		}
 
+		private void Processor_Starting(object sender, EventArgs e)
+		{
+			if (!string.IsNullOrWhiteSpace(this.configuration.DisassemblyLogPath))
+			{
+				this.disassemblyLog = new StreamWriter(this.configuration.DisassemblyLogPath);
+			}
+
+			this.inputPollTimer.Start();
+			this.startTime = DateTime.Now;
+		}
+
 		private void Processor_Finished(object sender, EventArgs e)
 		{
 			this.finishTime = DateTime.Now;
 			this.GenerateProfile();
 		}
 
-		private void Processor_Starting(object sender, EventArgs e)
+		private void Processor_ExecutingInstruction(object sender, AddressEventArgs e)
 		{
-			if (!string.IsNullOrWhiteSpace(this.disassemblyLogPath))
+			if (this.configuration.Disassemble)
 			{
-				this.disassemblyLog = new StreamWriter(this.disassemblyLogPath);
+				var address = e.Address;
+				var cell = e.Cell;
+				this.OnDisassembly(
+					string.Format(
+						CultureInfo.InvariantCulture,
+						"\n[{0:d9}] PC={1:x4}:P={2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
+						this.processor.Cycles,
+						address,
+						(string)this.processor.P,
+						this.processor.A,
+						this.processor.X,
+						this.processor.Y,
+						this.processor.S));
+
+				var instruction = this.processor.Instructions[cell];
+				var mode = instruction.Mode;
+				this.OnDisassembly(this.disassembler.Dump_ByteValue(cell));
+				this.OnDisassembly(this.disassembler.DumpBytes(mode, (ushort)(address + 1)));
+				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", this.disassembler.Disassemble(address)));
 			}
 
-			this.Processor.Disassembly += this.Processor_Disassembly;
-			this.startTime = DateTime.Now;
-		}
-
-		private void Processor_Stepping(object sender, EventArgs e)
-		{
-			if (this.configuration.StopAddressEnabled && this.configuration.StopAddress == this.Processor.PC)
+			if (this.configuration.StopAddressEnabled && this.configuration.StopAddress == e.Address)
 			{
 				this.processor.Proceed = false;
 			}
 
-			if (this.stopWhenLoopDetected)
+			if (this.configuration.StopWhenLoopDetected)
 			{
 				if (this.oldPC == this.processor.PC)
 				{
@@ -247,13 +289,35 @@
 					this.oldPC = this.processor.PC;
 				}
 			}
+
+			if (this.configuration.ProfileAddresses)
+			{
+				this.priorCycleCount = this.processor.Cycles;
+			}
+
+			if (this.configuration.CountInstructions)
+			{
+				++this.instructionCounts[e.Cell];
+			}
 		}
 
-		private void Processor_Stepped(object sender, EventArgs e)
+		private void Processor_ExecutedInstruction(object sender, AddressEventArgs e)
 		{
+			if (this.configuration.ProfileAddresses)
+			{
+				this.addressProfiles[e.Address] += this.processor.Cycles - this.priorCycleCount;
+			}
+
+			if (this.configuration.StopBreak)
+			{
+				if (this.configuration.BreakInstruction == e.Cell)
+				{
+					this.processor.Proceed = false;
+				}
+			}
 		}
 
-		private void Processor_Disassembly(object sender, DisassemblyEventArgs e)
+		private void Controller_Disassembly(object sender, DisassemblyEventArgs e)
 		{
 			var output = e.Output;
 
@@ -275,13 +339,51 @@
 			}
 		}
 
-		private void Processor_WritingCharacter(object sender, ByteEventArgs e)
+		private void Processor_WritingByte(object sender, AddressEventArgs e)
 		{
-			var binary = e.Cell;
-			var character = (char)binary;
+			if (e.Address == this.configuration.OutputAddress)
+			{
+				this.HandleByteWritten(e.Cell);
+			}
+		}
+
+		private void Processor_ReadingByte(object sender, AddressEventArgs e)
+		{
+			var address = e.Address;
+			if (e.Address == this.configuration.InputAddress)
+			{
+				var cell = e.Cell;
+				if (cell != 0x0)
+				{
+					this.HandleByteRead(cell);
+					this.processor.SetByte(address, 0x0);
+				}
+			}
+		}
+
+		private void Processor_InvalidWriteAttempt(object sender, AddressEventArgs e)
+		{
+			var address = e.Address;
+			var value = e.Cell;
+			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Invalid write: ${0:x4}:{1:x2}", address, value));
+		}
+
+		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			if (System.Console.KeyAvailable)
+			{
+				var key = System.Console.ReadKey(true);
+				var character = key.KeyChar;
+				this.processor.SetByte(this.configuration.InputAddress, (byte)character);
+			}
+		}
+
+		private void HandleByteWritten(byte cell)
+		{
+			var character = (char)cell;
 			if (this.configuration.BbcVduEmulation)
 			{
-				switch (binary)
+				switch (cell)
 				{
 					case 0:
 					case 1:
@@ -364,16 +466,15 @@
 				System.Console.Out.Write(character);
 			}
 #if DEBUG
-			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Write: {0:x2}:{1}", binary, character));
+			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Write: {0:x2}:{1}", cell, character));
 #endif
 		}
 
-		private void Processor_ReadingCharacter(object sender, ByteEventArgs e)
+		private void HandleByteRead(byte cell)
 		{
-			var binary = e.Cell;
-			var character = (char)binary;
+			var character = (char)cell;
 #if DEBUG
-			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Read: {0:x2}:{1}", binary, character));
+			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Read: {0:x2}:{1}", cell, character));
 #endif
 		}
 	}
