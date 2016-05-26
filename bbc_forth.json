@@ -3,8 +3,8 @@
 		"level": "cpu6502"
 	},
 	"IO": {
-		"inputAddress": "e004",
-    		"outputAddress": "e001"
+		"inputAddress": "0800",
+    		"outputAddress": "0801"
 	},
 	"BBC": {
 		"language": {
