@@ -87,11 +87,7 @@
 
 			set
 			{
-				if (this.breakInstruction != value)
-				{
-					this.breakInstruction = value;
-					this.OnPropertyChanged("BreakInstruction");
-				}
+				this.breakInstruction = value;
 			}
 		}
 
@@ -104,11 +100,7 @@
 
 			set
 			{
-				if (this.breakAllowed != value)
-				{
-					this.breakAllowed = value;
-					this.OnPropertyChanged("BreakAllowed");
-				}
+				this.breakAllowed = value;
 			}
 		}
 
@@ -121,11 +113,7 @@
 
 			set
 			{
-				if (this.disassemble != value)
-				{
-					this.disassemble = value;
-					this.OnPropertyChanged("Disassemble");
-				}
+				this.disassemble = value;
 			}
 		}
 
@@ -146,11 +134,7 @@
 
 			set
 			{
-				if (this.countInstructions != value)
-				{
-					this.countInstructions = value;
-					this.OnPropertyChanged("CountInstructions");
-				}
+				this.countInstructions = value;
 			}
 		}
 
@@ -163,11 +147,7 @@
 
 			set
 			{
-				if (this.profileAddresses != value)
-				{
-					this.profileAddresses = value;
-					this.OnPropertyChanged("ProfileAddresses");
-				}
+				this.profileAddresses = value;
 			}
 		}
 
@@ -188,11 +168,7 @@
 
 			set
 			{
-				if (this.proceed != value)
-				{
-					this.proceed = value;
-					this.OnPropertyChanged("Proceed");
-				}
+				this.proceed = value;
 			}
 		}
 
