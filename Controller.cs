@@ -211,23 +211,23 @@
 					string label;
 					if (this.symbols.Labels.TryGetValue(address, out label))
 					{
-						System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}:", label));
+						this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}:\n", label));
 					}
 
 					// Dump a profile/disassembly line
 					var source = disassembler.Disassemble(address);
 					var proportion = (double)cycles / this.Processor.Cycles;
-					System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}", proportion, cycles, source));
+					this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, cycles, source));
 				}
 			}
 
-			System.Diagnostics.Debug.WriteLine("Cycles used by scope:");
+			this.OnDisassembly("Cycles used by scope:\n");
 			foreach (var scopeCycle in scopeCycles)
 			{
 				var name = scopeCycle.Key;
 				var cycles = scopeCycle.Value;
 				var proportion = (double)cycles / this.Processor.Cycles;
-				System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}", proportion, cycles, name));
+				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, cycles, name));
 			}
 		}
 
@@ -365,7 +365,7 @@
 		{
 			var address = e.Address;
 			var value = e.Cell;
-			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Invalid write: ${0:x4}:{1:x2}", address, value));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "Invalid write: ${0:x4}:{1:x2}\n", address, value));
 		}
 
 		private void InputPollTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -466,7 +466,7 @@
 				System.Console.Out.Write(character);
 			}
 #if DEBUG
-			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Write: {0:x2}:{1}", cell, character));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "Write: {0:x2}:{1}\n", cell, character));
 #endif
 		}
 
@@ -474,7 +474,7 @@
 		{
 			var character = (char)cell;
 #if DEBUG
-			System.Diagnostics.Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Read: {0:x2}:{1}", cell, character));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "Read: {0:x2}:{1}\n", cell, character));
 #endif
 		}
 	}
