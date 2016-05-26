@@ -6,7 +6,7 @@
 		"inputAddress": "f004",
     		"outputAddress": "f001"
 	},
-	"ROM": {
+	"RAM": {
 		"path": "C:\\github\\cpp\\cpp_6502\\tali.bin",
 		"loadAddress": "c000"
 	},
