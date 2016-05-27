@@ -1,7 +1,6 @@
 ﻿namespace Simulator
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Globalization;
 	using System.IO;
 
@@ -12,12 +11,7 @@
 		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 100);
 		private readonly System.Timers.Timer inputPollTimer;
 
-		private readonly ulong[] instructionCounts;
-		private readonly ulong[] addressProfiles;
-
 		private readonly Configuration configuration;
-
-		private ulong priorCycleCount = 0;
 
 		private System6502 processor;
 
@@ -29,8 +23,10 @@
 		private Disassembly disassembler;
 		private StreamWriter disassemblyLog;
 
+		private Profiler profiler;
+
 #if DEBUG
-		private string disassemblyBuffer;
+		private string diagnosticsBuffer;
 #endif
 
 		private Symbols symbols;
@@ -43,9 +39,6 @@
 
 			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
-
-			this.instructionCounts = new ulong[0x100];
-			this.addressProfiles = new ulong[0x10000];
 		}
 
 		public event EventHandler<DisassemblyEventArgs> Disassembly;
@@ -78,12 +71,12 @@
 		{
 			this.processor = new System6502(this.configuration.ProcessorLevel);
 
-			if (this.configuration.Disassemble || this.configuration.StopAddressEnabled || this.configuration.StopWhenLoopDetected || this.configuration.ProfileAddresses || this.configuration.CountInstructions)
+			if (this.configuration.Disassemble || this.configuration.StopAddressEnabled || this.configuration.StopWhenLoopDetected || this.configuration.ProfileAddresses)
 			{
 				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction;
 			}
 
-			if (this.configuration.StopBreak || this.configuration.ProfileAddresses)
+			if (this.configuration.StopBreak)
 			{
 				this.processor.ExecutedInstruction += this.Processor_ExecutedInstruction;
 			}
@@ -127,8 +120,12 @@
 			}
 
 			this.symbols = new Symbols(this.configuration.DebugFile);
+
 			this.disassembler = new Disassembly(this.processor, this.symbols);
 			this.Disassembly += this.Controller_Disassembly;
+
+			this.profiler = new Profiler(this.processor, this.disassembler, this.symbols, this.configuration.CountInstructions, this.configuration.ProfileAddresses);
+			this.profiler.Profile += this.Controller_Profile;
 		}
 
 		public void Start()
@@ -167,72 +164,6 @@
 			this.Disassembly?.Invoke(this, new DisassemblyEventArgs(output));
 		}
 
-		private void GenerateProfile()
-		{
-			var disassembler = this.disassembler;
-			var profiles = this.addressProfiles;
-
-			var addressScopes = new string[0x10000];
-			foreach (var label in this.symbols.Labels)
-			{
-				var address = label.Key;
-				var key = label.Value;
-
-				ushort scope;
-				if (this.symbols.Scopes.TryGetValue(key, out scope))
-				{
-					for (ushort i = address; i < address + scope; ++i)
-					{
-						addressScopes[i] = key;
-					}
-				}
-			}
-
-			var scopeCycles = new Dictionary<string, ulong>();
-
-			// For each memory address
-			for (var i = 0; i < 0x10000; ++i)
-			{
-				// If there are any cycles associated
-				var cycles = profiles[i];
-				if (cycles > 0)
-				{
-					var addressScope = addressScopes[i];
-					if (addressScope != null)
-					{
-						if (!scopeCycles.ContainsKey(addressScope))
-						{
-							scopeCycles[addressScope] = 0;
-						}
-
-						scopeCycles[addressScope] += cycles;
-					}
-
-					// Grab a label, if possible
-					var address = (ushort)i;
-					string label;
-					if (this.symbols.Labels.TryGetValue(address, out label))
-					{
-						this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "{0}:\n", label));
-					}
-
-					// Dump a profile/disassembly line
-					var source = disassembler.Disassemble(address);
-					var proportion = (double)cycles / this.Processor.Cycles;
-					this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, cycles, source));
-				}
-			}
-
-			this.OnDisassembly("Cycles used by scope:\n");
-			foreach (var scopeCycle in scopeCycles)
-			{
-				var name = scopeCycle.Key;
-				var cycles = scopeCycle.Value;
-				var proportion = (double)cycles / this.Processor.Cycles;
-				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, cycles, name));
-			}
-		}
-
 		private void Processor_Starting(object sender, EventArgs e)
 		{
 			if (!string.IsNullOrWhiteSpace(this.configuration.DisassemblyLogPath))
@@ -247,7 +178,7 @@
 		private void Processor_Finished(object sender, EventArgs e)
 		{
 			this.finishTime = DateTime.Now;
-			this.GenerateProfile();
+			this.profiler.Generate();
 		}
 
 		private void Processor_ExecutingInstruction(object sender, AddressEventArgs e)
@@ -291,25 +222,10 @@
 					this.oldPC = this.processor.PC;
 				}
 			}
-
-			if (this.configuration.ProfileAddresses)
-			{
-				this.priorCycleCount = this.processor.Cycles;
-			}
-
-			if (this.configuration.CountInstructions)
-			{
-				++this.instructionCounts[e.Cell];
-			}
 		}
 
 		private void Processor_ExecutedInstruction(object sender, AddressEventArgs e)
 		{
-			if (this.configuration.ProfileAddresses)
-			{
-				this.addressProfiles[e.Address] += this.processor.Cycles - this.priorCycleCount;
-			}
-
 			if (this.configuration.StopBreak)
 			{
 				if (this.configuration.BreakInstruction == e.Cell)
@@ -319,20 +235,20 @@
 			}
 		}
 
+		private void Controller_Profile(object sender, ProfileEventArgs e)
+		{
+			var output = e.Output;
+#if DEBUG
+			this.BufferDiagnosticsOutput(output);
+#endif
+		}
+
 		private void Controller_Disassembly(object sender, DisassemblyEventArgs e)
 		{
 			var output = e.Output;
 
 #if DEBUG
-			foreach (var character in output)
-			{
-				this.disassemblyBuffer += character;
-				if (character == '\n')
-				{
-					System.Diagnostics.Debug.Write(this.disassemblyBuffer);
-					this.disassemblyBuffer = string.Empty;
-				}
-			}
+			this.BufferDiagnosticsOutput(output);
 #endif
 
 			if (this.disassemblyLog != null)
@@ -379,6 +295,21 @@
 				this.processor.SetByte(this.configuration.InputAddress, (byte)character);
 			}
 		}
+
+#if DEBUG
+		private void BufferDiagnosticsOutput(string output)
+		{
+			foreach (var character in output)
+			{
+				this.diagnosticsBuffer += character;
+				if (character == '\n')
+				{
+					System.Diagnostics.Debug.Write(this.diagnosticsBuffer);
+					this.diagnosticsBuffer = string.Empty;
+				}
+			}
+		}
+#endif
 
 		private void HandleByteWritten(byte cell)
 		{
