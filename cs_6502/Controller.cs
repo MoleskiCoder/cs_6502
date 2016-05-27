@@ -5,6 +5,8 @@
 	using System.Globalization;
 	using System.IO;
 
+	using Processor;
+
 	public class Controller : IDisposable
 	{
 		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 100);

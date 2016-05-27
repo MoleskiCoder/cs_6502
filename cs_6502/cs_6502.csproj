@@ -7,11 +7,12 @@
     <ProjectGuid>{4EAB055B-05B7-4854-B2E1-1848DF4B3210}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>cs_6502</RootNamespace>
+    <RootNamespace>Simulator</RootNamespace>
     <AssemblyName>cs_6502</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,7 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -51,8 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingModeDumper.cs" />
-    <Compile Include="AddressEventArgs.cs" />
-    <Compile Include="ByteEventArgs.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Disassembly.cs" />
@@ -63,15 +62,9 @@
     <Compile Include="Monitor.Designer.cs">
       <DependentUpon>Monitor.cs</DependentUpon>
     </Compile>
-    <Compile Include="AddressingMode.cs" />
-    <Compile Include="Instruction.cs" />
-    <Compile Include="mos6502.cs" />
-    <Compile Include="ProcessorType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StatusFlags.cs" />
     <Compile Include="Symbols.cs" />
-    <Compile Include="system6502.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -80,6 +73,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -93,6 +87,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\processor6502\processor6502.csproj">
+      <Project>{bbd5b28b-4059-4059-8b76-511247f6a3f9}</Project>
+      <Name>processor6502</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

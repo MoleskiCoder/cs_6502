@@ -3,6 +3,8 @@
 	using System.Collections.Generic;
 	using System.Globalization;
 
+	using Processor;
+
 	public class Disassembly
 	{
 		private MOS6502 processor;

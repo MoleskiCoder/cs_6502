@@ -7,6 +7,8 @@
 	using System.Xml.Linq;
 	using System.Xml.XPath;
 
+	using Processor;
+
 	public class Configuration
 	{
 		private ProcessorType processorLevel = ProcessorType.cpu6502;

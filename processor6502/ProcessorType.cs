@@ -1,4 +1,4 @@
-﻿namespace Simulator
+﻿namespace Processor
 {
     public enum ProcessorType
     {

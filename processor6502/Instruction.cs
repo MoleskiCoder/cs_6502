@@ -1,4 +1,4 @@
-﻿namespace Simulator
+﻿namespace Processor
 {
     public delegate void Implementation();
 
