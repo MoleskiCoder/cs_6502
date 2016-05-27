@@ -39,15 +39,20 @@
 		public void LoadRom(string path, ushort offset)
 		{
 			var length = this.LoadMemory(path, offset);
-			for (var i = 0; i < length; ++i)
-			{
-				this.locked[offset + i] = true;
-			}
+			this.LockMemory(offset, length);
 		}
 
 		public void LoadRam(string path, ushort offset)
 		{
 			this.LoadMemory(path, offset);
+		}
+
+		public void LockMemory(ushort offset, ushort length)
+		{
+			for (var i = 0; i < length; ++i)
+			{
+				this.locked[offset + i] = true;
+			}
 		}
 
 		public override void Run()
