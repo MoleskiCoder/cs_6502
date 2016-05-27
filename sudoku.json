@@ -1,4 +1,7 @@
 {
+	"CPU": {
+		"level": "cpu65sc02"
+	},
 	"IO": {
 		"inputAddress": "e000",
     		"outputAddress": "e001"
@@ -12,7 +15,7 @@
 		"stopBreak": true
 	},
 	"debug": {
-		"disassemble": true,
+		"disassemble": false,
 		"disassemblyLogPath": "c:\\github\\cs\\cs_6502\\sudoku.log",
 		"debugFile": "C:\\github\\6502\\6502_sudoku\\sudoku.dbg",
 		"countInstructions": true,
