@@ -415,26 +415,16 @@
 			return MakeWord(low, high);
 		}
 
-		private byte FetchByte(ref ushort counter)
-		{
-			return this.GetByte(counter++);
-		}
-
-		private ushort FetchWord(ref ushort counter)
-		{
-			var word = this.GetWord(counter);
-			counter += 2;
-			return word;
-		}
-
 		private byte FetchByte()
 		{
-			return this.FetchByte(ref this.pc);
+			return this.GetByte(this.PC++);
 		}
 
 		private ushort FetchWord()
 		{
-			return this.FetchWord(ref this.pc);
+			var word = this.GetWord(this.PC);
+			this.PC += 2;
+			return word;
 		}
 
 		////
