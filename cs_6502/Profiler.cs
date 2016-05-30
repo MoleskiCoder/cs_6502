@@ -2,9 +2,8 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Globalization;
 
-	class Profiler
+	public sealed class Profiler
 	{
 		private readonly ulong[] instructionCounts;
 		private readonly ulong[] addressProfiles;
@@ -46,61 +45,91 @@
 			this.BuildAddressScopes();
 		}
 
-		public event EventHandler<ProfileEventArgs> Profile;
+		public event EventHandler<EventArgs> StartingOutput;
+
+		public event EventHandler<EventArgs> FinishedOutput;
+
+		public event EventHandler<EventArgs> StartingLineOutput;
+
+		public event EventHandler<EventArgs> FinishedLineOutput;
+
+		public event EventHandler<ProfileLineEventArgs> EmitLine;
+
+		public event EventHandler<EventArgs> StartingScopeOutput;
+
+		public event EventHandler<EventArgs> FinishedScopeOutput;
+
+		public event EventHandler<ProfileScopeEventArgs> EmitScope;
 
 		public void Generate()
 		{
-			var disassembler = this.disassembler;
-			var profiles = this.addressProfiles;
-
-			var scopeCycles = new Dictionary<string, ulong>();
-
-			// For each memory address
-			for (var i = 0; i < 0x10000; ++i)
+			this.OnStartingOutput();
+			try
 			{
-				// If there are any cycles associated
-				var cycles = profiles[i];
-				if (cycles > 0)
-				{
-					var addressScope = addressScopes[i];
-					if (addressScope != null)
-					{
-						if (!scopeCycles.ContainsKey(addressScope))
-						{
-							scopeCycles[addressScope] = 0;
-						}
-
-						scopeCycles[addressScope] += cycles;
-					}
-
-					// Grab a label, if possible
-					var address = (ushort)i;
-					string label;
-					if (this.symbols.Labels.TryGetValue(address, out label))
-					{
-						this.OnProfile(string.Format(CultureInfo.InvariantCulture, "{0}:\n", label));
-					}
-
-					// Dump a profile/disassembly line
-					var source = disassembler.Disassemble(address);
-					var proportion = (double)cycles / this.processor.Cycles;
-					this.OnProfile(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, cycles, source));
-				}
+				this.EmitProfileInformation();
 			}
-
-			this.OnProfile("Cycles used by scope:\n");
-			foreach (var scopeCycle in scopeCycles)
+			finally
 			{
-				var name = scopeCycle.Key;
-				var cycles = scopeCycle.Value;
-				var proportion = (double)cycles / this.processor.Cycles;
-				this.OnProfile(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, cycles, name));
+				this.OnFinishedOutput();
 			}
 		}
 
-		protected void OnProfile(string output)
+		private void EmitProfileInformation()
 		{
-			this.Profile?.Invoke(this, new ProfileEventArgs(output));
+			var scopeCycles = new Dictionary<string, ulong>();
+
+			this.OnStartingLineOutput();
+			try
+			{
+				// For each memory address
+				for (var i = 0; i < 0x10000; ++i)
+				{
+					// If there are any cycles associated
+					var cycles = this.addressProfiles[i];
+					if (cycles > 0)
+					{
+						var addressScope = this.addressScopes[i];
+						if (addressScope != null)
+						{
+							if (!scopeCycles.ContainsKey(addressScope))
+							{
+								scopeCycles[addressScope] = 0;
+							}
+
+							scopeCycles[addressScope] += cycles;
+						}
+
+						var address = (ushort)i;
+
+						// Grab a label, if possible
+						string label;
+						this.symbols.Labels.TryGetValue(address, out label);
+
+						// Dump a profile/disassembly line
+						var source = this.disassembler.Disassemble(address);
+						this.OnEmitLine(label, source, cycles);
+					}
+				}
+			}
+			finally
+			{
+				this.OnFinishedLineOutput();
+			}
+
+			this.OnStartingScopeOutput();
+			try
+			{
+				foreach (var scopeCycle in scopeCycles)
+				{
+					var name = scopeCycle.Key;
+					var cycles = scopeCycle.Value;
+					this.OnEmitScope(name, cycles);
+				}
+			}
+			finally
+			{
+				this.OnFinishedScopeOutput();
+			}
 		}
 
 		private void Processor_ExecutingInstruction(object sender, Processor.AddressEventArgs e)
@@ -140,6 +169,46 @@
 					}
 				}
 			}
+		}
+
+		private void OnStartingOutput()
+		{
+			this.StartingOutput?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnFinishedOutput()
+		{
+			this.FinishedOutput?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnStartingLineOutput()
+		{
+			this.StartingLineOutput?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnFinishedLineOutput()
+		{
+			this.FinishedLineOutput?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnStartingScopeOutput()
+		{
+			this.StartingScopeOutput?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnFinishedScopeOutput()
+		{
+			this.FinishedScopeOutput?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnEmitLine(string label, string source, ulong cycles)
+		{
+			this.EmitLine?.Invoke(this, new ProfileLineEventArgs(label, source, cycles));
+		}
+
+		private void OnEmitScope(string scope, ulong cycles)
+		{
+			this.EmitScope?.Invoke(this, new ProfileScopeEventArgs(scope, cycles));
 		}
 	}
 }

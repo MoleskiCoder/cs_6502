@@ -125,7 +125,14 @@
 			this.Disassembly += this.Controller_Disassembly;
 
 			this.profiler = new Profiler(this.processor, this.disassembler, this.symbols, this.configuration.CountInstructions, this.configuration.ProfileAddresses);
-			this.profiler.Profile += this.Controller_Profile;
+			this.profiler.StartingOutput += this.Profiler_StartingOutput;
+			this.profiler.FinishedOutput += this.Profiler_FinishedOutput;
+			this.profiler.StartingLineOutput += this.Profiler_StartingLineOutput;
+			this.profiler.FinishedLineOutput += this.Profiler_FinishedLineOutput;
+			this.profiler.StartingScopeOutput += this.Profiler_StartingScopeOutput;
+			this.profiler.FinishedScopeOutput += this.Profiler_FinishedScopeOutput;
+			this.profiler.EmitLine += this.Profiler_EmitLine;
+			this.profiler.EmitScope += this.Profiler_EmitScope;
 		}
 
 		public void Start()
@@ -235,14 +242,6 @@
 			}
 		}
 
-		private void Controller_Profile(object sender, ProfileEventArgs e)
-		{
-			var output = e.Output;
-#if DEBUG
-			this.BufferDiagnosticsOutput(output);
-#endif
-		}
-
 		private void Controller_Disassembly(object sender, DisassemblyEventArgs e)
 		{
 			var output = e.Output;
@@ -296,9 +295,9 @@
 			}
 		}
 
-#if DEBUG
 		private void BufferDiagnosticsOutput(string output)
 		{
+#if DEBUG
 			foreach (var character in output)
 			{
 				this.diagnosticsBuffer += character;
@@ -308,8 +307,8 @@
 					this.diagnosticsBuffer = string.Empty;
 				}
 			}
-		}
 #endif
+		}
 
 		private void HandleByteWritten(byte cell)
 		{
@@ -409,6 +408,53 @@
 #if DEBUG
 			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "Read: {0:x2}:{1}\n", cell, character));
 #endif
+		}
+
+		private void Profiler_EmitScope(object sender, ProfileScopeEventArgs e)
+		{
+			var proportion = (double)e.Cycles / this.processor.Cycles;
+			this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, e.Cycles, e.Scope));
+		}
+
+		private void Profiler_EmitLine(object sender, ProfileLineEventArgs e)
+		{
+			if (e.Label != null)
+			{
+				this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "{0}:\n", e.Label));
+			}
+
+			var proportion = (double)e.Cycles / this.processor.Cycles;
+			this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, e.Cycles, e.Source));
+		}
+
+		private void Profiler_FinishedScopeOutput(object sender, EventArgs e)
+		{
+			this.BufferDiagnosticsOutput("Finished profiler scope output...\n");
+		}
+
+		private void Profiler_StartingScopeOutput(object sender, EventArgs e)
+		{
+			this.BufferDiagnosticsOutput("Starting profiler scope output...\n");
+		}
+
+		private void Profiler_FinishedLineOutput(object sender, EventArgs e)
+		{
+			this.BufferDiagnosticsOutput("Finished profiler line output...\n");
+		}
+
+		private void Profiler_StartingLineOutput(object sender, EventArgs e)
+		{
+			this.BufferDiagnosticsOutput("Starting profiler line output...\n");
+		}
+
+		private void Profiler_FinishedOutput(object sender, EventArgs e)
+		{
+			this.BufferDiagnosticsOutput("Finished profiler output...\n");
+		}
+
+		private void Profiler_StartingOutput(object sender, EventArgs e)
+		{
+			this.BufferDiagnosticsOutput("Starting profiler output...\n");
 		}
 	}
 }
