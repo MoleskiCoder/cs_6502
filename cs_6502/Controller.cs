@@ -413,16 +413,11 @@
 		private void Profiler_EmitScope(object sender, ProfileScopeEventArgs e)
 		{
 			var proportion = (double)e.Cycles / this.processor.Cycles;
-			this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, e.Cycles, e.Scope));
+			this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}][{2:d9}]\t{3}\n", proportion, e.Cycles, e.Count, e.Scope));
 		}
 
 		private void Profiler_EmitLine(object sender, ProfileLineEventArgs e)
 		{
-			if (e.Label != null)
-			{
-				this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "{0}:\n", e.Label));
-			}
-
 			var proportion = (double)e.Cycles / this.processor.Cycles;
 			this.BufferDiagnosticsOutput(string.Format(CultureInfo.InvariantCulture, "\t[{0:P2}][{1:d9}]\t{2}\n", proportion, e.Cycles, e.Source));
 		}

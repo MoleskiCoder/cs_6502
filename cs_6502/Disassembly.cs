@@ -63,7 +63,15 @@
 
 			var operand = this.DumpOperand(mode, (ushort)(current + 1));
 
-			return string.Format(CultureInfo.InvariantCulture, "{0} {1}", mnemomic, operand);
+			string label;
+			if (this.symbols.Labels.TryGetValue(current, out label))
+			{
+				return string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}", label, mnemomic, operand);
+			}
+			else
+			{
+				return string.Format(CultureInfo.InvariantCulture, "{0} {1}", mnemomic, operand);
+			}
 		}
 
 		public string DumpOperand(AddressingMode mode, ushort current)

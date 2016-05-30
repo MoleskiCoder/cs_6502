@@ -7,6 +7,7 @@
 	{
 		private readonly ulong[] instructionCounts;
 		private readonly ulong[] addressProfiles;
+		private readonly ulong[] addressCounts;
 
 		private readonly string[] addressScopes;
 
@@ -39,6 +40,7 @@
 			
 			this.instructionCounts = new ulong[0x100];
 			this.addressProfiles = new ulong[0x10000];
+			this.addressCounts = new ulong[0x10000];
 
 			this.addressScopes = new string[0x10000];
 
@@ -101,13 +103,9 @@
 
 						var address = (ushort)i;
 
-						// Grab a label, if possible
-						string label;
-						this.symbols.Labels.TryGetValue(address, out label);
-
 						// Dump a profile/disassembly line
 						var source = this.disassembler.Disassemble(address);
-						this.OnEmitLine(label, source, cycles);
+						this.OnEmitLine(source, cycles);
 					}
 				}
 			}
@@ -123,7 +121,8 @@
 				{
 					var name = scopeCycle.Key;
 					var cycles = scopeCycle.Value;
-					this.OnEmitScope(name, cycles);
+					var count = this.addressCounts[this.symbols.Addresses[name]];
+					this.OnEmitScope(name, cycles, count);
 				}
 			}
 			finally
@@ -137,6 +136,7 @@
 			if (this.profileAddresses)
 			{
 				this.priorCycleCount = this.processor.Cycles;
+				this.addressCounts[e.Address]++;
 			}
 
 			if (this.countInstructions)
@@ -201,14 +201,14 @@
 			this.FinishedScopeOutput?.Invoke(this, EventArgs.Empty);
 		}
 
-		private void OnEmitLine(string label, string source, ulong cycles)
+		private void OnEmitLine(string source, ulong cycles)
 		{
-			this.EmitLine?.Invoke(this, new ProfileLineEventArgs(label, source, cycles));
+			this.EmitLine?.Invoke(this, new ProfileLineEventArgs(source, cycles));
 		}
 
-		private void OnEmitScope(string scope, ulong cycles)
+		private void OnEmitScope(string scope, ulong cycles, ulong count)
 		{
-			this.EmitScope?.Invoke(this, new ProfileScopeEventArgs(scope, cycles));
+			this.EmitScope?.Invoke(this, new ProfileScopeEventArgs(scope, cycles, count));
 		}
 	}
 }

@@ -10,6 +10,7 @@
         private Dictionary<ushort, string> labels;
         private Dictionary<ushort, string> constants;
         private Dictionary<string, ushort> scopes;
+		private Dictionary<string, ulong> addresses;
 
         private Dictionary<string, Dictionary<string, Dictionary<string, string>>> parsed;
 
@@ -19,6 +20,7 @@
             this.labels = new Dictionary<ushort, string>();
             this.constants = new Dictionary<ushort, string>();
             this.scopes = new Dictionary<string, ushort>();
+            this.addresses = new Dictionary<string, ulong>();
 
             if (!string.IsNullOrWhiteSpace(path))
             {
@@ -52,6 +54,14 @@
             }
         }
 
+        public Dictionary<string, ulong> Addresses
+        {
+            get
+            {
+                return this.addresses;
+            }
+        }
+
         private void AssignScopes()
         {
             var parsedScopes = this.parsed["scope"];
@@ -75,6 +85,7 @@
                 {
                     case "lab":
                         this.labels[number] = name;
+						this.addresses[name] = number;
                         break;
 
                     case "equ":

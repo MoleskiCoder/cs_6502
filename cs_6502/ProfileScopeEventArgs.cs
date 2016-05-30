@@ -6,11 +6,13 @@
 	{
 		private string scope;
 		private ulong cycles;
+		private ulong count;
 
-		public ProfileScopeEventArgs(string scope, ulong cycles)
+		public ProfileScopeEventArgs(string scope, ulong cycles, ulong count)
 		{
 			this.scope = scope;
 			this.cycles = cycles;
+			this.count = count;
 		}
 
 		public string Scope
@@ -26,6 +28,14 @@
 			get
 			{
 				return this.cycles;
+			}
+		}
+
+		public ulong Count
+		{
+			get
+			{
+				return this.count;
 			}
 		}
 	}
