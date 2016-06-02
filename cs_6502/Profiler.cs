@@ -10,6 +10,7 @@
 		private readonly ulong[] addressCounts;
 
 		private readonly string[] addressScopes;
+		private readonly Dictionary<string, ulong> scopeCycles;
 
 		private readonly Processor.System6502 processor;
 		private readonly Disassembly disassembler;
@@ -43,6 +44,7 @@
 			this.addressCounts = new ulong[0x10000];
 
 			this.addressScopes = new string[0x10000];
+			this.scopeCycles = new Dictionary<string, ulong>();
 
 			this.BuildAddressScopes();
 		}
@@ -78,8 +80,6 @@
 
 		private void EmitProfileInformation()
 		{
-			var scopeCycles = new Dictionary<string, ulong>();
-
 			this.OnStartingLineOutput();
 			try
 			{
@@ -90,17 +90,6 @@
 					var cycles = this.addressProfiles[i];
 					if (cycles > 0)
 					{
-						var addressScope = this.addressScopes[i];
-						if (addressScope != null)
-						{
-							if (!scopeCycles.ContainsKey(addressScope))
-							{
-								scopeCycles[addressScope] = 0;
-							}
-
-							scopeCycles[addressScope] += cycles;
-						}
-
 						var address = (ushort)i;
 
 						// Dump a profile/disassembly line
@@ -117,7 +106,7 @@
 			this.OnStartingScopeOutput();
 			try
 			{
-				foreach (var scopeCycle in scopeCycles)
+				foreach (var scopeCycle in this.scopeCycles)
 				{
 					var name = scopeCycle.Key;
 					var cycles = scopeCycle.Value;
@@ -149,7 +138,21 @@
 		{
 			if (this.profileAddresses)
 			{
-				this.addressProfiles[e.Address] += this.processor.Cycles - this.priorCycleCount;
+				var address = e.Address;
+				var cycles = this.processor.Cycles - this.priorCycleCount;
+
+				this.addressProfiles[address] += cycles;
+
+				var addressScope = this.addressScopes[address];
+				if (addressScope != null)
+				{
+					if (!this.scopeCycles.ContainsKey(addressScope))
+					{
+						this.scopeCycles[addressScope] = 0;
+					}
+
+					this.scopeCycles[addressScope] += cycles;
+				}
 			}
 		}
 
