@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public class StatusFlags
+	public sealed class StatusFlags
 	{
 		public StatusFlags(byte value)
 		{

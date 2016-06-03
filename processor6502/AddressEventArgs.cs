@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public class AddressEventArgs : ByteEventArgs
+	public sealed class AddressEventArgs : ByteEventArgs
 	{
 		private ushort address;
 
