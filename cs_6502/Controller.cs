@@ -11,7 +11,41 @@
 		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 100);
 		private readonly System.Timers.Timer inputPollTimer;
 
-		private readonly Configuration configuration;
+		private readonly bool disassemble;
+		private readonly string disassemblyLogPath;
+
+		private readonly ProcessorType processorLevel;
+
+		private readonly bool stopAddressEnabled;
+		private readonly bool stopWhenLoopDetected;
+		private readonly bool stopBreak;
+
+		private readonly bool profileAddresses;
+		private readonly bool countInstructions;
+
+		private readonly string bbcLanguageRomPath;
+		private readonly string bbcOSRomPath;
+
+		private readonly bool bbcVduEmulation;
+
+		private readonly string romPath;
+		private readonly ushort romLoadAddress;
+
+		private readonly string ramPath;
+		private readonly ushort ramLoadAddress;
+
+		private readonly bool resetStart;
+		private readonly ushort startAddress;
+
+		private readonly ushort stopAddress;
+
+		private readonly byte breakInstruction;
+
+		private readonly ushort inputAddress;
+		private readonly ushort outputAddress;
+
+
+		private readonly string debugFile;
 
 		private System6502 processor;
 
@@ -35,7 +69,40 @@
 
 		public Controller(Configuration configuration)
 		{
-			this.configuration = configuration;
+			this.disassemble = configuration.Disassemble;
+			this.disassemblyLogPath = configuration.DisassemblyLogPath;
+
+			this.processorLevel = configuration.ProcessorLevel;
+
+			this.stopAddressEnabled = configuration.StopAddressEnabled;
+			this.stopWhenLoopDetected = configuration.StopWhenLoopDetected;
+			this.stopBreak = configuration.StopBreak;
+
+			this.profileAddresses = configuration.ProfileAddresses;
+			this.countInstructions = configuration.CountInstructions;
+
+			this.bbcLanguageRomPath = configuration.BbcLanguageRomPath;
+			this.bbcOSRomPath = configuration.BbcOSRomPath;
+
+			this.bbcVduEmulation = configuration.BbcVduEmulation;
+
+			this.romPath = configuration.RomPath;
+			this.romLoadAddress = configuration.RomLoadAddress;
+
+			this.ramPath = configuration.RamPath;
+			this.ramLoadAddress = configuration.RamLoadAddress;
+
+			this.resetStart = configuration.ResetStart;
+			this.startAddress = configuration.StartAddress;
+
+			this.stopAddress = configuration.StopAddress;
+
+			this.breakInstruction = configuration.BreakInstruction;
+
+			this.inputAddress = configuration.InputAddress;
+			this.outputAddress = configuration.OutputAddress;
+
+			this.debugFile = configuration.DebugFile;
 
 			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
@@ -69,14 +136,14 @@
 
 		public void Configure()
 		{
-			this.processor = new System6502(this.configuration.ProcessorLevel);
+			this.processor = new System6502(this.processorLevel);
 
-			if (this.configuration.Disassemble || this.configuration.StopAddressEnabled || this.configuration.StopWhenLoopDetected || this.configuration.ProfileAddresses)
+			if (this.disassemble || this.stopAddressEnabled || this.stopWhenLoopDetected || this.profileAddresses)
 			{
 				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction;
 			}
 
-			if (this.configuration.StopBreak)
+			if (this.stopBreak)
 			{
 				this.processor.ExecutedInstruction += this.Processor_ExecutedInstruction;
 			}
@@ -91,40 +158,40 @@
 
 			this.processor.Clear();
 
-			var bbc = !string.IsNullOrWhiteSpace(this.configuration.BbcLanguageRomPath) && !string.IsNullOrWhiteSpace(this.configuration.BbcOSRomPath);
+			var bbc = !string.IsNullOrWhiteSpace(this.bbcLanguageRomPath) && !string.IsNullOrWhiteSpace(this.bbcOSRomPath);
 			if (bbc)
 			{
-				this.processor.LoadRom(this.configuration.BbcOSRomPath, 0xc000);
-				this.processor.LoadRom(this.configuration.BbcLanguageRomPath, 0x8000);
+				this.processor.LoadRom(this.bbcOSRomPath, 0xc000);
+				this.processor.LoadRom(this.bbcLanguageRomPath, 0x8000);
 			}
 
-			var rom = !string.IsNullOrWhiteSpace(this.configuration.RomPath);
+			var rom = !string.IsNullOrWhiteSpace(this.romPath);
 			if (rom)
 			{
-				this.processor.LoadRom(this.configuration.RomPath, this.configuration.RomLoadAddress);
+				this.processor.LoadRom(this.romPath, this.romLoadAddress);
 			}
 
-			var ram = !string.IsNullOrWhiteSpace(this.configuration.RamPath);
+			var ram = !string.IsNullOrWhiteSpace(this.ramPath);
 			if (ram)
 			{
-				this.processor.LoadRam(this.configuration.RamPath, this.configuration.RamLoadAddress);
+				this.processor.LoadRam(this.ramPath, this.ramLoadAddress);
 			}
 
-			if (this.configuration.ResetStart)
+			if (this.resetStart)
 			{
 				this.processor.Reset();
 			}
 			else
 			{
-				this.processor.Start(this.configuration.StartAddress);
+				this.processor.Start(this.startAddress);
 			}
 
-			this.symbols = new Symbols(this.configuration.DebugFile);
+			this.symbols = new Symbols(this.debugFile);
 
 			this.disassembler = new Disassembly(this.processor, this.symbols);
 			this.Disassembly += this.Controller_Disassembly;
 
-			this.profiler = new Profiler(this.processor, this.disassembler, this.symbols, this.configuration.CountInstructions, this.configuration.ProfileAddresses);
+			this.profiler = new Profiler(this.processor, this.disassembler, this.symbols, this.countInstructions, this.profileAddresses);
 			this.profiler.StartingOutput += this.Profiler_StartingOutput;
 			this.profiler.FinishedOutput += this.Profiler_FinishedOutput;
 			this.profiler.StartingLineOutput += this.Profiler_StartingLineOutput;
@@ -173,9 +240,9 @@
 
 		private void Processor_Starting(object sender, EventArgs e)
 		{
-			if (!string.IsNullOrWhiteSpace(this.configuration.DisassemblyLogPath))
+			if (!string.IsNullOrWhiteSpace(this.disassemblyLogPath))
 			{
-				this.disassemblyLog = new StreamWriter(this.configuration.DisassemblyLogPath);
+				this.disassemblyLog = new StreamWriter(this.disassemblyLogPath);
 			}
 
 			this.inputPollTimer.Start();
@@ -190,7 +257,7 @@
 
 		private void Processor_ExecutingInstruction(object sender, AddressEventArgs e)
 		{
-			if (this.configuration.Disassemble)
+			if (this.disassemble)
 			{
 				var address = e.Address;
 				var cell = e.Cell;
@@ -213,12 +280,12 @@
 				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", this.disassembler.Disassemble(address)));
 			}
 
-			if (this.configuration.StopAddressEnabled && this.configuration.StopAddress == e.Address)
+			if (this.stopAddressEnabled && this.stopAddress == e.Address)
 			{
 				this.processor.Proceed = false;
 			}
 
-			if (this.configuration.StopWhenLoopDetected)
+			if (this.stopWhenLoopDetected)
 			{
 				if (this.oldPC == this.processor.PC)
 				{
@@ -233,12 +300,9 @@
 
 		private void Processor_ExecutedInstruction(object sender, AddressEventArgs e)
 		{
-			if (this.configuration.StopBreak)
+			if (this.stopBreak && this.breakInstruction == e.Cell)
 			{
-				if (this.configuration.BreakInstruction == e.Cell)
-				{
-					this.processor.Proceed = false;
-				}
+				this.processor.Proceed = false;
 			}
 		}
 
@@ -258,7 +322,7 @@
 
 		private void Processor_WritingByte(object sender, AddressEventArgs e)
 		{
-			if (e.Address == this.configuration.OutputAddress)
+			if (e.Address == this.outputAddress)
 			{
 				this.HandleByteWritten(e.Cell);
 			}
@@ -267,7 +331,7 @@
 		private void Processor_ReadingByte(object sender, AddressEventArgs e)
 		{
 			var address = e.Address;
-			if (e.Address == this.configuration.InputAddress)
+			if (e.Address == this.inputAddress)
 			{
 				var cell = e.Cell;
 				if (cell != 0x0)
@@ -291,7 +355,7 @@
 			{
 				var key = System.Console.ReadKey(true);
 				var character = key.KeyChar;
-				this.processor.SetByte(this.configuration.InputAddress, (byte)character);
+				this.processor.SetByte(this.inputAddress, (byte)character);
 			}
 		}
 
@@ -313,7 +377,7 @@
 		private void HandleByteWritten(byte cell)
 		{
 			var character = (char)cell;
-			if (this.configuration.BbcVduEmulation)
+			if (this.bbcVduEmulation)
 			{
 				switch (cell)
 				{
