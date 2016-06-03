@@ -392,6 +392,24 @@
 
 		////
 
+		private void UpdateZeroFlag(byte datum)
+		{
+			this.P.Zero = datum == 0;
+		}
+
+		private void UpdateNegativeFlag(sbyte datum)
+		{
+			this.P.Negative = datum < 0;
+		}
+
+		private void UpdateZeroNegativeFlags(byte datum)
+		{
+			this.UpdateZeroFlag(datum);
+			this.UpdateNegativeFlag((sbyte)datum);
+		}
+
+		////
+
 		private void PushByte(byte value)
 		{
 			this.SetByte((ushort)(PageOne + this.S--), value);
@@ -624,8 +642,7 @@
 		{
 			var content = (sbyte)this.GetByte(offset);
 			this.SetByte(offset, (byte)(--content));
-			this.P.Zero = content == 0;
-			this.P.Negative = content < 0;
+			this.UpdateZeroNegativeFlags((byte)content);
 		}
 
 		private byte ROR(byte data)
@@ -640,8 +657,7 @@
 				result |= 0x80;
 			}
 
-			this.P.Zero = result == 0;
-			this.P.Negative = (sbyte)result < 0;
+			this.UpdateZeroNegativeFlags(result);
 
 			return result;
 		}
@@ -657,8 +673,7 @@
 
 			var result = (byte)(data >> 1);
 
-			this.P.Zero = result == 0;
-			this.P.Negative = (sbyte)result < 0;
+			this.UpdateZeroNegativeFlags(result);
 
 			return result;
 		}
@@ -671,7 +686,7 @@
 		private void BIT_immediate(byte data)
 		{
 			var result = (byte)(this.A & data);
-			this.P.Zero = result == 0;
+			this.UpdateZeroFlag(result);
 		}
 
 		private void BIT(byte data)
@@ -703,8 +718,7 @@
 		{
 			var content = this.GetByte(offset);
 			this.SetByte(offset, ++content);
-			this.P.Zero = content == 0;
-			this.P.Negative = (sbyte)content < 0;
+			this.UpdateZeroNegativeFlags(content);
 		}
 
 		private void ROL(ushort offset)
@@ -725,8 +739,7 @@
 				result |= 0x01;
 			}
 
-			this.P.Zero = result == 0;
-			this.P.Negative = (sbyte)result < 0;
+			this.UpdateZeroNegativeFlags(result);
 
 			return result;
 		}
@@ -740,8 +753,7 @@
 		{
 			var result = (byte)(data << 1);
 
-			this.P.Zero = result == 0;
-			this.P.Negative = (sbyte)result < 0;
+			this.UpdateZeroNegativeFlags(result);
 			this.P.Carry = (data & 0x80) != 0;
 
 			return result;
@@ -750,15 +762,13 @@
 		private void ORA(byte data)
 		{
 			this.A |= data;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		private void AND(byte data)
 		{
 			this.A &= data;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		private void SBC(byte data)
@@ -778,8 +788,7 @@
 			var carry = (byte)(!this.P.Carry ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
-			this.P.Zero = (byte)difference == 0;
-			this.P.Negative = (sbyte)difference < 0;
+			this.UpdateZeroNegativeFlags((byte)difference);
 			this.P.Overflow = ((this.A ^ data) & (this.A ^ difference) & 0x80) != 0;
 			this.P.Carry = HighByte(difference) == 0;
 
@@ -793,8 +802,7 @@
 
 			if (this.level < ProcessorType.cpu65sc02)
 			{
-				this.P.Zero = (byte)difference == 0;
-				this.P.Negative = (sbyte)difference < 0;
+				this.UpdateZeroNegativeFlags((byte)difference);
 			}
 
 			this.P.Overflow = ((this.A ^ data) & (this.A ^ difference) & 0x80) != 0;
@@ -818,16 +826,14 @@
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
 			if (this.level >= ProcessorType.cpu65sc02)
 			{
-				this.P.Zero = this.A == 0;
-				this.P.Negative = (sbyte)this.A < 0;
+				this.UpdateZeroNegativeFlags(this.A);
 			}
 		}
 
 		private void EOR(byte data)
 		{
 			this.A ^= data;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		private void CPX(byte data)
@@ -849,30 +855,26 @@
 		{
 			var result = (ushort)(first - second);
 
-			this.P.Zero = (byte)result == 0;
-			this.P.Negative = (sbyte)result < 0;
+			this.UpdateZeroNegativeFlags((byte)result);
 			this.P.Carry = HighByte(result) == 0;
 		}
 
 		private void LDA(byte data)
 		{
 			this.A = data;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		private void LDY(byte data)
 		{
 			this.Y = data;
-			this.P.Zero = this.Y == 0;
-			this.P.Negative = (sbyte)this.Y < 0;
+			this.UpdateZeroNegativeFlags(this.Y);
 		}
 
 		private void LDX(byte data)
 		{
 			this.X = data;
-			this.P.Zero = this.X == 0;
-			this.P.Negative = (sbyte)this.X < 0;
+			this.UpdateZeroNegativeFlags(this.X);
 		}
 
 		private void ADC(byte data)
@@ -892,8 +894,7 @@
 			var carry = (byte)(this.P.Carry ? 1 : 0);
 			var sum = (ushort)(this.A + data + carry);
 
-			this.P.Zero = (byte)sum == 0;
-			this.P.Negative = (sbyte)sum < 0;
+			this.UpdateZeroNegativeFlags((byte)sum);
 			this.P.Overflow = (~(this.A ^ data) & (this.A ^ sum) & 0x80) != 0;
 			this.P.Carry = HighByte(sum) != 0;
 
@@ -907,8 +908,7 @@
 
 			if (this.level < ProcessorType.cpu65sc02)
 			{
-				this.P.Zero = (byte)sum == 0;
-				this.P.Negative = (sbyte)sum < 0;
+				this.UpdateZeroNegativeFlags((byte)sum);
 			}
 
 			var low = (byte)(LowNybble(this.A) + LowNybble(data) + carry);
@@ -930,8 +930,7 @@
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
 			if (this.level >= ProcessorType.cpu65sc02)
 			{
-				this.P.Zero = this.A == 0;
-				this.P.Negative = (sbyte)this.A < 0;
+				this.UpdateZeroNegativeFlags(this.A);
 			}
 		}
 
@@ -1500,9 +1499,7 @@
 
 		private void DEC_a()
 		{
-			this.A--;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(--this.A);
 		}
 
 		private void DEC_absx()
@@ -1529,16 +1526,12 @@
 
 		private void DEX_imp()
 		{
-			--this.X;
-			this.P.Zero = this.X == 0;
-			this.P.Negative = (sbyte)this.X < 0;
+			this.UpdateZeroNegativeFlags(--this.X);
 		}
 
 		private void DEY_imp()
 		{
-			--this.Y;
-			this.P.Zero = this.Y == 0;
-			this.P.Negative = (sbyte)this.Y < 0;
+			this.UpdateZeroNegativeFlags(--this.Y);
 		}
 
 		#endregion
@@ -1549,9 +1542,7 @@
 
 		private void INC_a()
 		{
-			++this.A;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(++this.A);
 		}
 
 		private void INC_zp()
@@ -1578,16 +1569,12 @@
 
 		private void INX_imp()
 		{
-			++this.X;
-			this.P.Zero = this.X == 0;
-			this.P.Negative = (sbyte)this.X < 0;
+			this.UpdateZeroNegativeFlags(++this.X);
 		}
 
 		private void INY_imp()
 		{
-			++this.Y;
-			this.P.Zero = this.Y == 0;
-			this.P.Negative = (sbyte)this.Y < 0;
+			this.UpdateZeroNegativeFlags(++this.Y);
 		}
 
 		#endregion
@@ -1711,22 +1698,19 @@
 		private void TSX_imp()
 		{
 			this.X = this.S;
-			this.P.Zero = this.X == 0;
-			this.P.Negative = (sbyte)this.X < 0;
+			this.UpdateZeroNegativeFlags(this.X);
 		}
 
 		private void TAX_imp()
 		{
 			this.X = this.A;
-			this.P.Zero = this.X == 0;
-			this.P.Negative = (sbyte)this.X < 0;
+			this.UpdateZeroNegativeFlags(this.X);
 		}
 
 		private void TAY_imp()
 		{
 			this.Y = this.A;
-			this.P.Zero = this.Y == 0;
-			this.P.Negative = (sbyte)this.Y < 0;
+			this.UpdateZeroNegativeFlags(this.Y);
 		}
 
 		private void TXS_imp()
@@ -1737,15 +1721,13 @@
 		private void TYA_imp()
 		{
 			this.A = this.Y;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		private void TXA_imp()
 		{
 			this.A = this.X;
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		#endregion
@@ -1767,8 +1749,7 @@
 		private void PLA_imp()
 		{
 			this.A = this.PopByte();
-			this.P.Zero = this.A == 0;
-			this.P.Negative = (sbyte)this.A < 0;
+			this.UpdateZeroNegativeFlags(this.A);
 		}
 
 		private void PHA_imp()
@@ -1789,15 +1770,13 @@
 		private void PLX_imp()
 		{
 			this.X = this.PopByte();
-			this.P.Zero = this.X == 0;
-			this.P.Negative = (sbyte)this.X < 0;
+			this.UpdateZeroNegativeFlags(this.X);
 		}
 
 		private void PLY_imp()
 		{
 			this.Y = this.PopByte();
-			this.P.Zero = this.Y == 0;
-			this.P.Negative = (sbyte)this.Y < 0;
+			this.UpdateZeroNegativeFlags(this.Y);
 		}
 
 		#endregion
