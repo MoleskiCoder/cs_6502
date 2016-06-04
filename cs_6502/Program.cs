@@ -46,6 +46,8 @@ namespace Simulator
 				controller.Configure();
 				controller.Start();
 
+				var hertz = 2000000.0;
+
 				var cycles = controller.Processor.Cycles;
 				var start = controller.StartTime;
 				var finish = controller.FinishTime;
@@ -54,7 +56,8 @@ namespace Simulator
 				var elapsed = elapsedTime.TotalMilliseconds;
 				var seconds = (elapsed / 1000.0) + ((elapsed % 1000) / 1000.0);
 				var cyclesPerSecond = cycles / seconds;
-				var speedup = cyclesPerSecond / 2000000.0;
+				var simulatedElapsed = cycles / hertz;
+				var speedup = cyclesPerSecond / hertz;
 
 				System.Console.Out.WriteLine("\n** Stopped PC={0:x4}", controller.Processor.PC);
 
@@ -75,10 +78,12 @@ namespace Simulator
 				System.Console.Out.WriteLine("\n**** Test={0:x2}", test);
 #endif
 
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles used {0}\n", cycles));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds\n", seconds));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nCycles per second {0}\n", cyclesPerSecond));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nSpeedup over 2Mhz 6502 {0}\n", speedup));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds", seconds));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nCycles per second {0}", cyclesPerSecond));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSpeedup over 2Mhz 6502 {0}", speedup));
+
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nSimulated cycles used {0}", cycles));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSimulated time taken {0}\n\n", simulatedElapsed));
 			}
 		}
 	}
