@@ -179,7 +179,7 @@
 			this.Interrupt(NMIvector);
 		}
 
-		public virtual ushort GetWord(ushort offset)
+		public ushort GetWord(ushort offset)
 		{
 			var low = this.GetByte(offset);
 			var high = this.GetByte((ushort)(offset + 1));
@@ -640,9 +640,9 @@
 
 		private void DEC(ushort offset)
 		{
-			var content = (sbyte)this.GetByte(offset);
-			this.SetByte(offset, (byte)(--content));
-			this.UpdateZeroNegativeFlags((byte)content);
+			var content = this.GetByte(offset);
+			this.SetByte(offset, --content);
+			this.UpdateZeroNegativeFlags(content);
 		}
 
 		private byte ROR(byte data)
@@ -985,7 +985,7 @@
 		{
 			var zp = this.FetchByte();
 			var contents = this.GetByte(zp);
-			var displacement = (sbyte)this.FetchByte();
+			var displacement = this.FetchByte();
 			if ((contents & check) == 0)
 			{
 				this.PC += (ushort)displacement;
@@ -996,7 +996,7 @@
 		{
 			var zp = this.FetchByte();
 			var contents = this.GetByte(zp);
-			var displacement = (sbyte)this.FetchByte();
+			var displacement = this.FetchByte();
 			if ((contents & check) != 0)
 			{
 				this.PC += (ushort)displacement;

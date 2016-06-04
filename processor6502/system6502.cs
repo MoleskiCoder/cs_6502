@@ -75,11 +75,6 @@
 			return content;
 		}
 
-		public override ushort GetWord(ushort offset)
-		{
-			return BitConverter.ToUInt16(this.memory, offset);
-		}
-
 		public override void SetByte(ushort offset, byte value)
 		{
 			if (this.locked[offset])
