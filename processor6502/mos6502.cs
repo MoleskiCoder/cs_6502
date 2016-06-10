@@ -224,10 +224,10 @@
 
 		protected void ResetRegisters()
 		{
-			this.PC = 0x0000;
+			this.PC = 0;
 			this.X = 0x80;
-			this.Y = 0x00;
-			this.A = 0x00;
+			this.Y = 0;
+			this.A = 0;
 
 			this.P = new StatusFlags(0);
 			this.P.Reserved = true;
@@ -736,7 +736,7 @@
 
 			if (carry)
 			{
-				result |= 0x01;
+				result |= 1;
 			}
 
 			this.UpdateZeroNegativeFlags(result);
@@ -917,7 +917,7 @@
 				low += 6;
 			}
 
-			var high = (byte)(HighNybble(this.A) + HighNybble(data) + (low > 0x0f ? 1 : 0));
+			var high = (byte)(HighNybble(this.A) + HighNybble(data) + (low > 0xf ? 1 : 0));
 			this.P.Overflow = (~(this.A ^ data) & (this.A ^ PromoteNybble(high)) & 0x80) != 0;
 
 			if (high > 9)
@@ -925,7 +925,7 @@
 				high += 6;
 			}
 
-			this.P.Carry = high > 0x0f;
+			this.P.Carry = high > 0xf;
 
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
 			if (this.level >= ProcessorType.cpu65sc02)
