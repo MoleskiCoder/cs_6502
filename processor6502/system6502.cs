@@ -15,8 +15,9 @@
 
 		private readonly Stopwatch highResolutionTimer = new Stopwatch();
 
-		double cyclesPerSecond;
-		ulong cyclesPerInterval;
+		private readonly double cyclesPerSecond;
+		private readonly double cyclesPerMillisecond;
+		private readonly ulong cyclesPerInterval;
 
 		public System6502(ProcessorType level, double speed, TimeSpan pollInterval)
 		: base(level)
@@ -28,7 +29,8 @@
 			this.pollInterval = pollInterval;
 
 			this.cyclesPerSecond = this.speed * 1000000;     // speed is in MHz
-			this.cyclesPerInterval = (ulong)(cyclesPerSecond / pollInterval.TotalMilliseconds);
+			this.cyclesPerMillisecond = this.cyclesPerSecond / 1000.0;
+			this.cyclesPerInterval = (ulong)(this.cyclesPerSecond / pollInterval.TotalMilliseconds);
 
 			this.Polling += this.System6502_Polling;
 			this.Starting += this.System6502_Starting;
@@ -148,12 +150,11 @@
 		{
 			var timerCurrent = this.highResolutionTimer.ElapsedMilliseconds;
 
-			var cyclesAllowed = timerCurrent / 1000.0 * cyclesPerSecond;
+			var cyclesAllowed = timerCurrent * this.cyclesPerMillisecond;
 			var cyclesMismatch = this.Cycles - cyclesAllowed;
 			if (cyclesMismatch > 0.0)
 			{
-				var seconds = cyclesMismatch / cyclesPerSecond;
-				var delay = (int)(seconds * 1000);
+				var delay = (int)(cyclesMismatch / this.cyclesPerMillisecond);
 				if (delay > 0)
 				{
 					System.Threading.Thread.Sleep(delay);

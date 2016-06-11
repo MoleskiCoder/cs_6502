@@ -330,7 +330,7 @@
 		private void Processor_ReadingByte(object sender, AddressEventArgs e)
 		{
 			var address = e.Address;
-			if (e.Address == this.inputAddress)
+			if (address == this.inputAddress)
 			{
 				var cell = e.Cell;
 				if (cell != 0x0)
