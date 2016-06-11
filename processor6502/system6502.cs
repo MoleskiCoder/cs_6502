@@ -1,6 +1,7 @@
 ﻿namespace Processor
 {
 	using System;
+	using System.Diagnostics;
 	using System.IO;
 
 	public sealed class System6502 : MOS6502
@@ -8,16 +9,37 @@
 		private readonly byte[] memory;
 		private readonly bool[] locked;
 
-		public System6502(ProcessorType level)
+		private readonly double speed;  // Speed in MHz, e.g. 2.0 == 2Mhz, 1.79 = 1.79Mhz
+
+		private readonly TimeSpan pollInterval;
+
+		private readonly Stopwatch highResolutionTimer = new Stopwatch();
+
+		double cyclesPerSecond;
+		ulong cyclesPerInterval;
+
+		public System6502(ProcessorType level, double speed, TimeSpan pollInterval)
 		: base(level)
 		{
 			this.memory = new byte[0x10000];
 			this.locked = new bool[0x10000];
+
+			this.speed = speed;
+			this.pollInterval = pollInterval;
+
+			this.cyclesPerSecond = this.speed * 1000000;     // speed is in MHz
+			this.cyclesPerInterval = (ulong)(cyclesPerSecond / pollInterval.TotalMilliseconds);
+
+			this.Polling += this.System6502_Polling;
+			this.Starting += this.System6502_Starting;
+			this.ExecutedInstruction += this.System6502_ExecutedInstruction;
 		}
 
 		public event EventHandler<EventArgs> Starting;
 
 		public event EventHandler<EventArgs> Finished;
+
+		public event EventHandler<EventArgs> Polling;
 
 		public event EventHandler<AddressEventArgs> InvalidWriteAttempt;
 
@@ -104,6 +126,41 @@
 			}
 		}
 
+		private void CheckPoll()
+		{
+			if ((this.Cycles % this.cyclesPerInterval) == 0)
+			{
+				this.OnPolling();
+			}
+		}
+
+		private void System6502_ExecutedInstruction(object sender, AddressEventArgs e)
+		{
+			this.CheckPoll();
+		}
+
+		private void System6502_Starting(object sender, EventArgs e)
+		{
+			this.highResolutionTimer.Start();
+		}
+
+		private void System6502_Polling(object sender, EventArgs e)
+		{
+			var timerCurrent = this.highResolutionTimer.ElapsedMilliseconds;
+
+			var cyclesAllowed = timerCurrent / 1000.0 * cyclesPerSecond;
+			var cyclesMismatch = this.Cycles - cyclesAllowed;
+			if (cyclesMismatch > 0.0)
+			{
+				var seconds = cyclesMismatch / cyclesPerSecond;
+				var delay = (int)(seconds * 1000);
+				if (delay > 0)
+				{
+					System.Threading.Thread.Sleep(delay);
+				}
+			}
+		}
+
 		private void ClearMemory()
 		{
 			Array.Clear(this.memory, 0, this.memory.Length);
@@ -117,6 +174,11 @@
 		private void OnFinished()
 		{
 			this.Finished?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void OnPolling()
+		{
+			this.Polling?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnExecutingInstruction(ushort address, byte instruction)
