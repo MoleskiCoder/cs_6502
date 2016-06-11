@@ -1,6 +1,7 @@
 {
 	"CPU": {
-		"level": "cpu65sc02"
+		"level": "cpu65sc02",
+		"speed": "2.0"
 	},
 	"IO": {
 		"inputAddress": "e000",

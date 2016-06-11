@@ -38,6 +38,14 @@
 			this.Install65c02Instructions();
 		}
 
+		public ProcessorType Level
+		{
+			get
+			{
+				return this.level;
+			}
+		}
+
 		public bool Proceed
 		{
 			get

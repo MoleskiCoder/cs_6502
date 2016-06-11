@@ -12,6 +12,7 @@
 	public class Configuration
 	{
 		private ProcessorType processorLevel = ProcessorType.cpu6502;
+		private double speed = 2.0;
 
 		private ushort inputAddress;
 		private ushort outputAddress;
@@ -52,6 +53,7 @@
 					var root = XElement.Load(reader);
 
 					this.processorLevel = GetProcessorTypeValue(root, "//CPU/level");
+					this.speed = GetDoubleValue(root, "//CPU/speed");
 
 					this.inputAddress = GetUShortValue(root, "//IO/inputAddress");
 					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
@@ -95,6 +97,14 @@
 			get
 			{
 				return this.processorLevel;
+			}
+		}
+
+		public double Speed
+		{
+			get
+			{
+				return this.speed;
 			}
 		}
 
@@ -282,6 +292,12 @@
 		{
 			var value = GetStringValue(root, path);
 			return string.IsNullOrEmpty(value) ? (ushort)0 : ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+		}
+
+		private static double GetDoubleValue(XElement root, string path)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? 0.0 : double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
 		}
 
 		private static string GetStringValue(XElement root, string path)

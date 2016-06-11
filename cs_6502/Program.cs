@@ -46,7 +46,7 @@ namespace Simulator
 				controller.Configure();
 				controller.Start();
 
-				var hertz = 2000000.0;
+				var hertz = controller.Speed * 1000000.0;
 
 				var cycles = controller.Processor.Cycles;
 				var start = controller.StartTime;

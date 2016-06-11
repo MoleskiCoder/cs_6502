@@ -1,6 +1,7 @@
 ﻿namespace Simulator
 {
 	using System;
+	using System.Diagnostics;
 	using System.Globalization;
 	using System.IO;
 
@@ -9,12 +10,14 @@
 	public class Controller : IDisposable
 	{
 		private readonly TimeSpan pollInterval = new TimeSpan(0, 0, 0, 0, 100);
-		private readonly System.Timers.Timer inputPollTimer;
+		private readonly System.Timers.Timer inputPollTimer = new System.Timers.Timer();
+		private readonly Stopwatch highResolutionTimer = new Stopwatch();
 
 		private readonly bool disassemble;
 		private readonly string disassemblyLogPath;
 
 		private readonly ProcessorType processorLevel;
+		private readonly double speed;	// Speed in MHz, e.g. 2.0 == 2Mhz, 1.79 = 1.79Mhz
 
 		private readonly bool stopAddressEnabled;
 		private readonly bool stopWhenLoopDetected;
@@ -54,6 +57,9 @@
 		private DateTime startTime;
 		private DateTime finishTime;
 
+		double cyclesPerSecond;
+		ulong cyclesPerInterval;
+
 		private Disassembly disassembler;
 		private StreamWriter disassemblyLog;
 
@@ -73,6 +79,7 @@
 			this.disassemblyLogPath = configuration.DisassemblyLogPath;
 
 			this.processorLevel = configuration.ProcessorLevel;
+			this.speed = configuration.Speed;
 
 			this.stopAddressEnabled = configuration.StopAddressEnabled;
 			this.stopWhenLoopDetected = configuration.StopWhenLoopDetected;
@@ -104,8 +111,13 @@
 
 			this.debugFile = configuration.DebugFile;
 
-			this.inputPollTimer = new System.Timers.Timer(this.pollInterval.TotalMilliseconds);
+			this.inputPollTimer.Interval = this.pollInterval.TotalMilliseconds;
 			this.inputPollTimer.Elapsed += this.InputPollTimer_Elapsed;
+
+			this.highResolutionTimer.Start();
+
+			this.cyclesPerSecond = this.speed * 1000000;     // speed is in MHz
+			this.cyclesPerInterval = (ulong)(cyclesPerSecond / pollInterval.TotalMilliseconds);
 		}
 
 		public event EventHandler<DisassemblyEventArgs> Disassembly;
@@ -115,6 +127,14 @@
 			get
 			{
 				return this.processor;
+			}
+		}
+
+		public double Speed
+		{
+			get
+			{
+				return this.speed;
 			}
 		}
 
@@ -303,6 +323,24 @@
 			if (this.stopBreak && this.breakInstruction == e.Cell)
 			{
 				this.processor.Proceed = false;
+			}
+
+			// Is this is the poll interval, in terms of CPU time?
+			if ((this.processor.Cycles % this.cyclesPerInterval) == 0)
+			{
+				var timerCurrent = this.highResolutionTimer.ElapsedMilliseconds;
+
+				var cyclesAllowed = timerCurrent / 1000.0 * cyclesPerSecond;
+				var cyclesMismatch = this.processor.Cycles - cyclesAllowed;
+				if (cyclesMismatch > 0.0)
+				{
+					var seconds = cyclesMismatch / cyclesPerSecond;
+					var delay = (int)(seconds * 1000);
+					if (delay > 0)
+					{
+						System.Threading.Thread.Sleep(delay);
+					}
+				}
 			}
 		}
 

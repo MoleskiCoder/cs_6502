@@ -1,10 +1,11 @@
 {
 	"CPU": {
-		"level": "cpu6502"
+		"level": "cpu6502",
+		"speed": "2.0"
 	},
 	"IO": {
 		"inputAddress": "0800",
-    		"outputAddress": "0801"
+		"outputAddress": "0801"
 	},
 	"BBC": {
 		"language": {
