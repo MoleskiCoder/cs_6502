@@ -19,6 +19,8 @@
 		private readonly double cyclesPerMillisecond;
 		private readonly ulong cyclesPerInterval;
 
+		private ulong heldCycles = 0;
+
 		public System6502(ProcessorType level, double speed, TimeSpan pollInterval)
 		: base(level)
 		{
@@ -52,6 +54,14 @@
 		public event EventHandler<AddressEventArgs> ExecutingInstruction;
 
 		public event EventHandler<AddressEventArgs> ExecutedInstruction;
+
+		public ulong HeldCycles
+		{
+			get
+			{
+				return this.heldCycles;
+			}
+		}
 
 		public void Clear()
 		{
@@ -157,6 +167,7 @@
 				var delay = (int)(cyclesMismatch / this.cyclesPerMillisecond);
 				if (delay > 0)
 				{
+					this.heldCycles += (ulong)cyclesMismatch;
 					System.Threading.Thread.Sleep(delay);
 				}
 			}
