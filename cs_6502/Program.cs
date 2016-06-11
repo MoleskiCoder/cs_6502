@@ -80,7 +80,7 @@ namespace Simulator
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds", seconds));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nCycles per second {0}", cyclesPerSecond));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSpeedup over 2Mhz 6502 {0}", speedup));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSpeedup over {0:g}Mhz 6502 {1}", controller.Speed, speedup));
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nSimulated cycles used {0}", cycles));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSimulated time taken {0}\n\n", simulatedElapsed));
