@@ -55,8 +55,7 @@ namespace Simulator
 				var finish = controller.FinishTime;
 
 				var elapsedTime = finish - start;
-				var elapsed = elapsedTime.TotalMilliseconds;
-				var seconds = (elapsed / 1000.0) + ((elapsed % 1000) / 1000.0);
+				var seconds = elapsedTime.TotalSeconds;
 				var cyclesPerSecond = cycles / seconds;
 				var simulatedElapsed = cycles / hertz;
 				var speedup = cyclesPerSecond / hertz;
@@ -84,12 +83,12 @@ namespace Simulator
 #endif
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nTime taken {0} seconds", seconds));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nCycles per second {0}", cyclesPerSecond));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nCycles per second {0:N}", cyclesPerSecond));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSpeedup over {0:g}Mhz 6502 {1}", controller.Speed, speedup));
 
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nSimulated cycles used {0}", cycles));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld cycles {0}", heldCycles));
-				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld cycle difference {0}", cycleDifference));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\n\nSimulated cycles used {0:N}", cycles));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld cycles {0:N}", heldCycles));
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld cycle difference {0:N}", cycleDifference));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld proportion {0:g}", holdProportion));
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSimulated time taken {0}\n\n", simulatedElapsed));
