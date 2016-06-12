@@ -11,8 +11,8 @@
 
 	public class Configuration
 	{
-		private ProcessorType processorLevel = ProcessorType.cpu6502;
-		private double speed = 2.0;
+		private ProcessorType processorLevel;
+		private double speed;
 
 		private ushort inputAddress;
 		private ushort outputAddress;
@@ -30,19 +30,19 @@
 		private string disassemblyLogPath;
 		private string debugFile;
 
-		private ushort startAddress = 0;
+		private ushort startAddress;
 
-		private bool resetStart = false;
+		private bool resetStart;
 
-		private bool stopWhenLoopDetected = false;
-		private bool stopBreak = false;
-		private byte breakInstruction = 0x0;
-		private ushort stopAddress = 0;
-		private bool stopAddressEnabled = false;
+		private bool stopWhenLoopDetected;
+		private bool stopBreak;
+		private byte breakInstruction;
+		private ushort stopAddress;
+		private bool stopAddressEnabled;
 
-		private bool disassemble = false;
-		private bool countInstructions = false;
-		private bool profileAddresses = false;
+		private bool disassemble;
+		private bool countInstructions;
+		private bool profileAddresses;
 
 		public Configuration(string path)
 		{
@@ -53,7 +53,7 @@
 					var root = XElement.Load(reader);
 
 					this.processorLevel = GetProcessorTypeValue(root, "//CPU/level");
-					this.speed = GetDoubleValue(root, "//CPU/speed");
+					this.speed = GetDoubleValue(root, "//CPU/speed", 2.0);
 
 					this.inputAddress = GetUShortValue(root, "//IO/inputAddress");
 					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
@@ -71,6 +71,7 @@
 					this.startAddress = GetUShortValue(root, "//run/startAddress");
 					this.resetStart = GetBooleanValue(root, "//run/resetStart");
 					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
+					this.breakInstruction = GetByteValue(root, "//run/breakInstruction", 0x00);
 					this.stopWhenLoopDetected = GetBooleanValue(root, "//run/stopWhenLoopDetected");
 					this.stopAddress = GetUShortValue(root, "//run/stopAddress");
 					this.stopAddressEnabled = this.stopAddress != 0;
@@ -276,34 +277,70 @@
 			}
 		}
 
-		private static ProcessorType GetProcessorTypeValue(XElement root, string path)
+		private static ProcessorType GetProcessorTypeValue(XElement root, string path, ProcessorType defaultValue)
 		{
 			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? ProcessorType.cpu6502 : (ProcessorType)Enum.Parse(typeof(ProcessorType), value);
+			return string.IsNullOrEmpty(value) ? defaultValue : (ProcessorType)Enum.Parse(typeof(ProcessorType), value);
+		}
+
+		private static ProcessorType GetProcessorTypeValue(XElement root, string path)
+		{
+			return GetProcessorTypeValue(root, path, ProcessorType.cpu6502);
+		}
+
+		private static bool GetBooleanValue(XElement root, string path, bool defaultValue)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? defaultValue : bool.Parse(value);
 		}
 
 		private static bool GetBooleanValue(XElement root, string path)
 		{
+			return GetBooleanValue(root, path, false);
+		}
+
+		private static byte GetByteValue(XElement root, string path, byte defaultValue)
+		{
 			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? false : bool.Parse(value);
+			return string.IsNullOrEmpty(value) ? defaultValue : byte.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+		}
+
+		private static byte GetByteValue(XElement root, string path)
+		{
+			return GetByteValue(root, path, 0);
+		}
+
+		private static ushort GetUShortValue(XElement root, string path, ushort defaultValue)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? defaultValue : ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 		}
 
 		private static ushort GetUShortValue(XElement root, string path)
 		{
+			return GetUShortValue(root, path, 0);
+		}
+
+		private static double GetDoubleValue(XElement root, string path, double defaultValue)
+		{
 			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? (ushort)0 : ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			return string.IsNullOrEmpty(value) ? defaultValue : double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
 		}
 
 		private static double GetDoubleValue(XElement root, string path)
 		{
-			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? 0.0 : double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+			return GetDoubleValue(root, path, 0.0);
+		}
+
+		private static string GetStringValue(XElement root, string path, string defaultValue)
+		{
+			var element = root.XPathSelectElement(path);
+			return element == null ? defaultValue : element.Value;
 		}
 
 		private static string GetStringValue(XElement root, string path)
 		{
-			var element = root.XPathSelectElement(path);
-			return element == null ? string.Empty : element.Value;
+			return GetStringValue(root, path, string.Empty);
 		}
 	}
 }
