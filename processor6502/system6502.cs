@@ -6,6 +6,9 @@
 
 	public sealed class System6502 : MOS6502
 	{
+		private const double Mega = 1000000;
+		private const double Milli = 0.001;
+
 		private readonly byte[] memory;
 		private readonly bool[] locked;
 
@@ -30,8 +33,8 @@
 			this.speed = speed;
 			this.pollInterval = pollInterval;
 
-			this.cyclesPerSecond = this.speed * 1000000;     // speed is in MHz
-			this.cyclesPerMillisecond = this.cyclesPerSecond / 1000.0;
+			this.cyclesPerSecond = this.speed * Mega;     // speed is in MHz
+			this.cyclesPerMillisecond = this.cyclesPerSecond * Milli;
 			this.cyclesPerInterval = (ulong)(this.cyclesPerSecond / pollInterval.TotalMilliseconds);
 
 			this.Polling += this.System6502_Polling;
