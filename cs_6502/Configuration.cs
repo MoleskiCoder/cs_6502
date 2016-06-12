@@ -13,6 +13,7 @@
 	{
 		private ProcessorType processorLevel;
 		private double speed;
+		private int pollIntervalMilliseconds;
 
 		private ushort inputAddress;
 		private ushort outputAddress;
@@ -54,6 +55,7 @@
 
 					this.processorLevel = GetProcessorTypeValue(root, "//CPU/level");
 					this.speed = GetDoubleValue(root, "//CPU/speed", 2.0);
+					this.pollIntervalMilliseconds = GetIntValue(root, "//CPU/pollIntervalMilliseconds", 10);
 
 					this.inputAddress = GetUShortValue(root, "//IO/inputAddress");
 					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
@@ -106,6 +108,14 @@
 			get
 			{
 				return this.speed;
+			}
+		}
+
+		public int PollIntervalMilliseconds
+		{
+			get
+			{
+				return this.pollIntervalMilliseconds;
 			}
 		}
 
@@ -319,6 +329,17 @@
 		private static ushort GetUShortValue(XElement root, string path)
 		{
 			return GetUShortValue(root, path, 0);
+		}
+
+		private static int GetIntValue(XElement root, string path, int defaultValue)
+		{
+			var value = GetStringValue(root, path);
+			return string.IsNullOrEmpty(value) ? defaultValue : int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+		}
+
+		private static int GetIntValue(XElement root, string path)
+		{
+			return GetIntValue(root, path, 0);
 		}
 
 		private static double GetDoubleValue(XElement root, string path, double defaultValue)

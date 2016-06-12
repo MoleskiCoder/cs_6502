@@ -8,11 +8,15 @@
 
 	public class Controller : IDisposable
 	{
+		const ushort BbcOsLoadAddress = 0xc000;
+		const ushort BbcOsLanguageAddress = 0x8000;
+
 		private readonly bool disassemble;
 		private readonly string disassemblyLogPath;
 
 		private readonly ProcessorType processorLevel;
 		private readonly double speed;
+		private readonly int pollIntervalMilliseconds;
 
 		private readonly bool stopAddressEnabled;
 		private readonly bool stopWhenLoopDetected;
@@ -72,6 +76,7 @@
 
 			this.processorLevel = configuration.ProcessorLevel;
 			this.speed = configuration.Speed;
+			this.pollIntervalMilliseconds = configuration.PollIntervalMilliseconds;
 
 			this.stopAddressEnabled = configuration.StopAddressEnabled;
 			this.stopWhenLoopDetected = configuration.StopWhenLoopDetected;
@@ -140,7 +145,7 @@
 
 		public void Configure()
 		{
-			this.processor = new System6502(this.processorLevel, this.speed, new TimeSpan(0, 0, 0, 0, 10));
+			this.processor = new System6502(this.processorLevel, this.speed, new TimeSpan(0, 0, 0, 0, this.pollIntervalMilliseconds));
 
 			if (this.disassemble || this.stopAddressEnabled || this.stopWhenLoopDetected || this.profileAddresses)
 			{
@@ -167,8 +172,8 @@
 			var bbc = !string.IsNullOrWhiteSpace(this.bbcLanguageRomPath) && !string.IsNullOrWhiteSpace(this.bbcOSRomPath);
 			if (bbc)
 			{
-				this.processor.LoadRom(this.bbcOSRomPath, 0xc000);
-				this.processor.LoadRom(this.bbcLanguageRomPath, 0x8000);
+				this.processor.LoadRom(this.bbcOSRomPath, BbcOsLoadAddress);
+				this.processor.LoadRom(this.bbcLanguageRomPath, BbcOsLanguageAddress);
 			}
 
 			var rom = !string.IsNullOrWhiteSpace(this.romPath);
