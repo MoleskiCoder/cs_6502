@@ -1,12 +1,16 @@
-﻿namespace Simulator
+﻿namespace Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
-    public class ProfileEventArgs : EventArgs
+    public class DisassemblyEventArgs : EventArgs
     {
         private string output;
 
-        public ProfileEventArgs(string output)
+        public DisassemblyEventArgs(string output)
         {
             this.output = output;
         }

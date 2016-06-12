@@ -1,4 +1,4 @@
-﻿namespace Simulator
+﻿namespace Model
 {
 	using System;
 

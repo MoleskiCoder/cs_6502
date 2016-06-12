@@ -1,4 +1,4 @@
-﻿namespace Simulator
+﻿namespace Model
 {
     public delegate string Dumper(ushort current);
 
