@@ -6,8 +6,8 @@
 
 	public sealed class System6502 : MOS6502
 	{
-		private const double Mega = 1000000;
-		private const double Milli = 0.001;
+		public const double Mega = 1000000;
+		public const double Milli = 0.001;
 
 		private readonly byte[] memory;
 		private readonly bool[] locked;
