@@ -1,0 +1,77 @@
+﻿<Window x:Class="WPF6502.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF6502"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+
+        <Button x:Name="startButton" Content="Start" HorizontalAlignment="Left" Margin="432,10,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.787,1"
+                Command="{Binding Path=StartCommand}"
+                />
+
+        <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+
+            <GroupBox Header="Run time"
+                    HorizontalAlignment="Left"
+                    Margin="10,18,0,0"
+                    VerticalAlignment="Top"
+                    Height="auto"
+                    Width="auto">
+
+                <StackPanel Height="auto" Width="auto" Orientation="Vertical">
+
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="Speedup" />
+                        <TextBox Text="{Binding Path=Speedup, Mode=OneWay}"/>
+                    </StackPanel>
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="Hold proportion" />
+                        <TextBox Text="{Binding Path=HoldProportion, Mode=OneWay}"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </GroupBox>
+            
+            <GroupBox Header="Registers"
+                    HorizontalAlignment="Left"
+                    Margin="10,18,0,0"
+                    VerticalAlignment="Top"
+                    Height="auto"
+                    Width="auto">
+
+                <StackPanel Height="auto" Width="auto" Orientation="Vertical">
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="A" />
+                        <TextBox Text="{Binding Path=A, StringFormat={}{0:x2}, Mode=OneWay}"/>
+                    </StackPanel>
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="X" />
+                        <TextBox Text="{Binding Path=X, StringFormat={}{0:x2}, Mode=OneWay}"/>
+                    </StackPanel>
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="Y" />
+                        <TextBox Text="{Binding Path=Y, StringFormat={}{0:x2}, Mode=OneWay}"/>
+                    </StackPanel>
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="S" />
+                        <TextBox Text="{Binding Path=S, StringFormat={}{0:x2}, Mode=OneWay}"/>
+                    </StackPanel>
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="PC" />
+                        <TextBox Text="{Binding Path=PC, StringFormat={}{0:x4}, Mode=OneWay}"/>
+                    </StackPanel>
+                    <StackPanel Height="auto" Width="auto" Orientation="Horizontal">
+                        <Label Content="P" />
+                        <TextBox Text="{Binding Path=P, Mode=OneWay}"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </GroupBox>
+                
+        </StackPanel>
+
+    </Grid>
+</Window>
