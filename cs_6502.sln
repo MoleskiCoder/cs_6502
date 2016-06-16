@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "processor6502", "processor6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "model6502", "model6502\model6502.csproj", "{F97F49BA-C1C2-4A3A-B6F4-47263EBD71CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wpf6502", "wpf6502\wpf6502.csproj", "{D7F92FC1-B110-4A9B-A9E1-4107D0F460FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{F97F49BA-C1C2-4A3A-B6F4-47263EBD71CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F97F49BA-C1C2-4A3A-B6F4-47263EBD71CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F97F49BA-C1C2-4A3A-B6F4-47263EBD71CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7F92FC1-B110-4A9B-A9E1-4107D0F460FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7F92FC1-B110-4A9B-A9E1-4107D0F460FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7F92FC1-B110-4A9B-A9E1-4107D0F460FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7F92FC1-B110-4A9B-A9E1-4107D0F460FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
