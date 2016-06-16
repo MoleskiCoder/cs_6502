@@ -250,12 +250,12 @@
 				this.disassemblyLog = new StreamWriter(this.disassemblyLogPath);
 			}
 
-			this.startTime = DateTime.Now;
+			this.startTime = DateTime.UtcNow;
 		}
 
 		private void Processor_Finished(object sender, EventArgs e)
 		{
-			this.finishTime = DateTime.Now;
+			this.finishTime = DateTime.UtcNow;
 			this.profiler.Generate();
 		}
 
