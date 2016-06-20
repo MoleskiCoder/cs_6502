@@ -3,17 +3,34 @@
 	using System;
 	using System.ComponentModel;
 	using System.Threading.Tasks;
-	using System.Windows;
 	using System.Windows.Input;
 
 	public class ProcessorViewModel : INotifyPropertyChanged, IDisposable
 	{
-		private readonly System.Timers.Timer timer;
+		private readonly System.Timers.Timer timer = new System.Timers.Timer();
 
 		private string configurationPath;
 		private Model.Configuration configuration;
 		private Model.Controller controller;
 		private Task task;
+
+		private double speed;
+		private DateTime startTime;
+		private DateTime finishTime;
+
+		private ulong cycles;
+		private ulong heldCycles;
+		private bool proceed;
+		private bool running;
+
+		private byte a;
+		private byte x;
+		private byte y;
+		private byte s;
+		private Processor.StatusFlags p;
+		private ushort pc;
+
+		private bool processingTimer = false;
 
 		private bool disposed = false;
 
@@ -26,7 +43,6 @@
 		{
 			this.configurationPath = configurationPath;
 
-			this.timer = new System.Timers.Timer();
 			this.timer.Interval = 10;  // 1/100 second
 			this.timer.Elapsed += this.Timer_Elapsed;
 			this.timer.Start();
@@ -53,30 +69,24 @@
 			}
 		}
 
-		public double Hertz
-		{
-			get
-			{
-				this.CheckDisposed();
-				return this.controller.Speed * Processor.System6502.Mega;
-			}
-		}
+		#region Controller properties
 
-		public ulong Cycles
+		public double Speed
 		{
 			get
 			{
 				this.CheckDisposed();
-				return this.controller.Processor.Cycles;
+				return this.speed;
 			}
-		}
 
-		public ulong HeldCycles
-		{
-			get
+			set
 			{
 				this.CheckDisposed();
-				return this.controller.Processor.HeldCycles;
+				if (value != this.speed)
+				{
+					this.speed = value;
+					this.OnPropertyChanged("Speed");
+				}
 			}
 		}
 
@@ -85,7 +95,17 @@
 			get
 			{
 				this.CheckDisposed();
-				return this.controller.StartTime;
+				return this.startTime;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.startTime)
+				{
+					this.startTime = value;
+					this.OnPropertyChanged("StartTime");
+				}
 			}
 		}
 
@@ -94,8 +114,228 @@
 			get
 			{
 				this.CheckDisposed();
-				var running = this.controller.Processor.Proceed;
-				return running ? DateTime.UtcNow : this.controller.FinishTime;
+				return this.finishTime;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.finishTime)
+				{
+					this.finishTime = value;
+					this.OnPropertyChanged("FinishTime");
+				}
+			}
+		}
+
+		#endregion
+
+		#region Processor properties
+
+		public ulong Cycles
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.cycles;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.cycles)
+				{
+					this.cycles = value;
+					this.OnPropertyChanged("Cycles");
+				}
+			}
+		}
+
+		public ulong HeldCycles
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.heldCycles;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.heldCycles)
+				{
+					this.heldCycles = value;
+					this.OnPropertyChanged("HeldCycles");
+				}
+			}
+		}
+
+		public bool Proceed
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.proceed;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.proceed)
+				{
+					this.proceed = value;
+					this.OnPropertyChanged("Proceed");
+				}
+			}
+		}
+
+		public bool Running
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.running;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.running)
+				{
+					this.running = value;
+					this.OnPropertyChanged("Running");
+				}
+			}
+		}
+
+		#region Registers
+
+		public byte A
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.a;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.a)
+				{
+					this.a = value;
+					this.OnPropertyChanged("A");
+				}
+			}
+		}
+
+		public byte X
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.x;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.x)
+				{
+					this.x = value;
+					this.OnPropertyChanged("X");
+				}
+			}
+		}
+
+		public byte Y
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.y;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.y)
+				{
+					this.y = value;
+					this.OnPropertyChanged("Y");
+				}
+			}
+		}
+
+		public byte S
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.s;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.s)
+				{
+					this.s = value;
+					this.OnPropertyChanged("S");
+				}
+			}
+		}
+
+		public Processor.StatusFlags P
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.p;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				//if (value != this.p)
+				{
+					this.p = value;
+					this.OnPropertyChanged("P");
+				}
+			}
+		}
+
+		public ushort PC
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.pc;
+			}
+
+			set
+			{
+				this.CheckDisposed();
+				if (value != this.pc)
+				{
+					this.pc = value;
+					this.OnPropertyChanged("PC");
+				}
+			}
+		}
+
+		#endregion
+
+		#endregion
+
+		#region Derived properties
+
+		public double Hertz
+		{
+			get
+			{
+				this.CheckDisposed();
+				return this.Speed * Processor.System6502.Mega;
 			}
 		}
 
@@ -104,7 +344,9 @@
 			get
 			{
 				this.CheckDisposed();
-				return this.FinishTime - this.StartTime;
+				var start = this.StartTime;
+				var stop = this.Proceed ? DateTime.UtcNow : this.FinishTime; 
+				return stop - start;
 			}
 		}
 
@@ -162,14 +404,23 @@
 			}
 		}
 
+		#endregion
+
+		#region Commands
+
 		public ICommand StartCommand
 		{
 			get
 			{
-				return new RelayCommand<Window>(window =>
-				{
-					this.Start();
-				});
+				return new RelayCommand(
+					() =>
+					{
+						this.Start();
+					},
+					() =>
+					{
+						return !this.Running;
+					});
 			}
 		}
 
@@ -177,60 +428,19 @@
 		{
 			get
 			{
-				return new RelayCommand<Window>(window =>
-				{
-					this.controller.Processor.Proceed = false;
-				});
+				return new RelayCommand(
+					() =>
+					{
+						this.controller.Processor.Proceed = false;
+					},
+					() =>
+					{
+						return this.Running;
+					});
 			}
 		}
 
-		public byte A
-		{
-			get
-			{
-				return this.controller.Processor.A;
-			}
-		}
-
-		public byte X
-		{
-			get
-			{
-				return this.controller.Processor.X;
-			}
-		}
-
-		public byte Y
-		{
-			get
-			{
-				return this.controller.Processor.Y;
-			}
-		}
-
-		public byte S
-		{
-			get
-			{
-				return this.controller.Processor.S;
-			}
-		}
-
-		public ushort PC
-		{
-			get
-			{
-				return this.controller.Processor.PC;
-			}
-		}
-
-		public Processor.StatusFlags P
-		{
-			get
-			{
-				return this.controller.Processor.P;
-			}
-		}
+		#endregion
 
 		public void Start()
 		{
@@ -239,6 +449,9 @@
 			this.configuration = new Model.Configuration(this.configurationPath);
 			this.controller = new Model.Controller(this.configuration);
 			this.controller.Configure();
+
+			this.controller.Processor.Starting += this.Processor_Starting;
+			this.controller.Processor.Finished += this.Processor_Finished;
 
 			this.task = Task.Run(() =>
 			{
@@ -255,7 +468,53 @@
 		protected void OnPropertyChanged(string property)
 		{
 			this.CheckDisposed();
+
 			this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+
+			switch (property)
+			{
+				case "Speed":
+					this.OnPropertyChanged("Hertz");
+					break;
+
+				case "StartTime":
+				case "FinishTime":
+				case "Proceed":
+					this.OnPropertyChanged("ElapsedTime");
+					break;
+
+				case "ElapsedTime":
+					this.OnPropertyChanged("ElapsedSeconds");
+					break;
+
+				case "Cycles":
+					this.OnPropertyChanged("CyclesPerSecond");
+					this.OnPropertyChanged("SimulatedElapsed");
+					this.OnPropertyChanged("CycleDifference");
+					this.OnPropertyChanged("HoldProportion");
+					break;
+
+				case "ElapsedSeconds":
+					this.OnPropertyChanged("CyclesPerSecond");
+					break;
+
+				case "Hertz":
+					this.OnPropertyChanged("SimulatedElapsed");
+					this.OnPropertyChanged("Speedup");
+					break;
+
+				case "CyclesPerSecond":
+					this.OnPropertyChanged("Speedup");
+					break;
+
+				case "HeldCycles":
+					this.OnPropertyChanged("CycleDifference");
+					break;
+
+				case "CycleDifference":
+					this.OnPropertyChanged("HoldProportion");
+					break;
+			}
 		}
 
 		protected virtual void Dispose(bool disposing)
@@ -264,6 +523,11 @@
 			{
 				if (disposing)
 				{
+					if (this.timer != null)
+					{
+						this.timer.Dispose();
+					}
+
 					if (this.task != null)
 					{
 						this.task.Dispose();
@@ -281,15 +545,68 @@
 
 		private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
-			this.OnPropertyChanged("A");
-			this.OnPropertyChanged("X");
-			this.OnPropertyChanged("Y");
-			this.OnPropertyChanged("S");
-			this.OnPropertyChanged("PC");
-			this.OnPropertyChanged("P");
+			this.CheckDisposed();
+			if (!this.processingTimer)
+			{
+				this.processingTimer = true;
+				try
+				{
+					this.Propagate();
+				}
+				finally
+				{
+					this.processingTimer = false;
+				}
+			}
+		}
 
-			this.OnPropertyChanged("Speedup");
-			this.OnPropertyChanged("HoldProportion");
+		private void Propagate()
+		{
+			if (this.controller != null)
+			{
+				this.Speed = this.controller.Speed;
+				this.StartTime = this.controller.StartTime;
+				this.FinishTime = this.controller.FinishTime;
+
+				var processor = this.controller.Processor;
+				if (processor != null)
+				{
+					this.Cycles = processor.Cycles;
+					this.HeldCycles = processor.HeldCycles;
+					this.Proceed = processor.Proceed;
+					this.Running = processor.Running;
+
+					this.A = processor.A;
+					this.X = processor.X;
+					this.Y = processor.Y;
+					this.S = processor.S;
+					this.P = processor.P;
+
+					this.PC = processor.PC;
+				}
+			}
+		}
+
+		private void Processor_Finished(object sender, EventArgs e)
+		{
+			this.CheckDisposed();
+
+			var startCommand = (RelayCommand)this.StartCommand;
+			startCommand.RaiseCanExecuteChanged();
+
+			var stopCommand = (RelayCommand)this.StopCommand;
+			stopCommand.RaiseCanExecuteChanged();
+		}
+
+		private void Processor_Starting(object sender, EventArgs e)
+		{
+			this.CheckDisposed();
+
+			var startCommand = (RelayCommand)this.StartCommand;
+			startCommand.RaiseCanExecuteChanged();
+
+			var stopCommand = (RelayCommand)this.StopCommand;
+			stopCommand.RaiseCanExecuteChanged();
 		}
 
 		private void CheckDisposed()

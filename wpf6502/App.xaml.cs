@@ -41,8 +41,6 @@ namespace WPF6502
 
 			var window = new MainWindow(configuration);
 			window.Show();
-
-
 		}
 	}
 }

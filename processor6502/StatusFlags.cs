@@ -2,7 +2,7 @@
 {
 	using System;
 
-	public sealed class StatusFlags
+	public sealed class StatusFlags : IEquatable<StatusFlags>
 	{
 		public StatusFlags(byte value)
 		{
@@ -47,12 +47,69 @@
 
 		public static implicit operator byte(StatusFlags current)
 		{
-			return current == null ? (byte)0x0 : current.ToByte();
+			return current == null ? (byte)0 : current.ToByte();
 		}
 
 		public static implicit operator string(StatusFlags current)
 		{
 			return current == null ? null : current.ToString();
+		}
+
+		public static bool operator ==(StatusFlags left, StatusFlags right)
+		{
+			if (object.ReferenceEquals(left, right))
+			{
+				return true;
+			}
+
+			if (((object)left == null) || ((object)right == null))
+			{
+				return false;
+			}
+
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(StatusFlags left, StatusFlags right)
+		{
+			return !(left == right);
+		}
+
+		public bool Equals(StatusFlags other)
+		{
+			if (other == null)
+			{
+				return false;
+			}
+
+			return other.ToByte() == this.ToByte();
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (object.ReferenceEquals(obj, null))
+			{
+				return false;
+			}
+
+			if (object.ReferenceEquals(obj, this))
+			{
+				return true;
+			}
+
+			var rhs = obj as StatusFlags;
+			if (rhs == null)
+			{
+				return false;
+			}
+
+			var lhs = this;
+			return lhs.ToByte() == rhs.ToByte();
+		}
+
+		public override int GetHashCode()
+		{
+			return this.ToByte();
 		}
 
 		public override string ToString()

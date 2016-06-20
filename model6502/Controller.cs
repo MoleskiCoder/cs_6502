@@ -8,8 +8,8 @@
 
 	public class Controller : IDisposable
 	{
-		const ushort BbcOsLoadAddress = 0xc000;
-		const ushort BbcOsLanguageAddress = 0x8000;
+		public const ushort BbcOSLoadAddress = 0xc000;
+		public const ushort BbcOSLanguageAddress = 0x8000;
 
 		private readonly bool disassemble;
 		private readonly string disassemblyLogPath;
@@ -46,7 +46,6 @@
 		private readonly ushort inputAddress;
 		private readonly ushort outputAddress;
 
-
 		private readonly string debugFile;
 
 		private System6502 processor;
@@ -71,6 +70,11 @@
 
 		public Controller(Configuration configuration)
 		{
+			if (configuration == null)
+			{
+				throw new ArgumentNullException("configuration");
+			}
+
 			this.disassemble = configuration.Disassemble;
 			this.disassemblyLogPath = configuration.DisassemblyLogPath;
 
@@ -167,13 +171,13 @@
 
 			this.processor.Polling += this.Processor_Polling;
 
-			this.processor.Clear();
+			this.processor.Initialise();
 
 			var bbc = !string.IsNullOrWhiteSpace(this.bbcLanguageRomPath) && !string.IsNullOrWhiteSpace(this.bbcOSRomPath);
 			if (bbc)
 			{
-				this.processor.LoadRom(this.bbcOSRomPath, BbcOsLoadAddress);
-				this.processor.LoadRom(this.bbcLanguageRomPath, BbcOsLanguageAddress);
+				this.processor.LoadRom(this.bbcOSRomPath, BbcOSLoadAddress);
+				this.processor.LoadRom(this.bbcLanguageRomPath, BbcOSLanguageAddress);
 			}
 
 			var rom = !string.IsNullOrWhiteSpace(this.romPath);
@@ -271,7 +275,7 @@
 						"\n[{0:d9}] PC={1:x4}:P={2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
 						this.processor.Cycles,
 						address,
-						(string)this.processor.P,
+						this.processor.P,
 						this.processor.A,
 						this.processor.X,
 						this.processor.Y,

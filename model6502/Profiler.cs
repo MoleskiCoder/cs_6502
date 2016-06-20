@@ -23,6 +23,11 @@
 
 		public Profiler(Processor.System6502 processor, Disassembly disassembler, Symbols symbols, bool countInstructions, bool profileAddresses)
 		{
+			if (processor == null)
+			{
+				throw new ArgumentNullException("processor");
+			}
+
 			this.processor = processor;
 			this.disassembler = disassembler;
 			this.symbols = symbols;

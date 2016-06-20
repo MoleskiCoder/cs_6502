@@ -2,8 +2,8 @@
 {
     public enum ProcessorType
     {
-        cpu6502,
-        cpu65sc02,
-        cpu65c02
+        Cpu6502,
+        Cpu65SC02,
+        Cpu65C02
     }
 }

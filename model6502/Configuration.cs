@@ -295,7 +295,7 @@
 
 		private static ProcessorType GetProcessorTypeValue(XElement root, string path)
 		{
-			return GetProcessorTypeValue(root, path, ProcessorType.cpu6502);
+			return GetProcessorTypeValue(root, path, ProcessorType.Cpu6502);
 		}
 
 		private static bool GetBooleanValue(XElement root, string path, bool defaultValue)

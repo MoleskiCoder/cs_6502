@@ -158,6 +158,12 @@
 			}
 		}
 
+		public virtual void Initialise()
+		{
+			this.Cycles = 0;
+			this.ResetRegisters();
+		}
+
 		public virtual void Start(ushort address)
 		{
 			this.PC = address;
@@ -165,11 +171,15 @@
 
 		public virtual void Run()
 		{
-			this.Cycles = 0;
 			while (this.Proceed)
 			{
-				this.Execute(this.FetchByte());
+				this.Step();
 			}
+		}
+
+		public virtual void Step()
+		{
+			this.Execute(this.FetchByte());
 		}
 
 		public virtual void Reset()
@@ -217,7 +227,7 @@
 
 		protected void ___()
 		{
-			if (this.level >= ProcessorType.cpu65sc02)
+			if (this.level >= ProcessorType.Cpu65SC02)
 			{
 				// Generally, missing instructions act as a one byte,
 				// one cycle NOP instruction on 65c02 (ish) processors.
@@ -313,7 +323,7 @@
 
 		private void Install65sc02Instructions()
 		{
-			if (this.level >= ProcessorType.cpu65sc02)
+			if (this.level >= ProcessorType.Cpu65SC02)
 			{
 				this.overlay65sc02 = new Instruction[]
 				{
@@ -342,7 +352,7 @@
 
 		private void Install65c02Instructions()
 		{
-			if (this.level >= ProcessorType.cpu65c02)
+			if (this.level >= ProcessorType.Cpu65C02)
 			{
 				this.overlay65c02 = new Instruction[]
 				{
@@ -808,7 +818,7 @@
 			var carry = (byte)(!this.P.Carry ? 1 : 0);
 			var difference = (ushort)(this.A - data - carry);
 
-			if (this.level < ProcessorType.cpu65sc02)
+			if (this.level < ProcessorType.Cpu65SC02)
 			{
 				this.UpdateZeroNegativeFlags((byte)difference);
 			}
@@ -832,7 +842,7 @@
 			}
 
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
-			if (this.level >= ProcessorType.cpu65sc02)
+			if (this.level >= ProcessorType.Cpu65SC02)
 			{
 				this.UpdateZeroNegativeFlags(this.A);
 			}
@@ -914,7 +924,7 @@
 			var carry = (byte)(this.P.Carry ? 1 : 0);
 			var sum = (ushort)(this.A + data + carry);
 
-			if (this.level < ProcessorType.cpu65sc02)
+			if (this.level < ProcessorType.Cpu65SC02)
 			{
 				this.UpdateZeroNegativeFlags((byte)sum);
 			}
@@ -936,7 +946,7 @@
 			this.P.Carry = high > 0xf;
 
 			this.A = (byte)(PromoteNybble(high) | LowNybble(low));
-			if (this.level >= ProcessorType.cpu65sc02)
+			if (this.level >= ProcessorType.Cpu65SC02)
 			{
 				this.UpdateZeroNegativeFlags(this.A);
 			}
@@ -2073,7 +2083,7 @@
 			this.PushWord((ushort)(this.PC + 1));
 			this.PHP_imp();
 			this.P.Interrupt = true;
-			if (this.level >= ProcessorType.cpu65sc02)
+			if (this.level >= ProcessorType.Cpu65SC02)
 			{
 				this.P.Decimal = false;
 			}

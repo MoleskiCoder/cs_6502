@@ -14,14 +14,13 @@
 
 		private readonly double speed;  // Speed in MHz, e.g. 2.0 == 2Mhz, 1.79 = 1.79Mhz
 
-		private readonly TimeSpan pollInterval;
-
 		private readonly Stopwatch highResolutionTimer = new Stopwatch();
 
 		private readonly double cyclesPerSecond;
 		private readonly double cyclesPerMillisecond;
 		private readonly ulong cyclesPerInterval;
 
+		private bool running = false;
 		private ulong heldCycles = 0;
 
 		public System6502(ProcessorType level, double speed, TimeSpan pollInterval)
@@ -31,7 +30,6 @@
 			this.locked = new bool[0x10000];
 
 			this.speed = speed;
-			this.pollInterval = pollInterval;
 
 			this.cyclesPerSecond = this.speed * Mega;     // speed is in MHz
 			this.cyclesPerMillisecond = this.cyclesPerSecond * Milli;
@@ -39,6 +37,7 @@
 
 			this.Polling += this.System6502_Polling;
 			this.Starting += this.System6502_Starting;
+			this.Finished += this.System6502_Finished;
 			this.ExecutedInstruction += this.System6502_ExecutedInstruction;
 		}
 
@@ -66,11 +65,19 @@
 			}
 		}
 
-		public void Clear()
+		public bool Running
 		{
+			get
+			{
+				return this.running;
+			}
+		}
+
+		public override void Initialise()
+		{
+			base.Initialise();
 			Array.Clear(this.locked, 0, 0x1000);
 			this.ClearMemory();
-			this.ResetRegisters();
 		}
 
 		public void LoadRom(string path, ushort offset)
@@ -157,6 +164,12 @@
 		private void System6502_Starting(object sender, EventArgs e)
 		{
 			this.highResolutionTimer.Start();
+			this.running = true;
+		}
+
+		private void System6502_Finished(object sender, EventArgs e)
+		{
+			this.running = false;
 		}
 
 		private void System6502_Polling(object sender, EventArgs e)
