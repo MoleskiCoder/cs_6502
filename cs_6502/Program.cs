@@ -46,7 +46,7 @@ namespace Simulator
 				controller.Configure();
 				controller.Start();
 
-				var hertz = controller.Speed * 1000000.0;
+				var hertz = controller.Speed * Processor.System6502.Mega;
 
 				var cycles = controller.Processor.Cycles;
 				var heldCycles = controller.Processor.HeldCycles;
@@ -62,6 +62,9 @@ namespace Simulator
 
 				var cycleDifference = cycles - heldCycles;
 				var holdProportion = (double)cycles / cycleDifference;
+
+				var hostHertz = controller.HostSpeed * Processor.System6502.Mega;
+				var cyclesPerHostCycle = hostHertz / (cyclesPerSecond * holdProportion);
 
 				System.Console.Out.WriteLine("\n** Stopped PC={0:x4}", controller.Processor.PC);
 
@@ -90,6 +93,8 @@ namespace Simulator
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld cycles {0:N}", heldCycles));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld cycle difference {0:N}", cycleDifference));
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nHeld proportion {0:g}", holdProportion));
+
+				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nCycles per host cycle (code efficiency!) {0:g}", cyclesPerHostCycle));
 
 				Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, "\nSimulated time taken {0}\n\n", simulatedElapsed));
 			}

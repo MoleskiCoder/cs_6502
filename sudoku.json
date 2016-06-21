@@ -1,6 +1,9 @@
 {
+	"Host": {
+		"speed": "2900.0"
+	},
 	"CPU": {
-		"level": "cpu65sc02",
+		"level": "Cpu65SC02",
 		"speed": "2.0"
 	},
 	"IO": {

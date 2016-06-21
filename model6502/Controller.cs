@@ -14,6 +14,8 @@
 		private readonly bool disassemble;
 		private readonly string disassemblyLogPath;
 
+		private readonly double hostSpeed;
+
 		private readonly ProcessorType processorLevel;
 		private readonly double speed;
 		private readonly int pollIntervalMilliseconds;
@@ -78,6 +80,8 @@
 			this.disassemble = configuration.Disassemble;
 			this.disassemblyLogPath = configuration.DisassemblyLogPath;
 
+			this.hostSpeed = configuration.HostSpeed;
+
 			this.processorLevel = configuration.ProcessorLevel;
 			this.speed = configuration.Speed;
 			this.pollIntervalMilliseconds = configuration.PollIntervalMilliseconds;
@@ -114,6 +118,14 @@
 		}
 
 		public event EventHandler<DisassemblyEventArgs> Disassembly;
+
+		public double HostSpeed
+		{
+			get
+			{
+				return this.hostSpeed;
+			}
+		}
 
 		public System6502 Processor
 		{

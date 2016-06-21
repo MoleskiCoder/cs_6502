@@ -11,6 +11,8 @@
 
 	public class Configuration
 	{
+		private double hostSpeed;
+
 		private ProcessorType processorLevel;
 		private double speed;
 		private int pollIntervalMilliseconds;
@@ -53,6 +55,8 @@
 				{
 					var root = XElement.Load(reader);
 
+					this.hostSpeed = GetDoubleValue(root, "//Host/speed", 2900.0);
+
 					this.processorLevel = GetProcessorTypeValue(root, "//CPU/level");
 					this.speed = GetDoubleValue(root, "//CPU/speed", 2.0);
 					this.pollIntervalMilliseconds = GetIntValue(root, "//CPU/pollIntervalMilliseconds", 10);
@@ -92,6 +96,14 @@
 					this.profileAddresses = GetBooleanValue(root, "//release/profileAddresses");
 #endif
 				}
+			}
+		}
+
+		public double HostSpeed
+		{
+			get
+			{
+				return this.hostSpeed;
 			}
 		}
 
