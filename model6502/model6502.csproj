@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="AddressingModeDumper.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConfigurationReader.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Disassembly.cs" />
     <Compile Include="DisassemblyEventArgs.cs" />

@@ -1,15 +1,9 @@
 ﻿namespace Model
 {
 	using System;
-	using System.Globalization;
-	using System.IO;
-	using System.Runtime.Serialization.Json;
-	using System.Xml.Linq;
-	using System.Xml.XPath;
-
 	using Processor;
 
-	public class Configuration
+	public class Configuration : ConfigurationReader
 	{
 		private double hostSpeed;
 
@@ -48,55 +42,48 @@
 		private bool profileAddresses;
 
 		public Configuration(string path)
+		:	base(path)
 		{
-			using (var input = File.Open(path, FileMode.Open))
-			{
-				using (var reader = JsonReaderWriterFactory.CreateJsonReader(input, new System.Xml.XmlDictionaryReaderQuotas()))
-				{
-					var root = XElement.Load(reader);
+			this.hostSpeed = this.GetDoubleValue("//Host/speed", 2900.0);
 
-					this.hostSpeed = GetDoubleValue(root, "//Host/speed", 2900.0);
+			this.processorLevel = this.GetProcessorTypeValue("//CPU/level");
+			this.speed = this.GetDoubleValue("//CPU/speed", 2.0);
+			this.pollIntervalMilliseconds = this.GetIntValue("//CPU/pollIntervalMilliseconds", 10);
 
-					this.processorLevel = GetProcessorTypeValue(root, "//CPU/level");
-					this.speed = GetDoubleValue(root, "//CPU/speed", 2.0);
-					this.pollIntervalMilliseconds = GetIntValue(root, "//CPU/pollIntervalMilliseconds", 10);
+			this.inputAddress = this.GetUShortValue("//IO/inputAddress");
+			this.outputAddress = this.GetUShortValue("//IO/outputAddress");
 
-					this.inputAddress = GetUShortValue(root, "//IO/inputAddress");
-					this.outputAddress = GetUShortValue(root, "//IO/outputAddress");
+			this.romPath = this.GetStringValue("//ROM/path");
+			this.romLoadAddress = this.GetUShortValue("//ROM/loadAddress");
 
-					this.romPath = GetStringValue(root, "//ROM/path");
-					this.romLoadAddress = GetUShortValue(root, "//ROM/loadAddress");
+			this.ramPath = this.GetStringValue("//RAM/path");
+			this.ramLoadAddress = this.GetUShortValue("//RAM/loadAddress");
 
-					this.ramPath = GetStringValue(root, "//RAM/path");
-					this.ramLoadAddress = GetUShortValue(root, "//RAM/loadAddress");
+			this.bbcLanguageRomPath = this.GetStringValue("//BBC/language/path");
+			this.bbcOSRomPath = this.GetStringValue("//BBC/OS/path");
+			this.bbcVduEmulation = this.GetBooleanValue("//BBC/VDUEmulation");
 
-					this.bbcLanguageRomPath = GetStringValue(root, "//BBC/language/path");
-					this.bbcOSRomPath = GetStringValue(root, "//BBC/OS/path");
-					this.bbcVduEmulation = GetBooleanValue(root, "//BBC/VDUEmulation");
-
-					this.startAddress = GetUShortValue(root, "//run/startAddress");
-					this.resetStart = GetBooleanValue(root, "//run/resetStart");
-					this.stopBreak = GetBooleanValue(root, "//run/stopBreak");
-					this.breakInstruction = GetByteValue(root, "//run/breakInstruction", 0x00);
-					this.stopWhenLoopDetected = GetBooleanValue(root, "//run/stopWhenLoopDetected");
-					this.stopAddress = GetUShortValue(root, "//run/stopAddress");
-					this.stopAddressEnabled = this.stopAddress != 0;
+			this.startAddress = this.GetUShortValue("//run/startAddress");
+			this.resetStart = this.GetBooleanValue("//run/resetStart");
+			this.stopBreak = this.GetBooleanValue("//run/stopBreak");
+			this.breakInstruction = this.GetByteValue("//run/breakInstruction", 0x00);
+			this.stopWhenLoopDetected = this.GetBooleanValue("//run/stopWhenLoopDetected");
+			this.stopAddress = this.GetUShortValue("//run/stopAddress");
+			this.stopAddressEnabled = this.stopAddress != 0;
 
 #if DEBUG
-					this.disassemble = GetBooleanValue(root, "//debug/disassemble");
-					this.disassemblyLogPath = GetStringValue(root, "//debug/disassemblyLogPath");
-					this.debugFile = GetStringValue(root, "//debug/debugFile");
-					this.countInstructions = GetBooleanValue(root, "//debug/countInstructions");
-					this.profileAddresses = GetBooleanValue(root, "//debug/profileAddresses");
+			this.disassemble = this.GetBooleanValue("//debug/disassemble");
+			this.disassemblyLogPath = this.GetStringValue("//debug/disassemblyLogPath");
+			this.debugFile = this.GetStringValue("//debug/debugFile");
+			this.countInstructions = this.GetBooleanValue("//debug/countInstructions");
+			this.profileAddresses = this.GetBooleanValue("//debug/profileAddresses");
 #else
-					this.disassemble = GetBooleanValue(root, "//release/disassemble");
-					this.disassemblyLogPath = GetStringValue(root, "//release/disassemblyLogPath");
-					this.debugFile = GetStringValue(root, "//release/debugFile");
-					this.countInstructions = GetBooleanValue(root, "//release/countInstructions");
-					this.profileAddresses = GetBooleanValue(root, "//release/profileAddresses");
+			this.disassemble = this.GetBooleanValue("//release/disassemble");
+			this.disassemblyLogPath = this.GetStringValue("//release/disassemblyLogPath");
+			this.debugFile = this.GetStringValue("//release/debugFile");
+			this.countInstructions = this.GetBooleanValue("//release/countInstructions");
+			this.profileAddresses = this.GetBooleanValue("//release/profileAddresses");
 #endif
-				}
-			}
 		}
 
 		public double HostSpeed
@@ -299,81 +286,15 @@
 			}
 		}
 
-		private static ProcessorType GetProcessorTypeValue(XElement root, string path, ProcessorType defaultValue)
+		private ProcessorType GetProcessorTypeValue(string path, ProcessorType defaultValue)
 		{
-			var value = GetStringValue(root, path);
+			var value = this.GetStringValue(path);
 			return string.IsNullOrEmpty(value) ? defaultValue : (ProcessorType)Enum.Parse(typeof(ProcessorType), value);
 		}
 
-		private static ProcessorType GetProcessorTypeValue(XElement root, string path)
+		private ProcessorType GetProcessorTypeValue(string path)
 		{
-			return GetProcessorTypeValue(root, path, ProcessorType.Cpu6502);
-		}
-
-		private static bool GetBooleanValue(XElement root, string path, bool defaultValue)
-		{
-			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? defaultValue : bool.Parse(value);
-		}
-
-		private static bool GetBooleanValue(XElement root, string path)
-		{
-			return GetBooleanValue(root, path, false);
-		}
-
-		private static byte GetByteValue(XElement root, string path, byte defaultValue)
-		{
-			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? defaultValue : byte.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-		}
-
-		private static byte GetByteValue(XElement root, string path)
-		{
-			return GetByteValue(root, path, 0);
-		}
-
-		private static ushort GetUShortValue(XElement root, string path, ushort defaultValue)
-		{
-			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? defaultValue : ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-		}
-
-		private static ushort GetUShortValue(XElement root, string path)
-		{
-			return GetUShortValue(root, path, 0);
-		}
-
-		private static int GetIntValue(XElement root, string path, int defaultValue)
-		{
-			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? defaultValue : int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
-		}
-
-		private static int GetIntValue(XElement root, string path)
-		{
-			return GetIntValue(root, path, 0);
-		}
-
-		private static double GetDoubleValue(XElement root, string path, double defaultValue)
-		{
-			var value = GetStringValue(root, path);
-			return string.IsNullOrEmpty(value) ? defaultValue : double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
-		}
-
-		private static double GetDoubleValue(XElement root, string path)
-		{
-			return GetDoubleValue(root, path, 0.0);
-		}
-
-		private static string GetStringValue(XElement root, string path, string defaultValue)
-		{
-			var element = root.XPathSelectElement(path);
-			return element == null ? defaultValue : element.Value;
-		}
-
-		private static string GetStringValue(XElement root, string path)
-		{
-			return GetStringValue(root, path, string.Empty);
+			return this.GetProcessorTypeValue(path, ProcessorType.Cpu6502);
 		}
 	}
 }
