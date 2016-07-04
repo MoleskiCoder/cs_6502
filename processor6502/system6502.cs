@@ -8,9 +8,9 @@
 	{
 		public const double Mega = 1000000;
 		public const double Milli = 0.001;
+		public const uint MemorySize = 0x10000;
 
-		private readonly byte[] memory;
-		private readonly bool[] locked;
+		private readonly IMemory memory;
 
 		private readonly double speed;  // Speed in MHz, e.g. 2.0 == 2Mhz, 1.79 = 1.79Mhz
 
@@ -20,25 +20,24 @@
 		private readonly double cyclesPerMillisecond;
 		private readonly ulong cyclesPerInterval;
 
+        private ulong intervalCycles;
+
 		private bool running = false;
 		private ulong heldCycles = 0;
 
 		public System6502(ProcessorType level, double speed, TimeSpan pollInterval)
 		: base(level)
 		{
-			this.memory = new byte[0x10000];
-			this.locked = new bool[0x10000];
+			this.memory = new Memory(MemorySize);
 
 			this.speed = speed;
 
 			this.cyclesPerSecond = this.speed * Mega;     // speed is in MHz
 			this.cyclesPerMillisecond = this.cyclesPerSecond * Milli;
-			this.cyclesPerInterval = (ulong)(this.cyclesPerSecond / pollInterval.TotalMilliseconds);
+			this.cyclesPerInterval = (ulong)(this.cyclesPerMillisecond * pollInterval.TotalMilliseconds);
 
-			this.Polling += this.System6502_Polling;
 			this.Starting += this.System6502_Starting;
 			this.Finished += this.System6502_Finished;
-			this.ExecutedInstruction += this.System6502_ExecutedInstruction;
 		}
 
 		public event EventHandler<EventArgs> Starting;
@@ -46,12 +45,6 @@
 		public event EventHandler<EventArgs> Finished;
 
 		public event EventHandler<EventArgs> Polling;
-
-		public event EventHandler<AddressEventArgs> InvalidWriteAttempt;
-
-		public event EventHandler<AddressEventArgs> WritingByte;
-
-		public event EventHandler<AddressEventArgs> ReadingByte;
 
 		public event EventHandler<AddressEventArgs> ExecutingInstruction;
 
@@ -73,30 +66,19 @@
 			}
 		}
 
+		public IMemory MemoryBus
+		{
+			get
+			{
+				return this.memory;
+			}
+		}
+
 		public override void Initialise()
 		{
 			base.Initialise();
-			Array.Clear(this.locked, 0, 0x1000);
-			this.ClearMemory();
-		}
-
-		public void LoadRom(string path, ushort offset)
-		{
-			var length = this.LoadMemory(path, offset);
-			this.LockMemory(offset, length);
-		}
-
-		public void LoadRam(string path, ushort offset)
-		{
-			this.LoadMemory(path, offset);
-		}
-
-		public void LockMemory(ushort offset, ushort length)
-		{
-			for (var i = 0; i < length; ++i)
-			{
-				this.locked[offset + i] = true;
-			}
+			this.memory.ClearLocking();
+			this.memory.ClearMemory();
 		}
 
 		public override void Run()
@@ -114,26 +96,20 @@
 
 		public override byte GetByte(ushort offset)
 		{
-			var content = this.memory[offset];
-			this.OnReadingByte(offset, content);
-			return content;
+			return this.memory.GetByte(offset);
 		}
 
 		public override void SetByte(ushort offset, byte value)
 		{
-			if (this.locked[offset])
-			{
-				this.OnInvalidWriteAttempt(offset, value);
-			}
-			else
-			{
-				this.memory[offset] = value;
-				this.OnWritingByte(offset, value);
-			}
+			this.memory.SetByte(offset, value);
 		}
 
 		protected override void Execute(byte cell)
 		{
+            var oldCycles = this.Cycles;
+
+            this.CheckPoll();
+
 			// XXXX Fetch byte has already incremented PC.
 			var executingAddress = (ushort)(this.PC - 1);
 
@@ -146,19 +122,19 @@
 			{
 				this.OnExecutedInstruction(executingAddress, cell);
 			}
+
+            var deltaCycles = this.Cycles - oldCycles;
+	        this.intervalCycles += deltaCycles;
 		}
 
 		private void CheckPoll()
 		{
-			if ((this.Cycles % this.cyclesPerInterval) == 0)
+        	if (this.intervalCycles >= this.cyclesPerInterval)
 			{
+		        this.intervalCycles -= this.cyclesPerInterval;
+				this.Throttle();
 				this.OnPolling();
 			}
-		}
-
-		private void System6502_ExecutedInstruction(object sender, AddressEventArgs e)
-		{
-			this.CheckPoll();
 		}
 
 		private void System6502_Starting(object sender, EventArgs e)
@@ -172,7 +148,7 @@
 			this.running = false;
 		}
 
-		private void System6502_Polling(object sender, EventArgs e)
+		private void Throttle()
 		{
 			var timerCurrent = this.highResolutionTimer.ElapsedMilliseconds;
 
@@ -187,11 +163,6 @@
 					System.Threading.Thread.Sleep(delay);
 				}
 			}
-		}
-
-		private void ClearMemory()
-		{
-			Array.Clear(this.memory, 0, this.memory.Length);
 		}
 
 		private void OnStarting()
@@ -217,38 +188,6 @@
 		private void OnExecutedInstruction(ushort address, byte instruction)
 		{
 			this.ExecutedInstruction?.Invoke(this, new AddressEventArgs(address, instruction));
-		}
-
-		private void OnInvalidWriteAttempt(ushort address, byte character)
-		{
-			this.InvalidWriteAttempt?.Invoke(this, new AddressEventArgs(address, character));
-		}
-
-		private void OnWritingByte(ushort address, byte character)
-		{
-			this.WritingByte?.Invoke(this, new AddressEventArgs(address, character));
-		}
-
-		private void OnReadingByte(ushort address, byte character)
-		{
-			this.ReadingByte?.Invoke(this, new AddressEventArgs(address, character));
-		}
-
-		private ushort LoadMemory(string path, ushort offset)
-		{
-			var file = File.Open(path, FileMode.Open);
-			var size = file.Length;
-			if (size > 0x10000)
-			{
-				throw new InvalidOperationException("File is too large");
-			}
-
-			using (var reader = new BinaryReader(file))
-			{
-				reader.Read(this.memory, offset, (int)size);
-			}
-
-			return (ushort)size;
 		}
 	}
 }

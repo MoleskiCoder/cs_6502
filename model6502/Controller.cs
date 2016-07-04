@@ -163,20 +163,15 @@
 		{
 			this.processor = new System6502(this.processorLevel, this.speed, new TimeSpan(0, 0, 0, 0, this.pollIntervalMilliseconds));
 
-			if (this.disassemble || this.stopAddressEnabled || this.stopWhenLoopDetected || this.profileAddresses)
+			if (this.disassemble || this.stopAddressEnabled || this.stopWhenLoopDetected || this.profileAddresses || this.stopBreak)
 			{
 				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction;
 			}
 
-			if (this.stopBreak)
-			{
-				this.processor.ExecutedInstruction += this.Processor_ExecutedInstruction;
-			}
+			this.processor.MemoryBus.WritingByte += this.Processor_WritingByte;
+			this.processor.MemoryBus.ReadingByte += this.Processor_ReadingByte;
 
-			this.processor.WritingByte += this.Processor_WritingByte;
-			this.processor.ReadingByte += this.Processor_ReadingByte;
-
-			this.processor.InvalidWriteAttempt += this.Processor_InvalidWriteAttempt;
+			this.processor.MemoryBus.InvalidWriteAttempt += this.Processor_InvalidWriteAttempt;
 
 			this.processor.Starting += this.Processor_Starting;
 			this.processor.Finished += this.Processor_Finished;
@@ -188,20 +183,20 @@
 			var bbc = !string.IsNullOrWhiteSpace(this.bbcLanguageRomPath) && !string.IsNullOrWhiteSpace(this.bbcOSRomPath);
 			if (bbc)
 			{
-				this.processor.LoadRom(this.bbcOSRomPath, BbcOSLoadAddress);
-				this.processor.LoadRom(this.bbcLanguageRomPath, BbcOSLanguageAddress);
+				this.processor.MemoryBus.LoadRom(this.bbcOSRomPath, BbcOSLoadAddress);
+				this.processor.MemoryBus.LoadRom(this.bbcLanguageRomPath, BbcOSLanguageAddress);
 			}
 
 			var rom = !string.IsNullOrWhiteSpace(this.romPath);
 			if (rom)
 			{
-				this.processor.LoadRom(this.romPath, this.romLoadAddress);
+				this.processor.MemoryBus.LoadRom(this.romPath, this.romLoadAddress);
 			}
 
 			var ram = !string.IsNullOrWhiteSpace(this.ramPath);
 			if (ram)
 			{
-				this.processor.LoadRam(this.ramPath, this.ramLoadAddress);
+				this.processor.MemoryBus.LoadRam(this.ramPath, this.ramLoadAddress);
 			}
 
 			if (this.resetStart)
@@ -316,10 +311,7 @@
 					this.oldPC = this.processor.PC;
 				}
 			}
-		}
 
-		private void Processor_ExecutedInstruction(object sender, AddressEventArgs e)
-		{
 			if (this.stopBreak && this.breakInstruction == e.Cell)
 			{
 				this.processor.Proceed = false;

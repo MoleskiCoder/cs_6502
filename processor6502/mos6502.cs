@@ -410,20 +410,26 @@
 
 		////
 
-		private void UpdateZeroFlag(byte datum)
+		private bool UpdateZeroFlag(byte datum)
 		{
-			this.P.Zero = datum == 0;
+			return this.P.Zero = datum == 0;
 		}
 
-		private void UpdateNegativeFlag(sbyte datum)
+		private bool UpdateNegativeFlag(sbyte datum)
 		{
-			this.P.Negative = datum < 0;
+			return this.P.Negative = datum < 0;
 		}
 
 		private void UpdateZeroNegativeFlags(byte datum)
 		{
-			this.UpdateZeroFlag(datum);
-			this.UpdateNegativeFlag((sbyte)datum);
+			if (this.UpdateZeroFlag(datum))
+			{
+				this.P.Negative = false;
+			}
+			else
+			{
+				this.UpdateNegativeFlag((sbyte)datum);
+			}
 		}
 
 		////

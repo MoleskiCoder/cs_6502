@@ -43,7 +43,9 @@
     <Compile Include="AddressEventArgs.cs" />
     <Compile Include="AddressingMode.cs" />
     <Compile Include="ByteEventArgs.cs" />
+    <Compile Include="IMemory.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="Memory.cs" />
     <Compile Include="mos6502.cs" />
     <Compile Include="ProcessorType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
