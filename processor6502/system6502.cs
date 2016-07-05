@@ -20,7 +20,7 @@
 		private readonly double cyclesPerMillisecond;
 		private readonly ulong cyclesPerInterval;
 
-        private ulong intervalCycles;
+		private ulong intervalCycles;
 
 		private bool running = false;
 		private ulong heldCycles = 0;
@@ -106,9 +106,9 @@
 
 		protected override void Execute(byte cell)
 		{
-            var oldCycles = this.Cycles;
+			var oldCycles = this.Cycles;
 
-            this.CheckPoll();
+			this.CheckPoll();
 
 			// XXXX Fetch byte has already incremented PC.
 			var executingAddress = (ushort)(this.PC - 1);
@@ -123,15 +123,15 @@
 				this.OnExecutedInstruction(executingAddress, cell);
 			}
 
-            var deltaCycles = this.Cycles - oldCycles;
-	        this.intervalCycles += deltaCycles;
+			var deltaCycles = this.Cycles - oldCycles;
+			this.intervalCycles += deltaCycles;
 		}
 
 		private void CheckPoll()
 		{
-        	if (this.intervalCycles >= this.cyclesPerInterval)
+			if (this.intervalCycles >= this.cyclesPerInterval)
 			{
-		        this.intervalCycles -= this.cyclesPerInterval;
+				this.intervalCycles -= this.cyclesPerInterval;
 				this.Throttle();
 				this.OnPolling();
 			}
