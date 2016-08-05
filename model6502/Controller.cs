@@ -267,7 +267,10 @@
 		private void Processor_Finished(object sender, EventArgs e)
 		{
 			this.finishTime = DateTime.UtcNow;
-			this.profiler.Generate();
+			if (this.profileAddresses)
+			{
+				this.profiler.Generate();
+			}
 		}
 
 		private void Processor_ExecutingInstruction(object sender, AddressEventArgs e)
