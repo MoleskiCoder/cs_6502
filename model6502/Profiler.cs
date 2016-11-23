@@ -34,14 +34,19 @@
 			this.countInstructions = countInstructions;
 			this.profileAddresses = profileAddresses;
 
-			if (countInstructions || profileAddresses)
+			if (profileAddresses)
 			{
-				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction;
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction_ProfileAddresses;
+			}
+
+			if (countInstructions)
+			{
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction_CountInstructions;
 			}
 
 			if (profileAddresses)
 			{
-				this.processor.ExecutedInstruction += this.Processor_ExecutedInstruction;
+				this.processor.ExecutedInstruction += this.Processor_ExecutedInstruction_ProfileAddresses;
 			}
 			
 			this.instructionCounts = new ulong[0x100];
@@ -125,39 +130,33 @@
 			}
 		}
 
-		private void Processor_ExecutingInstruction(object sender, Processor.AddressEventArgs e)
+		private void Processor_ExecutingInstruction_ProfileAddresses(object sender, Processor.AddressEventArgs e)
 		{
-			if (this.profileAddresses)
-			{
-				this.priorCycleCount = this.processor.Cycles;
-				this.addressCounts[e.Address]++;
-			}
-
-			if (this.countInstructions)
-			{
-				++this.instructionCounts[e.Cell];
-			}
+			this.priorCycleCount = this.processor.Cycles;
+			this.addressCounts[e.Address]++;
 		}
 
-		private void Processor_ExecutedInstruction(object sender, Processor.AddressEventArgs e)
+		private void Processor_ExecutingInstruction_CountInstructions(object sender, Processor.AddressEventArgs e)
 		{
-			if (this.profileAddresses)
+			++this.instructionCounts[e.Cell];
+		}
+
+		private void Processor_ExecutedInstruction_ProfileAddresses(object sender, Processor.AddressEventArgs e)
+		{
+			var address = e.Address;
+			var cycles = this.processor.Cycles - this.priorCycleCount;
+
+			this.addressProfiles[address] += cycles;
+
+			var addressScope = this.addressScopes[address];
+			if (addressScope != null)
 			{
-				var address = e.Address;
-				var cycles = this.processor.Cycles - this.priorCycleCount;
-
-				this.addressProfiles[address] += cycles;
-
-				var addressScope = this.addressScopes[address];
-				if (addressScope != null)
+				if (!this.scopeCycles.ContainsKey(addressScope))
 				{
-					if (!this.scopeCycles.ContainsKey(addressScope))
-					{
-						this.scopeCycles[addressScope] = 0;
-					}
-
-					this.scopeCycles[addressScope] += cycles;
+					this.scopeCycles[addressScope] = 0;
 				}
+
+				this.scopeCycles[addressScope] += cycles;
 			}
 		}
 

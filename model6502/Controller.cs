@@ -163,9 +163,24 @@
 		{
 			this.processor = new System6502(this.processorLevel, this.speed, new TimeSpan(0, 0, 0, 0, this.pollIntervalMilliseconds));
 
-			if (this.disassemble || this.stopAddressEnabled || this.stopWhenLoopDetected || this.profileAddresses || this.stopBreak)
+			if (this.disassemble)
 			{
-				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction;
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction_Disassemble;
+			}
+
+			if (this.stopAddressEnabled)
+			{
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction_StopAddress;
+			}
+
+			if (this.stopWhenLoopDetected)
+			{
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction_StopLoop;
+			}
+
+			if (this.stopBreak)
+			{
+				this.processor.ExecutingInstruction += this.Processor_ExecutingInstruction_StopBreak;
 			}
 
 			this.processor.MemoryBus.WritingByte += this.Processor_WritingByte;
@@ -273,49 +288,53 @@
 			}
 		}
 
-		private void Processor_ExecutingInstruction(object sender, AddressEventArgs e)
+		private void Processor_ExecutingInstruction_Disassemble(object sender, AddressEventArgs e)
 		{
-			if (this.disassemble)
-			{
-				var address = e.Address;
-				var cell = e.Cell;
-				this.OnDisassembly(
-					string.Format(
-						CultureInfo.InvariantCulture,
-						"\n[{0:d9}] PC={1:x4}:P={2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
-						this.processor.Cycles,
-						address,
-						this.processor.P,
-						this.processor.A,
-						this.processor.X,
-						this.processor.Y,
-						this.processor.S));
+			var address = e.Address;
+			var cell = e.Cell;
+			this.OnDisassembly(
+				string.Format(
+					CultureInfo.InvariantCulture,
+					"\n[{0:d9}] PC={1:x4}:P={2}, A={3:x2}, X={4:x2}, Y={5:x2}, S={6:x2}\t",
+					this.processor.Cycles,
+					address,
+					this.processor.P,
+					this.processor.A,
+					this.processor.X,
+					this.processor.Y,
+					this.processor.S));
 
-				var instruction = this.processor.Instructions[cell];
-				var mode = instruction.Mode;
-				this.OnDisassembly(this.disassembler.Dump_ByteValue(cell));
-				this.OnDisassembly(this.disassembler.DumpBytes(mode, (ushort)(address + 1)));
-				this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", this.disassembler.Disassemble(address)));
-			}
+			var instruction = this.processor.Instructions[cell];
+			var mode = instruction.Mode;
+			this.OnDisassembly(this.disassembler.Dump_ByteValue(cell));
+			this.OnDisassembly(this.disassembler.DumpBytes(mode, (ushort)(address + 1)));
+			this.OnDisassembly(string.Format(CultureInfo.InvariantCulture, "\t{0} ", this.disassembler.Disassemble(address)));
+		}
 
-			if (this.stopAddressEnabled && this.stopAddress == e.Address)
+		private void Processor_ExecutingInstruction_StopAddress(object sender, AddressEventArgs e)
+		{
+			if (this.stopAddress == e.Address)
 			{
 				this.processor.Proceed = false;
 			}
 
-			if (this.stopWhenLoopDetected)
-			{
-				if (this.oldPC == this.processor.PC)
-				{
-					this.processor.Proceed = false;
-				}
-				else
-				{
-					this.oldPC = this.processor.PC;
-				}
-			}
+		}
 
-			if (this.stopBreak && this.breakInstruction == e.Cell)
+		private void Processor_ExecutingInstruction_StopLoop(object sender, AddressEventArgs e)
+		{
+			if (this.oldPC == this.processor.PC)
+			{
+				this.processor.Proceed = false;
+			}
+			else
+			{
+				this.oldPC = this.processor.PC;
+			}
+		}
+
+		private void Processor_ExecutingInstruction_StopBreak(object sender, AddressEventArgs e)
+		{
+			if (this.breakInstruction == e.Cell)
 			{
 				this.processor.Proceed = false;
 			}
