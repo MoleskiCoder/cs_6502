@@ -422,13 +422,13 @@
 
 		private void UpdateZeroNegativeFlags(byte datum)
 		{
-			if (this.UpdateZeroFlag(datum))
+			if (this.UpdateNegativeFlag((sbyte)datum))
 			{
-				this.P.Negative = false;
+				this.P.Zero = false;
 			}
 			else
 			{
-				this.UpdateNegativeFlag((sbyte)datum);
+				this.UpdateZeroFlag(datum);
 			}
 		}
 
