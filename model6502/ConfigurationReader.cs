@@ -65,7 +65,7 @@
 
 		public double GetDoubleValue(string path, double defaultValue)
 		{
-			return GetDoubleValue(this.root, path, 0.0);
+			return GetDoubleValue(this.root, path, defaultValue);
 		}
 
 		public double GetDoubleValue(string path)

@@ -132,7 +132,11 @@
 			if (this.intervalCycles >= this.cyclesPerInterval)
 			{
 				this.intervalCycles -= this.cyclesPerInterval;
-				this.Throttle();
+                if (this.speed > 0.0)
+                {
+                    this.Throttle();
+                }
+
 				this.OnPolling();
 			}
 		}

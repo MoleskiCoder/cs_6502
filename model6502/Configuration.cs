@@ -47,7 +47,7 @@
 			this.hostSpeed = this.GetDoubleValue("//Host/speed", 2900.0);
 
 			this.processorLevel = this.GetProcessorTypeValue("//CPU/level");
-			this.speed = this.GetDoubleValue("//CPU/speed", 2.0);
+			this.speed = this.GetDoubleValue("//CPU/speed", -1.0);
 			this.pollIntervalMilliseconds = this.GetIntValue("//CPU/pollIntervalMilliseconds", 10);
 
 			this.inputAddress = this.GetUShortValue("//IO/inputAddress");
