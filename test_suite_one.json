@@ -4,7 +4,7 @@
     		"outputAddress": "f001"
 	},
 	"RAM": {
-		"path": "C:\\github\\cpp\\cpp_6502\\AllSuiteA.bin",
+		"path": "C:\\github\\EightBitTest\\libraries\\EightBit\\M6502\\test\\roms\\AllSuiteA.bin",
 		"loadAddress": "4000"
 	},
 	"run": {

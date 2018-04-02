@@ -4,8 +4,8 @@
     		"outputAddress": "f001"
 	},
 	"RAM": {
-		"path": "C:\\github\\cpp\\cpp_6502\\6502_functional_test.bin",
-		"loadAddress": "0"
+		"path": "C:\\github\\EightBitTest\\libraries\\EightBit\\M6502\\test\\roms\\6502_functional_test.bin",
+		"loadAddress": "400"
 	},
 	"run": {
 		"stopWhenLoopDetected": true,

@@ -20,25 +20,25 @@ namespace Simulator
 		public static void Main()
 		{
 #if SUDOKU
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\sudoku.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\sudoku.json");
 #endif
 #if TEST_SUITE1
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\test_suite_one.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\test_suite_one.json");
 #endif
 #if TEST_SUITE2
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\test_suite_two.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\test_suite_two.json");
 #endif
 #if TEST_SUITE_65C02
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\test_suite_65c02.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\test_suite_65c02.json");
 #endif
 #if EHBASIC
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\ehbasic.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\ehbasic.json");
 #endif
 #if TALI_FORTH
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\tali.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\tali.json");
 #endif
 #if BBC_FORTH
-			var configuration = new Model.Configuration("C:\\github\\cs\\cs_6502\\bbc_forth.json");
+			var configuration = new Model.Configuration("C:\\github\\cs_6502\\bbc_forth.json");
 #endif
 
 			using (var controller = new Model.Controller(configuration))
